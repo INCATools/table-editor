@@ -1,25 +1,3 @@
-*:not(input):not(textarea) {
-  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
-  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
-}
-
-.btn-mobile-button {
-  background: white;
-  margin: 0;
-  padding: 1px;
-  position: absolute;
-  font-weight: 600;
-  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
-  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
-}
-
-.btn-mobile-button * {
-  margin: 0;
-  padding: 1px;
-  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
-  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
-}
-
 body {
   background: #EEE;
 }
@@ -59,11 +37,6 @@ pre {
   height: initial;
 }
 
-.zoom-ul-button {
-  position: absolute;
-  z-index: 100;
-}
-
 .btn-group-block {
   width: 100%;
 }
@@ -71,6 +44,7 @@ pre {
 .btn-group-menu-block {
   width: 330px;
 }
+
 .input-group-xs {
   height: 22px !important;
   max-height: 22px !important;
@@ -92,54 +66,29 @@ pre {
   font-size:0.9em;
 }
 
-
 .grid .ui-grid-top-panel {
   height: 25px !important;
 }
 
-/*
-
-.ngCell {
+.ui-grid-cell {
   overflow: visible;
+  height:100%;
 }
 
-.ngCell .typeaheadcontainer {
+.ui-grid-cell form,
+.ui-grid-cell form input {
+  height: 28px;
+}
+
+.ui-grid-cell .typeaheadcontainer {
   display: table;
   margin-right: auto;
   margin-left: auto;
   width:95%;
-  border:5px solid red;
+  height:100%;
 }
 
-.ngCell .typeaheadcontrol {
+.ui-grid-cell .typeaheadcontrol {
   width:100%;
-  border:5px solid red;
+  height:100%;
 }
-
-.typeahead-demo .custom-popup-wrapper {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  display: none;
-  background-color: #f9f9f9;
-}
-
-.typeahead-demo .custom-popup-wrapper > .message {
-  padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
-  color: #868686;
-}
-
-.typeahead-demo .custom-popup-wrapper > .dropdown-menu {
-  position: static;
-  float: none;
-  display: block;
-  min-width: 160px;
-  background-color: transparent;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-*/
-

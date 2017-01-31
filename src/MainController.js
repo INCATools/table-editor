@@ -40,14 +40,17 @@ class MainController {
     var cellName = cell.col.colDef.name;
     var cellValue = cell.row.entity[cellName];
 
-    var isLabel = this.isEditableColumn(cellName);
-    if (!isLabel) {
+    if (this.isAutocompleteColumn(cellName)) {
       cell.row.entity[cellName] = cellValue.id;
       if (cellValue.label) {
         cell.row.entity[cellName + ' label'] = cellValue.label[0];
       }
-      this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
     }
+    else {
+      cell.row.entity[cellName] = cellValue;
+    }
+
+    this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
   }
 
   // constructor arglist must match invocation in app.js
@@ -237,11 +240,6 @@ class MainController {
 
 // XSV stuff
 
-  isEditableColumn(f) {
-    var result = f === 'iri label' || !f.endsWith(' label');
-    return result;
-  }
-
   setErrorXSV(error) {
     this.errorMessageXSV = error;
     this.titleXSV = '';
@@ -286,15 +284,19 @@ class MainController {
             enableCellEditOnFocus: false
           };
 
-          var isEditable = that.isEditableColumn(f);
-          if (isEditable) {
+          if (that.isAutocompleteColumn(f)) {
             result.enableCellEditOnFocus = true;
-            result.editableCellTemplate = that.cellStateEditableTemplate;
-            result.cellTemplate = that.cellStateTemplate;
+            result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+            result.cellTemplate = 'cellStateTemplate';
+            result.enableCellEdit = true;
+          }
+          else if (that.isEditableColumn(f)) {
+            result.enableCellEditOnFocus = true;
+            result.cellTemplate = 'cellStateTemplate';
             result.enableCellEdit = true;
           }
           else {
-            result.cellTemplate = that.cellStateReadonlyTemplate;
+            result.cellTemplate = 'cellStateReadonlyTemplate';
           }
 
           return result;
@@ -416,45 +418,26 @@ class MainController {
     this.exportXSV('tsv');
   }
 
+
+  // Grid stuff
+
+  isAutocompleteColumn(f) {
+    var result = f !== 'iri label' && !this.isDerivedLabelColumn(f);
+    return result;
+  }
+
+  isEditableColumn(f) {
+    var result = f === 'iri label' || !this.isDerivedLabelColumn(f);
+    return result;
+  }
+
+  isDerivedLabelColumn(f) {
+    var result = f.endsWith(' label');
+    return result;
+  }
+
   setupGrid() {
     var that = this;
-
-//     this.cellStateTemplate =
-// `
-// <div class="ui-grid-cell-contents" >
-//   {{grid.getCellValue(row, col)}}
-// </div>
-// `;
-    this.cellStateTemplate = 'cellStateTemplate';
-
-//     this.cellStateReadonlyTemplate =
-// `
-// <div class="ui-grid-cell-contents" >
-//   <i>{{grid.getCellValue(row, col)}}</i>
-// </div>
-// `;
-    this.cellStateReadonlyTemplate = 'cellStateReadonlyTemplate';
-
-//     this.cellStateEditableTemplate =
-// `
-// <div class="typeaheadcontainer">
-// <input
-//   type="text"
-//   ng-model="MODEL_COL_FIELD" class="typeaheadcontrol"
-//   uib-typeahead="term as term.label[0] for term in grid.appScope.getTerm($viewValue)"
-//   typeahead-append-to-body="true"
-//   append-to-body="true"
-//   typeahead-loading="loadingLocations"
-//   typeahead-no-results="noResults"
-//   typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
-//   class="form-control">
-// <i style="xbackground:pink;position:absolute;z-index:100;" ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-// <div style="background:lightyellow;position:absolute;z-index:100;" ng-show="noResults">
-//   <i class="glyphicon glyphicon-remove"></i> No Results Found
-// </div>
-// </div>
-// `;
-    this.cellStateEditableTemplate = 'cellStateEditableTemplate';
 
     this.gridApi = null;
     this.gridOptions = {
