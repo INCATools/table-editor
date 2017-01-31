@@ -1,0 +1,145 @@
+*:not(input):not(textarea) {
+  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
+}
+
+.btn-mobile-button {
+  background: white;
+  margin: 0;
+  padding: 1px;
+  position: absolute;
+  font-weight: 600;
+  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
+}
+
+.btn-mobile-button * {
+  margin: 0;
+  padding: 1px;
+  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
+}
+
+body {
+  background: #EEE;
+}
+
+pre {
+  font-size: 1em;
+  background: white;
+}
+
+.drop-box {
+  background: #F8F8F8;
+  border: 2px dashed lightblue;
+  width: 100%;
+  height: 21px;
+  text-align: center;
+  line-height: 1em;
+}
+
+.dragover {
+  border: 2px dashed blue;
+}
+
+.YAMLRender {
+  border:1px solid darkgray;
+}
+
+.YAMLRender svg {
+  width: 100%;
+  height: 100%;
+}
+
+.YAMLRender.zoom {
+}
+
+.YAMLRender.zoom svg {
+  width: initial;
+  height: initial;
+}
+
+.zoom-ul-button {
+  position: absolute;
+  z-index: 100;
+}
+
+.btn-group-block {
+  width: 100%;
+}
+
+.btn-group-menu-block {
+  width: 330px;
+}
+.input-group-xs {
+  height: 22px !important;
+  max-height: 22px !important;
+}
+
+.input-group-button-xs {
+  height: 22px !important;
+  line-height: 10px;
+  margin: 0 !important;
+  padding: 1px 3px !important;
+}
+
+.grid {
+  width: 100%;
+  height: 500px;
+}
+
+.grid  .ui-grid-header-cell {
+  font-size:0.9em;
+}
+
+
+.grid .ui-grid-top-panel {
+  height: 25px !important;
+}
+
+/*
+
+.ngCell {
+  overflow: visible;
+}
+
+.ngCell .typeaheadcontainer {
+  display: table;
+  margin-right: auto;
+  margin-left: auto;
+  width:95%;
+  border:5px solid red;
+}
+
+.ngCell .typeaheadcontrol {
+  width:100%;
+  border:5px solid red;
+}
+
+.typeahead-demo .custom-popup-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  background-color: #f9f9f9;
+}
+
+.typeahead-demo .custom-popup-wrapper > .message {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  color: #868686;
+}
+
+.typeahead-demo .custom-popup-wrapper > .dropdown-menu {
+  position: static;
+  float: none;
+  display: block;
+  min-width: 160px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+*/
+
