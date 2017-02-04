@@ -1,4 +1,5 @@
-import angular from 'angular';
+/* global angular */
+
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import Papa from 'papaparse';
@@ -16,7 +17,7 @@ if (!String.prototype.endsWith) {
   };
 }
 
-class MainController {
+export default class EditorController {
   getTerm(val) {
     return this.$http.get(
       'https://monarchinitiative.org/autocomplete/' + val + '.json',
@@ -54,7 +55,9 @@ class MainController {
   }
 
   // constructor arglist must match invocation in app.js
-  constructor($scope, $resource, $http, $timeout, $location, uiGridConstants, uiGridEditConstants) {
+  constructor($scope, $resource, $http, $timeout, $location, uiGridConstants, uiGridEditConstants, session) {
+    var that = this;
+    this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
     this.$resource = $resource;
     this.$http = $http;
@@ -62,10 +65,6 @@ class MainController {
     this.$location = $location;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
-
-    this.showYAMLSource = false;
-    this.showYAMLParsed = false;
-    this.setErrorYAML(null);
     this.examplesYAML = [
       {
         url: 'examples/exposure_to_change_in_levels.yaml',
@@ -78,16 +77,6 @@ class MainController {
         type: 'yaml'
       }
     ];
-    this.YAMLURL = null;
-    this.defaultYAMLURL = this.examplesYAML[0].url;
-
-    this.showXSVSource = false;
-    this.showXSVParsed = false;
-    this.sourceXSV = '';
-    this.titleXSV = '';
-    this.exportedXSV = null;
-    this.errorMessageXSV = null;
-    this.setErrorXSV(null);
     this.examplesXSV = [
       {
         url: 'examples/exposure_to_change_in_levels.csv',
@@ -105,71 +94,73 @@ class MainController {
         type: 'tsv'
       }
     ];
-    this.XSVURL = null;
-    this.defaultXSVURL = this.examplesXSV[0].url;
+    this.exportedXSV = null;
 
-    var that = this;
+    this.session = session;
+    if (session.initialized) {
+      // console.log('session.initialized');
+    }
+    else {
+      // console.log('!session.initialized');
+      session.showYAMLSource = false;
+      session.showYAMLParsed = false;
+      this.setErrorYAML(null);
+      session.YAMLURL = null;
+      session.defaultYAMLURL = this.examplesYAML[0].url;
+
+      session.showXSVSource = false;
+      session.showXSVParsed = false;
+      session.sourceXSV = '';
+      session.titleXSV = '';
+      session.errorMessageXSV = null;
+      this.setErrorXSV(null);
+
+      session.XSVURL = null;
+      session.defaultXSVURL = this.examplesXSV[0].url;
+
+      var searchParams = this.$location.search();
+      if (searchParams.yaml) {
+        var url = searchParams.yaml;
+        that.loadURLYAML(url);
+      }
+      else if (that.session.defaultYAMLURL) {
+        that.loadURLYAML(that.session.defaultYAMLURL);
+      }
+      if (searchParams.xsv) {
+        var xsv = searchParams.xsv;
+        that.loadURLXSV(xsv);
+      }
+      else if (that.session.defaultXSVURL) {
+        that.loadURLXSV(that.session.defaultXSVURL);
+      }
+      session.initialized = true;
+    }
+    this.$scope.$watch('editorCtrl.session.fileYAML', function () {
+      that.loadFileYAML(that.session.fileYAML);
+    });
+    this.$scope.$watch('editorCtrl.session.fileXSV', function () {
+      that.loadFileXSV(that.session.fileXSV);
+    });
 
     this.setupGrid();
-
-    $timeout(
-      function () {
-        that.continueInitialization();
-      },
-      10);
-  }
-
-  continueInitialization() {
-    var that = this;
-
-    this.$scope.$watch('c.fileYAML', function () {
-      that.loadFileYAML(that.fileYAML);
-    });
-
-    var search = window.location.search;
-    // console.log('window.location', window.location);
-    // console.log('search', search);
-    var yamlPrefix = '?yaml=';
-    if (search && search.indexOf(yamlPrefix) === 0) {
-      search = search.slice(yamlPrefix.length);
-      // console.log('searchurl', search);
-      that.loadURLYAML(search);
-    }
-    else if (that.defaultYAMLURL) {
-      that.loadURLYAML(that.defaultYAMLURL);
-    }
-
-    this.$scope.$watch('c.fileXSV', function () {
-      that.loadFileXSV(that.fileXSV);
-    });
-
-    var xsvPrefix = '?xsv=';
-    if (search && search.indexOf(xsvPrefix) === 0) {
-      search = search.slice(xsvPrefix.length);
-      // console.log('searchurl', search);
-      that.loadURLXSV(search);
-    }
-    else if (that.defaultXSVURL) {
-      that.loadURLXSV(that.defaultXSVURL);
-    }
   }
 
 
   // YAML stuff
 
   setErrorYAML(error) {
-    this.errorMessageYAML = error;
-    this.titleYAML = '';
-    this.sourceYAML = '';
-    this.parsedYAML = null;
+    this.session.errorMessageYAML = error;
+    this.session.titleYAML = '';
+    this.session.sourceYAML = '';
+    this.session.parsedYAML = null;
   }
 
   parseYAML() {
     var renderElement = document.getElementById('YAMLParsed');
 
     try {
-      var doc = yaml.safeLoad(this.sourceYAML);
-      this.parsedYAML = doc;
+      var doc = yaml.safeLoad(this.session.sourceYAML);
+      this.session.parsedYAML = doc;
     }
     catch (e) {
       console.log('error', e);
@@ -177,37 +168,29 @@ class MainController {
   }
 
   loadSourceYAML(source, title, url) {
-    this.sourceYAML = source;
-    this.titleYAML = title;
-    // this.YAMLURL = url;
-    this.errorMessage = null;
+    this.session.sourceYAML = source;
+    this.session.titleYAML = title;
+    this.session.YAMLURL = url;
+    this.session.errorMessage = null;
     if (url) {
-      var hash = '?yaml=' + url;
-      var newURL =  // window.location.protocol +
-                    // window.location.host +
-                    window.location.pathname +
-                    hash;
-      // console.log('newURL:', newURL);
-      var stateObj = window.history.state;
-      window.history.replaceState(stateObj, title, newURL);
-      // this.$location.search({url: url});
+      var search = this.$location.search();
+      search.yaml = url;
+      this.$location.search(search);
     }
     else {
-      window.history.replaceState(stateObj, title, window.location.pathname);
+      this.$location.search({});
     }
     this.parseYAML();
   }
 
   loadURLYAML(YAMLURL) {
     var that = this;
-    this.YAMLURL = YAMLURL;
+    this.session.YAMLURL = YAMLURL;
     this.$http.get(YAMLURL, {withCredentials: false}).then(
       function(result) {
-        // console.log('loadURLYAML success', result.data);
         that.loadSourceYAML(result.data, YAMLURL, YAMLURL);
       },
       function(error) {
-        console.log('loadURLYAML error', error);
         that.setErrorYAML('Error loading URL ' + YAMLURL + '\n\n' + JSON.stringify(error));
       }
     );
@@ -241,10 +224,52 @@ class MainController {
 // XSV stuff
 
   setErrorXSV(error) {
-    this.errorMessageXSV = error;
-    this.titleXSV = '';
-    this.sourceXSV = '';
-    this.parsedXSV = null;
+    this.session.errorMessageXSV = error;
+    this.session.titleXSV = '';
+    this.session.sourceXSV = '';
+    this.session.parsedXSV = null;
+  }
+
+  generateColumnDefsFromXSV(fields) {
+    var that = this;
+    var columnDefs = _.map(fields, function(f) {
+      var result = {
+        name: f,
+        field: f,
+        displayName: f,
+        enableCellEdit: false,
+        enableCellEditOnFocus: false
+      };
+
+      if (that.isAutocompleteColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+        result.cellTemplate = 'cellStateTemplate';
+        result.enableCellEdit = true;
+      }
+      else if (that.isEditableColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.cellTemplate = 'cellStateTemplate';
+        result.enableCellEdit = true;
+      }
+      else {
+        result.cellTemplate = 'cellStateReadonlyTemplate';
+      }
+
+      return result;
+    });
+
+    return columnDefs;
+  }
+
+  generateRowDataFromXSV(data) {
+    var rowData = _.map(data, function(row) {
+      // Not much going on here; this is just an identity mapping for now
+      // But other types of transformation might be necessary in the future.
+      return row;
+    });
+
+    return rowData;
   }
 
   parseXSV() {
@@ -274,73 +299,39 @@ class MainController {
 
     config.complete = function(results, file) {
       that.$timeout(function() {
-        that.parsedXSV = results; // .data;
-        that.gridOptions.columnDefs = _.map(results.meta.fields, function(f) {
-          var result = {
-            name: f,
-            field: f,
-            displayName: f,
-            enableCellEdit: false,
-            enableCellEditOnFocus: false
-          };
-
-          if (that.isAutocompleteColumn(f)) {
-            result.enableCellEditOnFocus = true;
-            result.editableCellTemplate = 'cellStateAutocompleteTemplate';
-            result.cellTemplate = 'cellStateTemplate';
-            result.enableCellEdit = true;
-          }
-          else if (that.isEditableColumn(f)) {
-            result.enableCellEditOnFocus = true;
-            result.cellTemplate = 'cellStateTemplate';
-            result.enableCellEdit = true;
-          }
-          else {
-            result.cellTemplate = 'cellStateReadonlyTemplate';
-          }
-
-          return result;
-        });
-
-        var data = _.map(results.data, function(row) {
-          return row;
-        });
-        that.gridOptions.data = data;
+        that.session.parsedXSV = results; // .data;
+        that.session.columnDefs = that.generateColumnDefsFromXSV(results.meta.fields);
+        that.session.rowData = that.generateRowDataFromXSV(results.data);
+        that.gridOptions.columnDefs = that.session.columnDefs;
+        that.gridOptions.data = that.session.rowData;
         that.gridApi.core.handleWindowResize();
       }, 0);
     };
 
-    Papa.parse(this.sourceXSV, config);
+    Papa.parse(this.session.sourceXSV, config);
   }
 
   loadSourceXSV(source, title, url) {
-    this.sourceXSV = source;
-    this.titleXSV = title;
-    // this.XSVURL = url;
-    this.errorMessage = null;
+    this.session.sourceXSV = source;
+    this.session.titleXSV = title;
+    this.session.XSVURL = url;
+    this.session.errorMessage = null;
     if (url) {
-      var hash = '?xsv=' + url;
-      var newURL =  // window.location.protocol +
-                    // window.location.host +
-                    window.location.pathname +
-                    hash;
-      // console.log('newURL:', newURL);
-      var stateObj = window.history.state;
-      window.history.replaceState(stateObj, title, newURL);
-      // this.$location.search({url: url});
+      var search = this.$location.search();
+      search.xsv = url;
+      this.$location.search(search);
     }
     else {
-      window.history.replaceState(stateObj, title, window.location.pathname);
+      this.$location.search({});
     }
     this.parseXSV();
   }
 
   loadURLXSV(XSVURL) {
     var that = this;
-    this.XSVURL = XSVURL;
+    this.session.XSVURL = XSVURL;
     this.$http.get(XSVURL, {withCredentials: false}).then(
       function(result) {
-        // console.log('loadURLXSV success', result.data);
         that.loadSourceXSV(result.data, XSVURL, XSVURL);
       },
       function(error) {
@@ -399,6 +390,7 @@ class MainController {
     }
 
     this.exportedXSV = window.URL.createObjectURL(data);
+    console.log('this.exportedXSV', this.exportedXSV);
 
     var link = document.createElement('a');
     link.href = this.exportedXSV;
@@ -470,6 +462,10 @@ class MainController {
       });
 
       that.$timeout(function() {
+        if (that.session.columnDefs) {
+          that.gridOptions.columnDefs = that.session.columnDefs;
+          that.gridOptions.data = that.session.rowData;
+        }
         that.gridApi.core.handleWindowResize();
       }, 0);
     };
@@ -477,8 +473,6 @@ class MainController {
 }
 
 
-MainController.$inject = ['$scope', '$resource', '$http', '$timeout', '$location',
-                          'uiGridConstants', 'uiGridEditConstants'];
-export default angular.module('app.maincontroller', [])
-  .controller('MainController', MainController)
-  .name;
+EditorController.$inject = ['$scope', '$resource', '$http', '$timeout', '$location',
+                          'uiGridConstants', 'uiGridEditConstants', 'session'];
+
