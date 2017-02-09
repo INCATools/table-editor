@@ -1,0 +1,329 @@
+<div class="editor-container">
+  <div
+    class="container-fluid">
+
+    <div class="row">
+      <div class="col-xs-3">
+        <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
+          <button
+            id="simple-btn-keyboard-nav"
+            type="button"
+            class="btn btn-xs btn-default btn-block"
+            uib-dropdown-toggle>
+              YAML Examples <span class="caret"></span>
+          </button>
+          <ul
+            class="dropdown-menu btn-group-menu-block"
+            uib-dropdown-menu
+            role="menu"
+            aria-labelledby="simple-btn-keyboard-nav">
+
+            <li ng-repeat="e in editorCtrl.examplesYAML" role="menuitem">
+              <a ng-click="editorCtrl.loadSourceYAMLItem(e.file, e.title, e.url)" href="">
+                {{e.title}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="input-group input-group-sm">
+          <input
+            ng-model="editorCtrl.session.YAMLURL"
+            type="text"
+            class="form-control input-group-xs"
+            placeholder="Enter a URL to a CSV/TSV file"
+            aria-describedby="import-url">
+
+          <span class="input-group-btn">
+            <button
+              type="button"
+              ng-disabled="editorCtrl.session.YAMLURL.length === 0"
+              class="btn btn-success btn-xs btn-block input-group-button-xs"
+              ng-click="editorCtrl.loadURLYAML(editorCtrl.session.YAMLURL)">
+              Load
+            </button>
+          </span>
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <div
+          ngf-drop
+          ngf-select
+          ng-model="editorCtrl.session.fileYAML"
+          class="drop-box"
+          ngf-drag-over-class="'dragover'"
+          ngf-multiple="false"
+          ngf-allow-dir="false"
+          accept=".yaml,.YAML"
+          ngf-pattern="'.yaml,.YAML'">
+          <i style="font-size:0.8em;">Select/Drag YAML file</i></sm>
+        </div>
+        <div ngf-no-file-drop>
+          File Drag/Drop is not supported for this browser
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!editorCtrl.session.sourceYAML">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="editorCtrl.session.showYAMLSource"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="editorCtrl.session.showYAMLSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Source YAML: <b>{{editorCtrl.session.titleYAML}}</b>
+        </button>
+
+        <div
+          class="pre-scrollable"
+          ng-if="editorCtrl.session.showYAMLSource">
+          <pre><code>{{editorCtrl.session.sourceYAML}}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!editorCtrl.session.sourceYAML">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="editorCtrl.session.showYAMLParsed"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="editorCtrl.session.showYAMLParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Parsed YAML: <b>{{editorCtrl.session.titleYAML}}</b>
+        </button>
+
+
+        <div
+          ng-hide="!editorCtrl.session.showYAMLParsed">
+          <div
+            id="YAMLParsed"
+            class="table-container YAMLParsed">
+            <json-formatter json="editorCtrl.session.parsedYAML" open="2">
+            </json-formatter>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-if="editorCtrl.session.errorMessageYAML">
+      <div class="col-xs-12">
+        <pre>{{editorCtrl.session.errorMessageYAML}}</pre>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-3">
+        <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
+          <button
+            id="simple-btn-keyboard-nav"
+            type="button"
+            class="btn btn-xs btn-default btn-block"
+            uib-dropdown-toggle>
+              XSV Examples <span class="caret"></span>
+          </button>
+          <ul
+            class="dropdown-menu btn-group-menu-block"
+            uib-dropdown-menu
+            role="menu"
+            aria-labelledby="simple-btn-keyboard-nav">
+
+            <li ng-repeat="e in editorCtrl.examplesXSV" role="menuitem">
+              <a ng-click="editorCtrl.loadSourceXSVItem(e.file, e.title, e.url)" href="">
+                {{e.title}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="input-group input-group-sm">
+          <input
+            ng-model="editorCtrl.session.XSVURL"
+            type="text"
+            class="form-control input-group-xs"
+            placeholder="Enter a URL to a CSV/TSV file"
+            aria-describedby="import-url">
+
+          <span class="input-group-btn">
+            <button
+              type="button"
+              ng-disabled="editorCtrl.session.XSVURL.length === 0"
+              class="btn btn-success btn-xs btn-block input-group-button-xs"
+              ng-click="editorCtrl.loadURLXSV(editorCtrl.session.XSVURL)">
+              Load
+            </button>
+          </span>
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <div
+          ngf-drop
+          ngf-select
+          ng-model="editorCtrl.session.fileXSV"
+          class="drop-box"
+          ngf-drag-over-class="'dragover'"
+          ngf-multiple="false"
+          ngf-allow-dir="false"
+          accept=".csv,.CSV,.tsv,.TSV"
+          ngf-pattern="'.csv,.CSV,.tsv,.TSV'">
+          <i style="font-size:0.8em;">Select/Drag XSV file</i></sm>
+        </div>
+        <div ngf-no-file-drop>
+          File Drag/Drop is not supported for this browser
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="editorCtrl.session.showXSVSource"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="editorCtrl.session.showXSVSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Source XSV: <b>{{editorCtrl.session.titleXSV}}</b>
+        </button>
+
+        <div
+          class="pre-scrollable"
+          ng-if="editorCtrl.session.showXSVSource">
+          <pre><code>{{editorCtrl.session.sourceXSV}}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="editorCtrl.session.showXSVParsed"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="editorCtrl.session.showXSVParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Parsed XSV: <b>{{editorCtrl.session.titleXSV}}</b>
+        </button>
+
+        <div
+          ng-hide="!editorCtrl.session.showXSVParsed">
+          <div
+            id="XSVParsed"
+            class="table-container XSVParsed">
+            <json-formatter json="editorCtrl.session.parsedXSV" open="2">
+            </json-formatter>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+          <div class="col-xs-6">
+            <a
+              type="button"
+              target="_blank"
+              ng-click="editorCtrl.exportCSV()"
+              class="btn btn-xs btn-success btn-block">
+              <i class="glyphicon glyphicon-save-file"></i>
+              Export CSV
+            </a>
+          </div>
+          <div class="col-xs-6">
+            <a
+              type="button"
+              target="_blank"
+              ng-click="editorCtrl.exportTSV()"
+              class="btn btn-xs btn-success btn-block">
+              <i class="glyphicon glyphicon-save-file"></i>
+              Export TSV
+            </a>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="col-xs-12">
+          <div
+            id="grid1"
+            ui-grid="editorCtrl.gridOptions"
+            ui-grid-edit
+            ui-grid-cellNav
+            ui-grid-resize-columns
+            ui-grid-auto-resize
+            class="grid"
+            style="margin:0;padding:0;">
+          </div>
+        </div>
+
+        <h6>
+          <strong>Last Cell Edited:</strong> {{editorCtrl.lastCellEdited}}
+          {{editorCtrl.gridApi.cellNav.getFocusedCell().row.entity[editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name]}}
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          {{editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name}}
+        </h6>
+
+      </div>
+    </div>
+
+    <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
+      <div class="col-xs-12">
+        <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/ng-template" id="cellStateTemplate">
+    <div class="ui-grid-cell-contents table-editor-default-cell">
+      {{grid.getCellValue(row, col)}}
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="cellStateReadonlyTemplate">
+    <div class="ui-grid-cell-contents" >
+      <i>{{grid.getCellValue(row, col)}}</i>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="cellStateEditableTemplate">
+    <div
+      class="ui-grid-cell-contents table-editor-default-cell"
+      title="TOOLTIP">
+      {{COL_FIELD CUSTOM_FILTERS}}
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="cellStateAutocompleteTemplate">
+    <div class="typeaheadcontainer">
+    <input
+      type="text"
+      ng-model="MODEL_COL_FIELD"
+      uib-typeahead="term as term.label[0] for term in grid.appScope.getTerm($viewValue)"
+      typeahead-append-to-body="true"
+      append-to-body="true"
+      typeahead-loading="loadingLocations"
+      typeahead-no-results="noResults"
+      typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
+      class="typeaheadcontrol form-control">
+    <i style="xbackground:pink;position:absolute;z-index:100;" ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+    <div style="background:lightyellow;position:absolute;z-index:100;" ng-show="noResults">
+      <i class="glyphicon glyphicon-remove"></i> No Results Found
+    </div>
+    </div>
+  </script>
+
+
+</div>

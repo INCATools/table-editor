@@ -1,0 +1,23 @@
+nav.navbar .navbar-brand img {
+  height: 30px;
+  margin: 5px;
+}
+
+
+
+@media (max-width: $grid-float-breakpoint) {
+
+nav.navbar .navbar-brand img {
+  height: 25px;
+  margin: 2px;
+}
+
+
+nav.navbar button.navbar-toggle {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+}
+
+
+
+}
