@@ -120,7 +120,7 @@ config.plugins.push(
   new HtmlWebpackPlugin({
     template: path.join(app, indexFile),
     inject: 'head',
-    baseUrl: '/'
+    baseUrl: '/table-editor/'
   }));
 
 switch (nodeEnvironment) {
