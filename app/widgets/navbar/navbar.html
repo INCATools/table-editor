@@ -13,6 +13,33 @@
     <ul class="nav navbar-nav">
       <li><a ui-sref="editor" ng-click='navCollapsed = true'>Editor</a></li>
       <li><a ui-sref="settings" ng-click='navCollapsed = true'>Settings</a></li>
+      <li class="dropdown" uib-dropdown>
+        <a
+          class="dropdown-toggle"
+          uib-dropdown-toggle 
+          ng-disabled="!navBarCtrl.session.parsedXSV">
+          <i class="fa fa-cogs"></i> Export
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.exportCSV()">
+              <i class="glyphicon glyphicon-save-file"></i>
+              Export CSV
+            </a>
+          </li>
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.exportTSV()">
+              <i class="glyphicon glyphicon-save-file"></i>
+              Export TSV
+            </a>
+          </li>
+        </ul>
+      </li>
     </ul>
   </div>
 </nav>

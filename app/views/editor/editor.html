@@ -65,61 +65,6 @@
       </div>
     </div>
 
-    <div class="row" ng-hide="!editorCtrl.session.sourceYAML">
-      <div class="col-xs-12">
-        <button
-          type="button"
-          class="btn btn-xs btn-primary btn-block"
-          ng-model="editorCtrl.session.showYAMLSource"
-          uib-btn-checkbox>
-          <span class="pull-left glyphicon"
-            ng-class="editorCtrl.session.showYAMLSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
-            aria-hidden="true">
-          </span>
-          Source YAML: <b>{{editorCtrl.session.titleYAML}}</b>
-        </button>
-
-        <div
-          class="pre-scrollable"
-          ng-if="editorCtrl.session.showYAMLSource">
-          <pre><code>{{editorCtrl.session.sourceYAML}}</code></pre>
-        </div>
-      </div>
-    </div>
-
-    <div class="row" ng-hide="!editorCtrl.session.sourceYAML">
-      <div class="col-xs-12">
-        <button
-          type="button"
-          class="btn btn-xs btn-primary btn-block"
-          ng-model="editorCtrl.session.showYAMLParsed"
-          uib-btn-checkbox>
-          <span class="pull-left glyphicon"
-            ng-class="editorCtrl.session.showYAMLParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
-            aria-hidden="true">
-          </span>
-          Parsed YAML: <b>{{editorCtrl.session.titleYAML}}</b>
-        </button>
-
-
-        <div
-          ng-hide="!editorCtrl.session.showYAMLParsed">
-          <div
-            id="YAMLParsed"
-            class="table-container YAMLParsed">
-            <json-formatter json="editorCtrl.session.parsedYAML" open="2">
-            </json-formatter>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row" ng-if="editorCtrl.session.errorMessageYAML">
-      <div class="col-xs-12">
-        <pre>{{editorCtrl.session.errorMessageYAML}}</pre>
-      </div>
-    </div>
-
     <div class="row">
       <div class="col-xs-3">
         <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
@@ -185,100 +130,30 @@
 
     <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
       <div class="col-xs-12">
-        <button
-          type="button"
-          class="btn btn-xs btn-primary btn-block"
-          ng-model="editorCtrl.session.showXSVSource"
-          uib-btn-checkbox>
-          <span class="pull-left glyphicon"
-            ng-class="editorCtrl.session.showXSVSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
-            aria-hidden="true">
-          </span>
-          Source XSV: <b>{{editorCtrl.session.titleXSV}}</b>
-        </button>
-
         <div
-          class="pre-scrollable"
-          ng-if="editorCtrl.session.showXSVSource">
-          <pre><code>{{editorCtrl.session.sourceXSV}}</code></pre>
+          id="grid1"
+          ui-grid="editorCtrl.gridOptions"
+          ui-grid-edit
+          ui-grid-cellNav
+          ui-grid-resize-columns
+          ui-grid-auto-resize
+          class="grid"
+          style="margin:0;padding:0;">
         </div>
       </div>
     </div>
 
-    <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
+    <div class="row" ng-if="editorCtrl.session.parsedXSV">
+      <div class="col-xs-12 label label-info">
+        <sm>{{editorCtrl.gridApi.cellNav.getFocusedCell().row.entity[editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name]}}
+        <i>{{editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name}}</i></sm>
+      </div>
+    </div>
+    <div class="row" ng-if="editorCtrl.session.errorMessageYAML">
       <div class="col-xs-12">
-        <button
-          type="button"
-          class="btn btn-xs btn-primary btn-block"
-          ng-model="editorCtrl.session.showXSVParsed"
-          uib-btn-checkbox>
-          <span class="pull-left glyphicon"
-            ng-class="editorCtrl.session.showXSVParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
-            aria-hidden="true">
-          </span>
-          Parsed XSV: <b>{{editorCtrl.session.titleXSV}}</b>
-        </button>
-
-        <div
-          ng-hide="!editorCtrl.session.showXSVParsed">
-          <div
-            id="XSVParsed"
-            class="table-container XSVParsed">
-            <json-formatter json="editorCtrl.session.parsedXSV" open="2">
-            </json-formatter>
-          </div>
-        </div>
-
-        <br>
-
-        <div class="row">
-          <div class="col-xs-6">
-            <a
-              type="button"
-              target="_blank"
-              ng-click="editorCtrl.exportCSV()"
-              class="btn btn-xs btn-success btn-block">
-              <i class="glyphicon glyphicon-save-file"></i>
-              Export CSV
-            </a>
-          </div>
-          <div class="col-xs-6">
-            <a
-              type="button"
-              target="_blank"
-              ng-click="editorCtrl.exportTSV()"
-              class="btn btn-xs btn-success btn-block">
-              <i class="glyphicon glyphicon-save-file"></i>
-              Export TSV
-            </a>
-          </div>
-        </div>
-
-        <br>
-
-        <div class="col-xs-12">
-          <div
-            id="grid1"
-            ui-grid="editorCtrl.gridOptions"
-            ui-grid-edit
-            ui-grid-cellNav
-            ui-grid-resize-columns
-            ui-grid-auto-resize
-            class="grid"
-            style="margin:0;padding:0;">
-          </div>
-        </div>
-
-        <h6>
-          <strong>Last Cell Edited:</strong> {{editorCtrl.lastCellEdited}}
-          {{editorCtrl.gridApi.cellNav.getFocusedCell().row.entity[editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name]}}
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          {{editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name}}
-        </h6>
-
+        <pre>{{editorCtrl.session.errorMessageYAML}}</pre>
       </div>
     </div>
-
     <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
       <div class="col-xs-12">
         <pre>{{editorCtrl.session.errorMessageXSV}}</pre>

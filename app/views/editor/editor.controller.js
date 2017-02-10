@@ -106,7 +106,7 @@ export default class EditorController {
       session.showYAMLParsed = false;
       this.setErrorYAML(null);
       session.YAMLURL = null;
-      session.defaultYAMLURL = this.examplesYAML[0].url;
+      session.defaultYAMLURL = null;  // this.examplesYAML[0].url;
 
       session.showXSVSource = false;
       session.showXSVParsed = false;
@@ -116,7 +116,7 @@ export default class EditorController {
       this.setErrorXSV(null);
 
       session.XSVURL = null;
-      session.defaultXSVURL = this.examplesXSV[0].url;
+      session.defaultXSVURL = null;  // this.examplesXSV[0].url;
 
       var searchParams = this.$location.search();
       if (searchParams.yaml) {
@@ -366,50 +366,48 @@ export default class EditorController {
   }
 
 
-  exportXSV(xsvType) {
-    var delimiter = (xsvType === 'tsv') ? '\t' : ',';
-    var config = {
-      quotes: false,
-      quoteChar: '"',
-      delimiter: delimiter,
-      header: true,
-      newline: "\n"
-    };
+//  exportXSV(xsvType) {
+//    var delimiter = (xsvType === 'tsv') ? '\t' : ',';
+//    var config = {
+//      quotes: false,
+//      quoteChar: '"',
+//      delimiter: delimiter,
+//      header: true,
+//      newline: "\n"
+//    };
+//
+//    var gridData = _.map(this.gridOptions.data, function(row) {
+//      var result = _.omit(row, '$$hashKey');
+//      return result;
+//    });
+//    var text = Papa.unparse(gridData, config);
+//
+//    var data = new Blob([text], {type: 'text/plain'});
+//    // If we are replacing a previously generated file we need to
+//    // manually revoke the object URL to avoid memory leaks.
+//    if (this.exportedXSV !== null) {
+//      window.URL.revokeObjectURL(this.exportedXSV);
+//    }
+//
+//    this.exportedXSV = window.URL.createObjectURL(data);
+//    console.log('this.exportedXSV', this.exportedXSV);
+//
+//    var link = document.createElement('a');
+//    link.href = this.exportedXSV;
+//    link.download = 'filename.html';
+//    link.target = '_blank';
+//    document.body.appendChild(link);  // required in FF, optional for Chrome/Safari
+//    link.click();
+//    document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
+//  }
 
-    var gridData = _.map(this.gridOptions.data, function(row) {
-      var result = _.omit(row, '$$hashKey');
-      return result;
-    });
-    var text = Papa.unparse(gridData, config);
-
-    var data = new Blob([text], {type: 'text/plain'});
-    // If we are replacing a previously generated file we need to
-    // manually revoke the object URL to avoid memory leaks.
-    if (this.exportedXSV !== null) {
-      window.URL.revokeObjectURL(this.exportedXSV);
-    }
-
-    this.exportedXSV = window.URL.createObjectURL(data);
-    console.log('this.exportedXSV', this.exportedXSV);
-
-    var link = document.createElement('a');
-    link.href = this.exportedXSV;
-    link.download = 'filename.html';
-    link.target = '_blank';
-    document.body.appendChild(link);  // required in FF, optional for Chrome/Safari
-    link.click();
-    document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
-  }
-
-  exportCSV() {
-    this.exportXSV('csv');
-  }
-
-
-  exportTSV() {
-    this.exportXSV('tsv');
-  }
-
+//  exportCSV() {
+//    this.exportXSV('csv');
+//  }
+//
+//  exportTSV() {
+//    this.exportXSV('tsv');
+//  }
 
   // Grid stuff
 
@@ -457,8 +455,7 @@ export default class EditorController {
       that.$scope.gridApi = gridApi;
 
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
-        that.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue;
-        // that.$scope.$apply();
+        that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
       });
 
       that.$timeout(function() {
@@ -471,7 +468,6 @@ export default class EditorController {
     };
   }
 }
-
 
 EditorController.$inject = ['$scope', '$resource', '$http', '$timeout', '$location',
                           'uiGridConstants', 'uiGridEditConstants', 'session'];
