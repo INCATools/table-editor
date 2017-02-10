@@ -12,12 +12,13 @@ var bss = path.join(__dirname, 'node_modules/bootstrap-sass');
 var uigrid = path.join(__dirname, 'node_modules/angular-ui-grid');
 
 var production = process.env.BUILD === 'production';
-var debugMode = true;
+var debugMode = false;
 
 var entryFile = './app.js';
 var outputPath = dist;
 var outputFile = './bundle.js';
-var indexFile = 'index.html';
+var indexFile = 'index.ejs';
+var baseURL = production ? '/table-editor/' : '/';
 
 var config = {
   context: app,
@@ -120,7 +121,7 @@ config.plugins.push(
   new HtmlWebpackPlugin({
     template: path.join(app, indexFile),
     inject: 'head',
-    baseUrl: '/table-editor/'
+    baseUrl: baseURL
   }));
 
 switch (nodeEnvironment) {

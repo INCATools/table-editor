@@ -1,7 +1,104 @@
 <help></help>
 
 <section class="settings">
-  <div>
-    <h1>TBD</h1>
-  </div>
+    <div class="row" ng-hide="!settingsCtrl.session.sourceYAML">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showYAMLSource"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showYAMLSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Source YAML: <b>{{settingsCtrl.session.titleYAML}}</b>
+        </button>
+
+        <div
+          class="pre-scrollable"
+          ng-if="settingsCtrl.session.showYAMLSource">
+          <pre><code>{{settingsCtrl.session.sourceYAML}}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!settingsCtrl.session.sourceYAML">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showYAMLParsed"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showYAMLParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Parsed YAML: <b>{{settingsCtrl.session.titleYAML}}</b>
+        </button>
+
+
+        <div
+          ng-hide="!settingsCtrl.session.showYAMLParsed">
+          <div
+            id="YAMLParsed"
+            class="table-container YAMLParsed">
+            <json-formatter json="settingsCtrl.session.parsedYAML" open="2">
+            </json-formatter>
+          </div>
+        </div>
+      </div>
+    </div>
+
+ 	<hr>
+
+    <div class="row" ng-hide="!settingsCtrl.session.sourceXSV">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showXSVSource"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showXSVSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Source XSV: <b>{{settingsCtrl.session.titleXSV}}</b>
+        </button>
+
+        <div
+          class="pre-scrollable"
+          ng-if="settingsCtrl.session.showXSVSource">
+          <pre><code>{{settingsCtrl.session.sourceXSV}}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!settingsCtrl.session.sourceXSV">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showXSVParsed"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showXSVParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Parsed XSV: <b>{{settingsCtrl.session.titleXSV}}</b>
+        </button>
+
+        <div
+          ng-hide="!settingsCtrl.session.showXSVParsed">
+          <div
+            id="XSVParsed"
+            class="table-container XSVParsed">
+            <json-formatter json="settingsCtrl.session.parsedXSV" open="2">
+            </json-formatter>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
 </section>
