@@ -10,6 +10,7 @@ var app = path.join(__dirname, 'app');
 var bs = path.join(__dirname, 'node_modules/bootstrap');
 var bss = path.join(__dirname, 'node_modules/bootstrap-sass');
 var uigrid = path.join(__dirname, 'node_modules/angular-ui-grid');
+var fa = path.resolve(__dirname, 'node_modules/font-awesome');
 
 var production = process.env.BUILD === 'production';
 var debugMode = false;
@@ -80,16 +81,23 @@ var config = {
         query: {
             // https://github.com/babel/babel-loader#options
             cacheDirectory: true,
-            presets: ['es2015']
+            presets: ['latest']
         },
         exclude: /node_modules/,
         include: [app]
       },
 
       {
-        test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|txt|ico)$/,
+        test: /\.(png|jpg|jpeg|gif|ico)$/,
         loader: 'file-loader',
         include: [bs, bss, uigrid, app]
+      },
+
+
+      {
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader?limit=10000',
+        include: [fa, bs, bss, uigrid]
       },
 
       {
