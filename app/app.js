@@ -8,6 +8,8 @@ import ngResource from 'angular-resource';
 import ngFileUpload from 'ng-file-upload';
 import jsonformatter from 'jsonformatter';
 import jsonformatterCSS from 'jsonformatter/dist/json-formatter.min.css';
+import 'angular-fontawesome';
+import 'font-awesome/css/font-awesome.min.css';
 
 import ngGrid from './ui-grid-patched.min.js';
 import '../node_modules/angular-ui-grid/ui-grid.min.css';
@@ -29,7 +31,8 @@ if (ENVIRONMENT === 'test') {
 
 var dependentModules = [angularUIRouter, nguibootstrap, ngsanitize, ngResource, ngFileUpload, jsonformatter,
                         'ui.grid', 'ui.grid.edit', 'ui.grid.rowEdit', 'ui.grid.cellNav',
-                        'ui.grid.autoResize', 'ui.grid.resizeColumns'];
+                        'ui.grid.autoResize', 'ui.grid.resizeColumns',
+                        'picardy.fontawesome'];
 
 const app = angular.module('app', dependentModules);
 

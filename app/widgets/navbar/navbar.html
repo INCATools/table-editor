@@ -12,13 +12,16 @@
   <div class="collapse navbar-collapse" ng-class="!navCollapsed && 'in'">
     <ul class="nav navbar-nav">
       <li><a ui-sref="editor" ng-click='navCollapsed = true'>Editor</a></li>
-      <li><a ui-sref="settings" ng-click='navCollapsed = true'>Settings</a></li>
+      <li><a ui-sref="settings" ng-click='navCollapsed = true'>
+        Settings&nbsp;
+        <i class="fa fa-cogs"></i>
+      </a></li>
       <li class="dropdown" uib-dropdown>
         <a
           class="dropdown-toggle"
           uib-dropdown-toggle 
           ng-disabled="!navBarCtrl.session.parsedXSV">
-          <i class="fa fa-cogs"></i> Export
+          Export
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu">

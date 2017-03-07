@@ -17,22 +17,115 @@ if (!String.prototype.endsWith) {
   };
 }
 
+// Eventually build this from the YAML
+var autocompleteRegistry = {
+  // Load these from exposure_to_change_in_levels.yaml
+  attribute: {
+    label: 'exposure event',
+    root_class: 'Ex0:0000002',
+    lookup_type: 'obo'
+  },
+  entity: {
+    label: 'chemical entity',
+    root_class: 'CHEBI:24431',
+    lookup_type: 'golr'
+  },
+  location: {
+    label: 'environmental material',
+    root_class: 'ENVO:00010483',
+    lookup_type: 'obo'
+  },
+
+  // Load these from HPO.yaml
+  'Disease ID': {
+    label: 'Disease',
+    root_class: 'DOID:4',
+    lookup_type: 'golr'
+  },
+  'Age of Onset ID': {
+    label: 'Age of Onset',
+    root_class: 'HP:0003674',
+    lookup_type: 'golr'
+  },
+  'Phenotype ID': {
+    label: 'Phenotype',
+    root_class: 'UPHENO:0001001',
+    lookup_type: 'golr'
+  },
+  'Evidence ID': {
+    label: 'Phenotype',
+    root_class: 'ECO:0000000',
+    lookup_type: 'golr'
+  }
+};
+
+
 export default class EditorController {
-  getTerm(val) {
-    return this.$http.get(
-      'https://monarchinitiative.org/autocomplete/' + val + '.json',
-      {
-        withCredentials: false,
-        params: {
-        }
-      })
-      .then(function(response) {
-        var data = response.data;
-        var result = data.map(function(item) {
-          return item;
+  getTerm(colName, oldValue, val) {
+    var acEntry = autocompleteRegistry[colName];
+    console.log('getTerm', colName, oldValue, val, acEntry, autocompleteRegistry);
+    if (acEntry && acEntry.lookup_type === 'golr') {
+      var golrURLBase = 'https://solr.monarchinitiative.org/solr/ontology/select';
+      var whichClosure = acEntry.root_class;
+      var requestParams = {
+        defType: 'edismax',
+        qt: 'standard',
+        wt: 'json',
+        rows: '20',
+        fl: '*',
+        score: null,
+        'facet.sort': 'count',
+        'json.nl': 'arrarr',
+        'facet.limit': '20',
+        fq: 'isa_partof_closure:"' + whichClosure + '"',
+        q: 'annotation_class_label_searchable:*' + val + '*',
+        packet: '1',
+        callback_type: 'search',
+        _: Date.now()
+      };
+
+      var trusted = this.$sce.trustAsResourceUrl(golrURLBase);
+      return this.$http.jsonp(
+        trusted,
+        {
+          // withCredentials: false,
+          jsonpCallbackParam: 'json.wrf',
+          params: requestParams
+        })
+        .then(
+          function(response) {
+            var data = response.data.response.docs;
+            console.log('GOLR success', golrURLBase, requestParams, data);
+            var result = data.map(function(item) {
+              return {
+                id: item.id,
+                label: [item.annotation_class_label]
+              };
+            });
+            return result;
+          },
+          function(error) {
+            console.log('GOLR error: ', golrURLBase, requestParams, error);
+          }
+        );
+    }
+    else {
+      return this.$http.get(
+        'https://monarchinitiative.org/autocomplete/' + val + '.json',
+        {
+          withCredentials: false,
+          params: {
+          }
+        })
+        .then(function(response) {
+          var data = response.data;
+          console.log('Monarch success', data);
+          var result = data.map(function(item) {
+            return item;
+          });
+          return result;
         });
-        return result;
-      });
+    }
   }
 
   termSelected(item, model, label, event) {
@@ -55,7 +148,7 @@ export default class EditorController {
   }
 
   // constructor arglist must match invocation in app.js
-  constructor($scope, $resource, $http, $timeout, $location, uiGridConstants, uiGridEditConstants, session) {
+  constructor($scope, $resource, $http, $timeout, $location, $sce, uiGridConstants, uiGridEditConstants, session) {
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
@@ -63,6 +156,7 @@ export default class EditorController {
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
+    this.$sce = $sce;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesYAML = [
@@ -106,7 +200,7 @@ export default class EditorController {
       session.showYAMLParsed = false;
       this.setErrorYAML(null);
       session.YAMLURL = null;
-      session.defaultYAMLURL = null;  // this.examplesYAML[0].url;
+      session.defaultYAMLURL = this.examplesYAML[0].url;
 
       session.showXSVSource = false;
       session.showXSVParsed = false;
@@ -116,7 +210,7 @@ export default class EditorController {
       this.setErrorXSV(null);
 
       session.XSVURL = null;
-      session.defaultXSVURL = null;  // this.examplesXSV[0].url;
+      session.defaultXSVURL = this.examplesXSV[0].url;
 
       var searchParams = this.$location.search();
       if (searchParams.yaml) {
@@ -469,6 +563,6 @@ export default class EditorController {
   }
 }
 
-EditorController.$inject = ['$scope', '$resource', '$http', '$timeout', '$location',
+EditorController.$inject = ['$scope', '$resource', '$http', '$timeout', '$location', '$sce',
                           'uiGridConstants', 'uiGridEditConstants', 'session'];
 
