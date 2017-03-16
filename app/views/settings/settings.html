@@ -1,49 +1,94 @@
 <help></help>
 
 <section class="settings">
-    <div class="row" ng-hide="!settingsCtrl.session.sourceYAML">
+    <div class="row" ng-hide="!settingsCtrl.session.sourceConfig">
       <div class="col-xs-12">
         <button
           type="button"
           class="btn btn-xs btn-primary btn-block"
-          ng-model="settingsCtrl.session.showYAMLSource"
+          ng-model="settingsCtrl.session.showConfigSource"
           uib-btn-checkbox>
           <span class="pull-left glyphicon"
-            ng-class="settingsCtrl.session.showYAMLSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            ng-class="settingsCtrl.session.showConfigSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
             aria-hidden="true">
           </span>
-          Source YAML: <b>{{settingsCtrl.session.titleYAML}}</b>
+          Source Config: <b>{{settingsCtrl.session.titleConfig}}</b>
         </button>
 
         <div
           class="pre-scrollable"
-          ng-if="settingsCtrl.session.showYAMLSource">
-          <pre><code>{{settingsCtrl.session.sourceYAML}}</code></pre>
+          ng-if="settingsCtrl.session.showConfigSource">
+          <pre><code>{{settingsCtrl.session.sourceConfig}}</code></pre>
         </div>
       </div>
-    </div>
 
-    <div class="row" ng-hide="!settingsCtrl.session.sourceYAML">
       <div class="col-xs-12">
         <button
           type="button"
           class="btn btn-xs btn-primary btn-block"
-          ng-model="settingsCtrl.session.showYAMLParsed"
+          ng-model="settingsCtrl.session.showConfigParsed"
           uib-btn-checkbox>
           <span class="pull-left glyphicon"
-            ng-class="settingsCtrl.session.showYAMLParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            ng-class="settingsCtrl.session.showConfigParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
             aria-hidden="true">
           </span>
-          Parsed YAML: <b>{{settingsCtrl.session.titleYAML}}</b>
+          Parsed Config: <b>{{settingsCtrl.session.titleConfig}}</b>
         </button>
 
 
         <div
-          ng-hide="!settingsCtrl.session.showYAMLParsed">
+          ng-hide="!settingsCtrl.session.showConfigParsed">
           <div
-            id="YAMLParsed"
-            class="table-container YAMLParsed">
-            <json-formatter json="settingsCtrl.session.parsedYAML" open="2">
+            id="ConfigParsed"
+            class="table-container ConfigParsed">
+            <json-formatter json="settingsCtrl.session.parsedConfig" open="2">
+            </json-formatter>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="!settingsCtrl.session.sourcePattern">
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showPatternSource"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showPatternSource ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Source Pattern: <b>{{settingsCtrl.session.titlePattern}}</b>
+        </button>
+
+        <div
+          class="pre-scrollable"
+          ng-if="settingsCtrl.session.showPatternSource">
+          <pre><code>{{settingsCtrl.session.sourcePattern}}</code></pre>
+        </div>
+      </div>
+
+      <div class="col-xs-12">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary btn-block"
+          ng-model="settingsCtrl.session.showPatternParsed"
+          uib-btn-checkbox>
+          <span class="pull-left glyphicon"
+            ng-class="settingsCtrl.session.showPatternParsed ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"
+            aria-hidden="true">
+          </span>
+          Parsed Pattern: <b>{{settingsCtrl.session.titlePattern}}</b>
+        </button>
+
+
+        <div
+          ng-hide="!settingsCtrl.session.showPatternParsed">
+          <div
+            id="PatternParsed"
+            class="table-container PatternParsed">
+            <json-formatter json="settingsCtrl.session.parsedPattern" open="2">
             </json-formatter>
           </div>
         </div>
@@ -70,9 +115,7 @@
           <pre><code>{{settingsCtrl.session.sourceXSV}}</code></pre>
         </div>
       </div>
-    </div>
 
-    <div class="row" ng-hide="!settingsCtrl.session.sourceXSV">
       <div class="col-xs-12">
         <button
           type="button"

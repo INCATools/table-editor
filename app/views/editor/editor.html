@@ -10,7 +10,7 @@
             type="button"
             class="btn btn-xs btn-default btn-block"
             uib-dropdown-toggle>
-              YAML Examples <span class="caret"></span>
+              Pattern Examples <span class="caret"></span>
           </button>
           <ul
             class="dropdown-menu btn-group-menu-block"
@@ -18,8 +18,8 @@
             role="menu"
             aria-labelledby="simple-btn-keyboard-nav">
 
-            <li ng-repeat="e in editorCtrl.examplesYAML" role="menuitem">
-              <a ng-click="editorCtrl.loadSourceYAMLItem(e.file, e.title, e.url)" href="">
+            <li ng-repeat="e in editorCtrl.examplesPattern" role="menuitem">
+              <a ng-click="editorCtrl.loadSourcePatternItem(e.file, e.title, e.url)" href="">
                 {{e.title}}
               </a>
             </li>
@@ -29,7 +29,7 @@
       <div class="col-xs-6">
         <div class="input-group input-group-sm">
           <input
-            ng-model="editorCtrl.session.YAMLURL"
+            ng-model="editorCtrl.session.patternURL"
             type="text"
             class="form-control input-group-xs"
             placeholder="Enter a URL to a CSV/TSV file"
@@ -38,9 +38,9 @@
           <span class="input-group-btn">
             <button
               type="button"
-              ng-disabled="editorCtrl.session.YAMLURL.length === 0"
+              ng-disabled="editorCtrl.session.patternURL.length === 0"
               class="btn btn-success btn-xs btn-block input-group-button-xs"
-              ng-click="editorCtrl.loadURLYAML(editorCtrl.session.YAMLURL)">
+              ng-click="editorCtrl.loadURLPattern(editorCtrl.session.patternURL)">
               Load
             </button>
           </span>
@@ -50,14 +50,14 @@
         <div
           ngf-drop
           ngf-select
-          ng-model="editorCtrl.session.fileYAML"
+          ng-model="editorCtrl.session.filePattern"
           class="drop-box"
           ngf-drag-over-class="'dragover'"
           ngf-multiple="false"
           ngf-allow-dir="false"
           accept=".yaml,.YAML"
           ngf-pattern="'.yaml,.YAML'">
-          <i style="font-size:0.8em;">Select/Drag YAML file</i></sm>
+          <i style="font-size:0.8em;">Select/Drag Pattern file</i></sm>
         </div>
         <div ngf-no-file-drop>
           File Drag/Drop is not supported for this browser
@@ -128,6 +128,39 @@
       </div>
     </div>
 
+    <hr>
+
+    <div class="row" ng-if="editorCtrl.session.parsedXSV">
+      <div class="col-xs-3">
+        <button
+          type="button"
+          ng-click="editorCtrl.addRow()"
+          class="btn btn-xs btn-primary btn-block">
+            Add Row
+        </button>
+      </div>
+      <div class="col-xs-9">
+        <a
+          href="{{editorCtrl.getCellURL()}}"
+          target="_blank"
+          title="{{editorCtrl.getCellTitle()}}">
+          {{editorCtrl.getCellDetails()}}
+        </a>
+      </div>
+    </div>
+
+
+    <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
+      <div class="col-xs-12 pre-scrollable">
+        <pre><sm>{{editorCtrl.session.errorMessagePattern}}</sm></pre>
+      </div>
+    </div>
+    <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
+      <div class="col-xs-12">
+        <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
+      </div>
+    </div>
+
     <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
       <div class="col-xs-12">
         <div
@@ -140,23 +173,6 @@
           class="grid"
           style="margin:0;padding:0;">
         </div>
-      </div>
-    </div>
-
-    <div class="row" ng-if="editorCtrl.session.parsedXSV">
-      <div class="col-xs-12 label label-info">
-        <sm>{{editorCtrl.gridApi.cellNav.getFocusedCell().row.entity[editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name]}}
-        <i>{{editorCtrl.gridApi.cellNav.getFocusedCell().col.colDef.name}}</i></sm>
-      </div>
-    </div>
-    <div class="row" ng-if="editorCtrl.session.errorMessageYAML">
-      <div class="col-xs-12">
-        <pre>{{editorCtrl.session.errorMessageYAML}}</pre>
-      </div>
-    </div>
-    <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
-      <div class="col-xs-12">
-        <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
       </div>
     </div>
   </div>

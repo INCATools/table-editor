@@ -1,5 +1,6 @@
 pattern_name: exo/patterns/exposure_to_levels_in_medium
 classes:
+  quality: ExO:0000002
   exposure event: ExO:0000002
   chemical entity: CHEBI:24431
   environmental material: ENVO:00010483
@@ -11,7 +12,7 @@ relations:
   inheres in: RO:0000052
 
 vars:
-  attribute: "'quality'"
+  attribute: "'exposure event'"
   entity: "'chemical entity'"
   location: "'environmental material'"
 
