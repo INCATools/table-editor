@@ -81,7 +81,7 @@ var config = {
         query: {
             // https://github.com/babel/babel-loader#options
             cacheDirectory: true,
-            presets: ['latest']
+            presets: ['env']
         },
         exclude: /node_modules/,
         include: [app]
@@ -121,6 +121,7 @@ var config = {
 
 config.plugins.push(
   new CopyWebpackPlugin([
+      { from: '../config.yaml' },
       { from: '../README.md' },
       { from: '../examples', to: 'examples' }
   ]));

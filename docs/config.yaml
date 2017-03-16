@@ -1,0 +1,44 @@
+prefixes:	    # User specifies this once per team/project
+  CHEBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  PATO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ExO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ENVO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  HPO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  HP:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  DOID:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  ECO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+
+globalAutocomplete:   # Mostly for HPO testing without a separate YAML
+  'Disease ID':
+    label: 'Disease Name'
+    root_class: 'DOID:4'
+    lookup_type: 'golr'
+  'Age of Onset ID':
+    label: 'Age of Onset Name'
+    root_class: 'HP:0003674'
+    lookup_type: 'golr'
+  'Phenotype ID':
+    label: 'Phenotype Name'
+    root_class: 'UPHENO:0001001'
+    lookup_type: 'golr'
+  'Evidence ID':
+    label: 'Evidence Name'
+    root_class: 'ECO:0000000'
+    lookup_type: 'golr'
+
