@@ -75,13 +75,13 @@ export default class SessionService {
       .then(
         function(response) {
           var data = response.data.response.docs;
-          console.log('GOLR success', golrURLBase, requestParams, data);
           var result = data.map(function(item) {
             return {
               id: item.id,
-              label: [item.annotation_class_label]
+              name: item.annotation_class_label
             };
           });
+          // console.log('GOLR success', golrURLBase, requestParams, data, result);
           return result;
         },
         function(error) {

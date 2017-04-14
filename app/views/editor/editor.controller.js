@@ -30,30 +30,60 @@ export default class EditorController {
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesPattern = [
       {
-        url: 'examples/exposure_to_change_in_levels.yaml',
-        title: 'Environmental Conditions Pattern (Local)',
+        url: 'examples/abnormalLevelOfChemicalInEntity.yaml',
+        title: 'Pattern: Abnormal Level of Chemical in Entity (Local)',
         type: 'yaml'
       },
       {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_change_in_levels.yaml',
-        title: 'Environmental Conditions Pattern (Remote)',
+        url: 'examples/exposure_to_levels_in_medium.yaml',
+        title: 'Pattern: Exposure to Levels in Medium (Local)',
+        type: 'yaml'
+      },
+      {
+        url: 'examples/exposure_to_chemical.yaml',
+        title: 'Pattern: Exposure to Chemical (Local)',
+        type: 'yaml'
+      },
+      {
+        url: 'https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns/abnormalLevelOfChemicalInEntity',
+        title: 'Pattern: Abnormal Level of Chemical in Entity (Remote)',
+        type: 'yaml'
+      },
+      {
+        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_levels_in_medium.yaml',
+        title: 'Pattern: Exposure to Levels in Medium (Remote)',
+        type: 'yaml'
+      },
+      {
+        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
+        title: 'Pattern: Exposure to Chemical (Remote)',
         type: 'yaml'
       }
     ];
     this.examplesXSV = [
       {
-        url: 'examples/exposure_to_change_in_levels.csv',
-        title: 'Environmental Conditions CSV (Local)',
+        url: 'examples/exposure_to_chemical.csv',
+        title: 'Exposure to Chemical CSV (Local)',
         type: 'csv'
       },
       {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_change_in_levels.csv',
-        title: 'Environmental Conditions CSV (Remote)',
+        url: 'examples/exposure_to_chemical.csv',
+        title: 'Exposure to Chemical CSV (Local)',
         type: 'csv'
       },
       {
-        url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/4c6988967debf9c274ad952ad4eb8b8ebeda5d30/genetest.tsv',
-        title: 'HPO TSV (Not Yet Working) (Remote)',
+        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
+        title: 'Exposure to Chemical CSV (Remote)',
+        type: 'csv'
+      },
+      {
+        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
+        title: 'Exposure to Chemical CSV (Remote)',
+        type: 'csv'
+      },
+      {
+        url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/25041c5926ac90977f8c6a86523fe1a19133eb5d/genetest.tsv',
+        title: 'HPO TSV (Remote)',
         type: 'tsv'
       }
     ];
@@ -81,7 +111,7 @@ export default class EditorController {
       this.setErrorXSV(null);
 
       session.XSVURL = null;
-      session.defaultXSVURL = null; // this.examplesXSV[0].url;
+      session.defaultXSVURL = this.examplesXSV[4].url;
 
       var searchParams = this.$location.search();
       if (searchParams.config) {
@@ -153,9 +183,18 @@ export default class EditorController {
     return result;
   }
 
-  getTerm(colName, oldValue, val) {
+  getTerm(rowEntity, colName, val) {
     var acEntry = this.session.autocompleteRegistry[colName];
+    var oldValue = rowEntity[colName];
+
+    if (acEntry.labelColumn) {
+      if (val === oldValue) {
+        val = rowEntity[acEntry.labelColumn];
+      }
+      oldValue = rowEntity[acEntry.labelColumn];
+    }
     // console.log('getTerm', colName, oldValue, val, acEntry, this.session.autocompleteRegistry);
+
     if (acEntry && acEntry.lookup_type === 'golr') {
       return this.session.golrLookup(colName, oldValue, val, acEntry);
     }
@@ -184,14 +223,14 @@ export default class EditorController {
           cell.row.entity[cellName] = cellValue.id;
         }
         if (acEntry.labelColumn) {
-          cell.row.entity[acEntry.labelColumn] = cellValue.label[0];
+          cell.row.entity[acEntry.labelColumn] = cellValue.name;
         }
       }
       else {
         cell.row.entity[cellName] = cellValue.id;
         if (cellValue.label) {
           var labelField = (cellName + ' label');
-          cell.row.entity[labelField] = cellValue.label[0];
+          cell.row.entity[labelField] = cellValue.name;
         }
       }
     }
@@ -489,14 +528,17 @@ export default class EditorController {
 
       if (that.isAutocompleteColumn(f)) {
         result.enableCellEditOnFocus = true;
-        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
         result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
         result.enableCellEdit = true;
+        result.enableCellEditOnFocus = true;
       }
       else if (that.isEditableColumn(f)) {
         result.enableCellEditOnFocus = true;
         result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateEditableTemplate';
         result.enableCellEdit = true;
+        result.enableCellEditOnFocus = true;
       }
       else {
         result.cellTemplate = 'cellStateReadonlyTemplate';
@@ -658,8 +700,23 @@ export default class EditorController {
       that.gridApi = gridApi;
       that.$scope.gridApi = gridApi;
 
+      gridApi.edit.on.beginCellEdit(that.$scope, function(rowEntity, colDef) {
+        // console.log("beginCellEdit: " + angular.toJson(colDef.field));
+      });
+
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
+        // console.log("afterCellEdit: " + angular.toJson(colDef.field));
         that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
+      });
+
+      gridApi.cellNav.on.viewPortKeyDown(that.$scope, function(event, newRowCol) {
+          var row = newRowCol.row;
+          var col = newRowCol.col;
+          if (event.keyCode === 32) {
+            that.$scope.gridApi.cellNav.scrollToFocus(
+              row.entity,
+              that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
+          }
       });
 
       that.$timeout(function() {

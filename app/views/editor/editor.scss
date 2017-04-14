@@ -3,8 +3,6 @@
 	padding: 0;
 }
 
-
-
 .drop-box {
   background: #F8F8F8;
   border: 2px dashed lightblue;
@@ -44,32 +42,84 @@
 }
 
 .grid .ui-grid-header-cell {
-  font-size:0.9em;
+  font-size:12px;
+  border:1px solid lightgreen;
 }
 
 .grid .ui-grid-top-panel {
   height: 25px !important;
 }
 
+
+.ui-grid-row {
+  height: 50px !important;
+}
+
+
+.ui-grid-cell-contents {
+  font-size:14px;
+  line-height:1em;
+  border: 1px solid red;
+  word-wrap: break-word;
+  white-space: normal !important;
+}
+
 .ui-grid-cell {
-  overflow: visible;
-  height:100%;
+  height: 50px !important;
+  border: 1px solid green;
 }
 
-.ui-grid-cell form,
-.ui-grid-cell form input {
-  height: 28px;
+.ui-grid-cell .table-editor-default-cell {
+  border:1px solid yellow;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.ui-grid-cell .typeaheadcontainer {
-  display: table;
-  margin-right: auto;
-  margin-left: auto;
-  width:95%;
-  height:100%;
-}
-
-.ui-grid-cell .typeaheadcontrol {
+.ui-grid-cell form {
+  height: 100% !important;
+  border:1px solid purple;
   width:100%;
   height:100%;
+  margin: 0 !important;
+  padding: 0 !important;
 }
+
+// .ui-grid-cell form input {
+//   word-wrap: break-word;
+//   white-space: normal !important;
+//   background:5px solid cyan !important;
+//   border:5px solid cyan !important;
+// }
+
+.ui-grid-cell form textarea {
+  resize: none;
+  width:100%;
+  height:100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  word-wrap: break-word;
+  white-space: normal !important;
+  border:1px solid cyan !important;
+}
+
+// .ui-grid-cell .typeaheadcontainer {
+//   display: table;
+//   margin-right: auto;
+//   margin-left: auto;
+//   width:95%;
+//   height:100%;
+//   border:1px solid red;
+// }
+
+// .ui-grid-cell .typeaheadcontrol {
+//   width:100%;
+//   height:100%;
+//   border:3px solid orange;
+// }
+
+// .ui-grid-cell .form-control {
+//   width:100%;
+//   height:100%;
+//   border:3px solid orange;
+// }
+
