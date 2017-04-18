@@ -122,11 +122,11 @@ export default class SessionService {
       .then(
         function(response) {
           var data = response.data.response.docs;
-          console.log('OLS success', olsURLBase, requestParams, data);
+          // console.log('OLS success', olsURLBase, requestParams, data);
           var result = data.map(function(item) {
             return {
               id: item.short_form,
-              label: [item.label]
+              name: item.label
             };
           });
           return result;

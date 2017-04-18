@@ -216,7 +216,13 @@
 
   <script type="text/ng-template" id="cellStateAutocompleteTemplate">
     <div class="typeaheadcontainer">
-      <input
+      <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
+        <i class="fa fa-spinner fa-spin fa-fw"></i>
+      </div>
+      <div style="border:1px solid lightgray;background:lightyellow;position:absolute;z-index:100;margin-left:3px;" ng-show="noResults">
+        No Results Found
+      </div>
+      <textarea
         type="text"
         ng-model="MODEL_COL_FIELD"
         show-list xtypeahead
@@ -231,10 +237,7 @@
         typeahead-is-open="'true'"
         typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
         class="typeaheadcontrol form-control">
-      <i style="background:pink;position:absolute;z-index:100;" ng-show="loadingItems" class="glyphicon glyphicon-refresh"></i>
-      <div style="background:lightyellow;position:absolute;z-index:100;" ng-show="noResults">
-        <i class="glyphicon glyphicon-remove"></i> No Results Found
-      </div>
+      </textarea>
     </div>
   </script>
 

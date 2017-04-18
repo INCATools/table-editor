@@ -30,6 +30,11 @@ export default class EditorController {
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesPattern = [
       {
+        url: 'examples/exposure_to_chemical.yaml',
+        title: 'Pattern: Exposure to Chemical (Local)',
+        type: 'yaml'
+      },
+      {
         url: 'examples/abnormalLevelOfChemicalInEntity.yaml',
         title: 'Pattern: Abnormal Level of Chemical in Entity (Local)',
         type: 'yaml'
@@ -40,8 +45,8 @@ export default class EditorController {
         type: 'yaml'
       },
       {
-        url: 'examples/exposure_to_chemical.yaml',
-        title: 'Pattern: Exposure to Chemical (Local)',
+        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
+        title: 'Pattern: Exposure to Chemical (Remote)',
         type: 'yaml'
       },
       {
@@ -53,11 +58,6 @@ export default class EditorController {
         url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_levels_in_medium.yaml',
         title: 'Pattern: Exposure to Levels in Medium (Remote)',
         type: 'yaml'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
-        title: 'Pattern: Exposure to Chemical (Remote)',
-        type: 'yaml'
       }
     ];
     this.examplesXSV = [
@@ -67,23 +67,18 @@ export default class EditorController {
         type: 'csv'
       },
       {
-        url: 'examples/exposure_to_chemical.csv',
-        title: 'Exposure to Chemical CSV (Local)',
-        type: 'csv'
-      },
-      {
         url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
         title: 'Exposure to Chemical CSV (Remote)',
         type: 'csv'
       },
       {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
-        title: 'Exposure to Chemical CSV (Remote)',
-        type: 'csv'
+        url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/master/rare-diseases/annotated/OMIM-154400.tab?token=ACVkeScw02OzWffVVErr6YwkT5pO9-jDks5Y_oyhwA%3D%3D',
+        title: 'HPO TSV ACROFACIAL DYSOSTOSIS 1 (Remote)',
+        type: 'tsv'
       },
       {
         url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/25041c5926ac90977f8c6a86523fe1a19133eb5d/genetest.tsv',
-        title: 'HPO TSV (Remote)',
+        title: 'HPO TSV Fake Debugging Example (Remote)',
         type: 'tsv'
       }
     ];
@@ -111,7 +106,7 @@ export default class EditorController {
       this.setErrorXSV(null);
 
       session.XSVURL = null;
-      session.defaultXSVURL = this.examplesXSV[4].url;
+      session.defaultXSVURL = null; // this.examplesXSV[3].url;
 
       var searchParams = this.$location.search();
       if (searchParams.config) {
@@ -547,6 +542,11 @@ export default class EditorController {
       return result;
     });
 
+    var lastCol = columnDefs[columnDefs.length - 1];
+    if (!lastCol.name || lastCol.name.length === 0) {
+      columnDefs.length = columnDefs.length - 1;
+    }
+
     return columnDefs;
   }
 
@@ -709,6 +709,10 @@ export default class EditorController {
         that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
       });
 
+      gridApi.edit.on.cancelCellEdit(that.$scope, function(rowEntity, colDef) {
+        // console.log("cancelCellEdit: " + angular.toJson(colDef.field));
+      });
+
       gridApi.cellNav.on.viewPortKeyDown(that.$scope, function(event, newRowCol) {
           var row = newRowCol.row;
           var col = newRowCol.col;
@@ -718,6 +722,10 @@ export default class EditorController {
               that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
           }
       });
+
+      // gridApi.cellNav.on.navigate(that.$scope, function(newRowCol, oldRowCol) {
+      //     console.log('navigate', newRowCol, oldRowCol);
+      // });
 
       that.$timeout(function() {
         if (that.session.columnDefs) {
