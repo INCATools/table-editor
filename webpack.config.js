@@ -13,7 +13,10 @@ var uigrid = path.join(__dirname, 'node_modules/angular-ui-grid');
 var fa = path.resolve(__dirname, 'node_modules/font-awesome');
 
 var production = process.env.BUILD === 'production';
-var debugMode = false;
+var debugMode = !production;
+
+console.log('production', production);
+console.log('debugMode', debugMode);
 
 var entryFile = './app.js';
 var outputPath = dist;

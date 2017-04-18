@@ -65,6 +65,10 @@ open http://localhost:8080/webpack-dev-server/table-editor # On MacOSX
 #
 ```
 
+## Sources
+
+- [Environmental Conditions](https://github.com/cmungall/environmental-conditions)
+- [UPHENO](https://github.com/obophenotype/upheno)
 
 ## Dependencies, Licenses, Credits
 

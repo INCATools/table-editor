@@ -49,3 +49,32 @@ services(app);
 // Components must be declared first since
 // Routes reference controllers that will be bound to route templates.
 appConfiguration(app);
+
+app.directive('showList', function() {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attr, ctrl) {
+      element[0].focus(function() {
+        // ctrl.$setViewValue('');
+        element[0].trigger('input');
+      });
+      element.bind('blur', function () {
+        // ctrl.$setViewValue('');
+      });
+     }
+  };
+});
+
+app.directive('typeahead', function () {
+  return {
+    require: 'ngModel',
+    link: function (scope, element, attr, ctrl) {
+      element.bind('click', function () {
+          ctrl.$setViewValue(' ' );
+      });
+      element.bind('blur', function () {
+          ctrl.$setViewValue('');
+      });
+    }
+  };
+});

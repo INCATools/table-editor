@@ -191,28 +191,53 @@
 
   <script type="text/ng-template" id="cellStateEditableTemplate">
     <div
-      class="ui-grid-cell-contents table-editor-default-cell"
-      title="TOOLTIP">
-      {{COL_FIELD CUSTOM_FILTERS}}
+      class="ui-grid-cell-contents table-editor-default-cell">
+      <form
+        name="inputForm">
+        <textarea
+          type="INPUT_TYPE"
+          ng-class="'colt' + col.uid"
+          ui-grid-editor
+          ng-model="MODEL_COL_FIELD">
+        </textarea>
+      </form>
     </div>
+  </script>
+
+  <script type="text/ng-template" id="customTemplate.html">
+    <a>
+
+<!--       <span style="display:inline-block;min-width:320px;width:320px;font-size:0.7em;font-style:bold;" ng-bind-html="match.model | json"></span>
+ -->
+      <span style="display:inline-block;width:120px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
+      <span ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></span>
+    </a>
   </script>
 
   <script type="text/ng-template" id="cellStateAutocompleteTemplate">
     <div class="typeaheadcontainer">
-    <input
-      type="text"
-      ng-model="MODEL_COL_FIELD"
-      uib-typeahead="term as term.label[0] for term in grid.appScope.getTerm(col.colDef.name, row.entity[col.colDef.name], $viewValue)"
-      typeahead-append-to-body="true"
-      append-to-body="true"
-      typeahead-loading="loadingLocations"
-      typeahead-no-results="noResults"
-      typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
-      class="typeaheadcontrol form-control">
-    <i style="xbackground:pink;position:absolute;z-index:100;" ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-    <div style="background:lightyellow;position:absolute;z-index:100;" ng-show="noResults">
-      <i class="glyphicon glyphicon-remove"></i> No Results Found
-    </div>
+      <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
+        <i class="fa fa-spinner fa-spin fa-fw"></i>
+      </div>
+      <div style="border:1px solid lightgray;background:lightyellow;position:absolute;z-index:100;margin-left:3px;" ng-show="noResults">
+        No Results Found
+      </div>
+      <textarea
+        type="text"
+        ng-model="MODEL_COL_FIELD"
+        show-list xtypeahead
+        uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
+        typeahead-append-to-body="true"
+        append-to-body="true"
+        typeahead-loading="loadingItems"
+        typeahead-no-results="noResults"
+        typeahead-template-url="customTemplate.html"
+        ng-trim="false"
+        typeahead-min-length=0
+        typeahead-is-open="'true'"
+        typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
+        class="typeaheadcontrol form-control">
+      </textarea>
     </div>
   </script>
 
