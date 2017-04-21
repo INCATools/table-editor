@@ -19,13 +19,14 @@ if (!String.prototype.endsWith) {
 
 export default class EditorController {
   // constructor arglist must match invocation in app.js
-  constructor($scope, $http, $timeout, $location, uiGridConstants, uiGridEditConstants, session) {
+  constructor($scope, $http, $timeout, $location, $anchorScroll, uiGridConstants, uiGridEditConstants, session) {
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
+    this.$anchorScroll = $anchorScroll;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesPattern = [
@@ -125,6 +126,10 @@ export default class EditorController {
     });
 
     this.setupGrid();
+  }
+
+  debugFormat(o) {
+    return JSON.stringify(Object.keys(o));
   }
 
   getCellTitle() {
@@ -237,7 +242,7 @@ export default class EditorController {
   }
 
   addRow() {
-    console.log('addRow NYI');
+    var that = this;
     var selCell = this.gridApi.cellNav.getFocusedCell();
     var selRow = null;
     if (selCell) {
@@ -250,9 +255,30 @@ export default class EditorController {
       selRow = {};
     }
     var newRow = angular.copy(selRow);
+    newRow['Disease ID'] = '';
     newRow.iri = '';
     newRow['iri label'] = '';
     this.session.rowData.push(newRow);
+    // this.gridApi.core.handleWindowResize();
+
+    this.$timeout(function() {
+      var rows = that.$scope.gridApi.grid.getVisibleRows();
+      // var rows = that.gridOptions.data;
+      var row = rows[rows.length - 1];
+      // $scope.gridOptions.data[rowIndex], $scope.gridOptions.columnDefs[colIndex]);
+
+      console.log('row', row);
+
+      that.$scope.gridApi.cellNav.scrollToFocus(
+        row.entity,
+        that.$scope.gridApi.grid.columns[0]);
+
+      // that.$timeout(function() {
+      //   that.$anchorScroll.yOffset = -800;
+      //   that.$anchorScroll('scroll_anchor_' + row.uid);
+      //   console.log('scroll_anchor_' + row.uid);
+      // }, 100);
+    }, 100);
   }
 
   // Config stuff
@@ -516,7 +542,7 @@ export default class EditorController {
         name: sanitizedName,
         field: sanitizedName,
         displayName: f,
-        minWidth: 150,
+        minWidth: 100,
         enableCellEdit: false,
         enableCellEditOnFocus: false
       };
@@ -526,14 +552,12 @@ export default class EditorController {
         result.cellTemplate = 'cellStateTemplate';
         result.editableCellTemplate = 'cellStateAutocompleteTemplate';
         result.enableCellEdit = true;
-        result.enableCellEditOnFocus = true;
       }
       else if (that.isEditableColumn(f)) {
         result.enableCellEditOnFocus = true;
         result.cellTemplate = 'cellStateTemplate';
         result.editableCellTemplate = 'cellStateEditableTemplate';
         result.enableCellEdit = true;
-        result.enableCellEditOnFocus = true;
       }
       else {
         result.cellTemplate = 'cellStateReadonlyTemplate';
@@ -677,14 +701,17 @@ export default class EditorController {
 
     this.gridApi = null;
     this.gridOptions = {
-      // rowHeight: 58,
+      rowHeight: 80,
       enableCellSelection: false,
       // rowEditWaitInterval: -1,
       enableCellEdit: false,
       enableCellEditOnFocus: false,
       multiSelect: false,
+      rowTemplate: 'TERowTemplate'
     };
 
+    this.$scope.noResults = false;
+    this.$scope.debugFormat = angular.bind(this, this.debugFormat);
     this.$scope.getTerm = angular.bind(this, this.getTerm);
     this.$scope.termSelected = angular.bind(this, this.termSelected);
     this.$scope.modelOptions = {
@@ -723,9 +750,11 @@ export default class EditorController {
           }
       });
 
-      // gridApi.cellNav.on.navigate(that.$scope, function(newRowCol, oldRowCol) {
-      //     console.log('navigate', newRowCol, oldRowCol);
-      // });
+      gridApi.cellNav.on.navigate(that.$scope, function(newRowCol, oldRowCol) {
+          // console.log('navigate', newRowCol, oldRowCol);
+          that.$scope.$broadcast(that.uiGridEditConstants.events.END_CELL_EDIT);
+          that.$scope.noResults = false;
+      });
 
       that.$timeout(function() {
         if (that.session.columnDefs) {
@@ -738,6 +767,6 @@ export default class EditorController {
   }
 }
 
-EditorController.$inject = ['$scope', '$http', '$timeout', '$location',
+EditorController.$inject = ['$scope', '$http', '$timeout', '$location', '$anchorScroll',
                           'uiGridConstants', 'uiGridEditConstants', 'session'];
 

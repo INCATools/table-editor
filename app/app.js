@@ -11,7 +11,8 @@ import jsonformatterCSS from 'jsonformatter/dist/json-formatter.min.css';
 import 'angular-fontawesome';
 import 'font-awesome/css/font-awesome.min.css';
 
-import ngGrid from './ui-grid-patched.min.js';
+import ngGrid from 'angular-ui-grid/ui-grid.min.js';
+// import ngGrid from './ui-grid-patched.min.js';
 import '../node_modules/angular-ui-grid/ui-grid.min.css';
 require('./style.css');
 
