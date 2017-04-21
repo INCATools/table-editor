@@ -1,7 +1,6 @@
 <div class="editor-container">
   <div
     class="container-fluid">
-
     <div class="row">
       <div class="col-xs-3">
         <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
@@ -128,6 +127,7 @@
       </div>
     </div>
 
+
     <hr>
 
     <div class="row" ng-if="editorCtrl.session.parsedXSV">
@@ -161,7 +161,7 @@
       </div>
     </div>
 
-    <div class="row" ng-hide="!editorCtrl.session.sourceXSV">
+    <div class="row" ng-if="editorCtrl.session.sourceXSV">
       <div class="col-xs-12">
         <div
           id="grid1"
@@ -175,6 +175,7 @@
         </div>
       </div>
     </div>
+    <hr id="bottom_of_grid">
   </div>
 
   <script type="text/ng-template" id="cellStateTemplate">
@@ -219,9 +220,6 @@
       <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
         <i class="fa fa-spinner fa-spin fa-fw"></i>
       </div>
-      <div style="border:1px solid lightgray;background:lightyellow;position:absolute;z-index:100;margin-left:3px;" ng-show="noResults">
-        No Results Found
-      </div>
       <textarea
         type="text"
         ng-model="MODEL_COL_FIELD"
@@ -230,16 +228,32 @@
         typeahead-append-to-body="true"
         append-to-body="true"
         typeahead-loading="loadingItems"
-        typeahead-no-results="noResults"
+        typeahead-no-results="grid.appScope.noResults"
         typeahead-template-url="customTemplate.html"
+        typeahead-editable="true"
         ng-trim="false"
         typeahead-min-length=0
         typeahead-is-open="'true'"
         typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
         class="typeaheadcontrol form-control">
       </textarea>
+      <div class="no-results" ng-show="grid.appScope.noResults">
+        No Results Found
+      </div>
     </div>
   </script>
 
+  <script type="text/ng-template" id="TERowTemplate">
+    <div
+      ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid"
+      ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'"
+      class="ui-grid-cell"
+      ng-class="{ 'ui-grid-row-header-cell': col.isRowHeader }"
+      role="{{col.isRowHeader ? 'rowheader' : 'gridcell'}}"
+      ui-grid-cell>
+    </div>
+    <div class="ui-grid-row-anchor id="scroll_anchor_{{row.uid}}">
+    </div>
+  </script>
 
 </div>
