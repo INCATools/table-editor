@@ -11,7 +11,10 @@ export default class SessionService {
   }
 
   exportXSV(xsvType) {
-    var delimiter = (xsvType === 'tsv') ? '\t' : ','; var config = {
+    var delimiter = ((xsvType === 'tsv') || (xsvType === 'tab')) ?
+                        '\t' :
+                        ',';
+    var config = {
       quotes: false,
       quoteChar: '"',
       delimiter: delimiter,
@@ -34,9 +37,22 @@ export default class SessionService {
 
     this.exportedXSV = window.URL.createObjectURL(data);
 
+
+    var importedFilename = this.titleXSV;
+    var importedFilenameLast = importedFilename.lastIndexOf('/');
+    if (importedFilenameLast >= 0) {
+      importedFilename = importedFilename.slice(importedFilenameLast + 1);
+    }
+    var importedFilenameExt = importedFilename.lastIndexOf('.');
+    if (importedFilenameExt >= 0) {
+      importedFilename = importedFilename.slice(0, importedFilenameExt);
+    }
+
+    var exportedFilename = importedFilename + '.' + xsvType;
+    // console.log('export', importedFilename, exportedFilename);
     var link = document.createElement('a');
     link.href = this.exportedXSV;
-    link.download = 'filename.html';
+    link.download = exportedFilename;
     link.target = '_blank';
     document.body.appendChild(link);  // required in FF, optional for Chrome/Safari
     link.click();
@@ -51,12 +67,12 @@ export default class SessionService {
       defType: 'edismax',
       qt: 'standard',
       wt: 'json',
-      rows: '20',
+      rows: '15',
       fl: '*',
       score: null,
       'facet.sort': 'count',
       'json.nl': 'arrarr',
-      'facet.limit': '20',
+      'facet.limit': '15',
       fq: 'isa_partof_closure:"' + whichClosure + '"',
       q: 'annotation_class_label_searchable:*' + val + '*',
       packet: '1',

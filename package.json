@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -f docs/*.* && BUILD=production node_modules/.bin/webpack --bail && cp docs/index.html docs/404.html",
     "devbuild": "rm -f docs/*.* && BUILD=development node_modules/.bin/webpack --bail && cp docs/index.html docs/404.html && npm run server",
-    "dev": "(sleep 5 && open 'http://localhost:8085/webpack-dev-server/' &) && BUILD=development webpack-dev-server --port 8085 --devtool=source-map --progress --colors --content-base app",
+    "dev": "BUILD=development webpack-dev-server --port 8085 --devtool=source-map --progress --colors --content-base app",
     "server": "node_modules/.bin/http-server --cors -c-1 docs/",
     "test": "export BUILD=test && karma start"
   },
@@ -83,6 +83,7 @@
     "style-loader": "^0.16.1",
     "url-loader": "^0.5.8",
     "webpack": "^2.4.1",
+    "webpack-browser-plugin": "^1.0.20",
     "webpack-dev-server": "^2.4.2"
   }
 }

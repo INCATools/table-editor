@@ -133,29 +133,33 @@ export default class EditorController {
   }
 
   getCellTitle() {
-    var cell = this.gridApi.cellNav.getFocusedCell();
     var result = '';
-    if (cell) {
-      result = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
+    if (this.gridApi) {
+      var cell = this.gridApi.cellNav.getFocusedCell();
+      if (cell) {
+        result = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
+      }
     }
 
     return result;
   }
 
   getCellURL() {
-    var cell = this.gridApi.cellNav.getFocusedCell();
     var result = '';
-    if (cell) {
-      var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
-      var row = this.gridApi.cellNav.getFocusedCell().row.entity;
-      var acEntry = this.session.autocompleteRegistry[colName];
-      if (acEntry) {
-        var colId = row[acEntry.idColumn];
+    if (this.gridApi) {
+      var cell = this.gridApi.cellNav.getFocusedCell();
+      if (cell) {
+        var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
+        var row = this.gridApi.cellNav.getFocusedCell().row.entity;
+        var acEntry = this.session.autocompleteRegistry[colName];
+        if (acEntry) {
+          var colId = row[acEntry.idColumn];
 
-        result = acEntry.iriPrefix + colId.replace(':', '_');
-      }
-      else {
-        result = 'http://www.ebi.ac.uk/ols/search?q=' + encodeURI(row[colName]);
+          result = acEntry.iriPrefix + colId.replace(':', '_');
+        }
+        else {
+          result = 'http://www.ebi.ac.uk/ols/search?q=' + encodeURI(row[colName]);
+        }
       }
     }
 
@@ -163,20 +167,22 @@ export default class EditorController {
   }
 
   getCellDetails() {
-    var cell = this.gridApi.cellNav.getFocusedCell();
     var result = '';
-    if (cell) {
-      var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
-      var row = this.gridApi.cellNav.getFocusedCell().row.entity;
-      var acEntry = this.session.autocompleteRegistry[colName];
-      if (acEntry) {
-        var colId = row[acEntry.idColumn];
-        var colLabel = row[acEntry.labelColumn];
+    if (this.gridApi) {
+      var cell = this.gridApi.cellNav.getFocusedCell();
+      if (cell) {
+        var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
+        var row = this.gridApi.cellNav.getFocusedCell().row.entity;
+        var acEntry = this.session.autocompleteRegistry[colName];
+        if (acEntry) {
+          var colId = row[acEntry.idColumn];
+          var colLabel = row[acEntry.labelColumn];
 
-        result = colLabel + ' (' + colId + ')';
-      }
-      else {
-        result = colName + ' (' + row[colName] + ')\n';
+          result = colLabel + ' (' + colId + ')';
+        }
+        else {
+          result = colName + ' (' + row[colName] + ')\n';
+        }
       }
     }
 
@@ -256,6 +262,7 @@ export default class EditorController {
     }
     var newRow = angular.copy(selRow);
     newRow['Disease ID'] = '';
+    newRow['Disease Name'] = '';
     newRow.iri = '';
     newRow['iri label'] = '';
     this.session.rowData.push(newRow);
@@ -267,7 +274,7 @@ export default class EditorController {
       var row = rows[rows.length - 1];
       // $scope.gridOptions.data[rowIndex], $scope.gridOptions.columnDefs[colIndex]);
 
-      console.log('row', row);
+      that.$anchorScroll('bottom_of_page');
 
       that.$scope.gridApi.cellNav.scrollToFocus(
         row.entity,
@@ -610,12 +617,12 @@ export default class EditorController {
 
 
     config.complete = function(results, file) {
-      that.$timeout(function() {
         that.session.parsedXSV = results; // .data;
         that.session.columnDefs = that.generateColumnDefsFromXSV(results.meta.fields);
         that.session.rowData = that.generateRowDataFromXSV(results.data);
         that.gridOptions.columnDefs = that.session.columnDefs;
         that.gridOptions.data = that.session.rowData;
+      that.$timeout(function() {
         that.gridApi.core.handleWindowResize();
       }, 0);
     };

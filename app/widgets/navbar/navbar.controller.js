@@ -12,6 +12,10 @@ export default class NavbarController {
   exportTSV() {
     this.session.exportXSV('tsv');
   }
+
+  exportTAB() {
+    this.session.exportXSV('tab');
+  }
 }
 
 NavbarController.$inject = ['session'];
