@@ -1,259 +1,256 @@
-<div class="editor-container">
-  <div
-    class="container-fluid">
-    <div class="row">
-      <div class="col-xs-3">
-        <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
-          <button
-            id="simple-btn-keyboard-nav"
-            type="button"
-            class="btn btn-xs btn-default btn-block"
-            uib-dropdown-toggle>
-              Pattern Examples <span class="caret"></span>
-          </button>
-          <ul
-            class="dropdown-menu btn-group-menu-block"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="simple-btn-keyboard-nav">
-
-            <li ng-repeat="e in editorCtrl.examplesPattern" role="menuitem">
-              <a ng-click="editorCtrl.loadSourcePatternItem(e.file, e.title, e.url)" href="">
-                {{e.title}}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="input-group input-group-sm">
-          <input
-            ng-model="editorCtrl.session.patternURL"
-            type="text"
-            class="form-control input-group-xs"
-            placeholder="Enter a URL to a CSV/TSV file"
-            aria-describedby="import-url">
-
-          <span class="input-group-btn">
-            <button
-              type="button"
-              ng-disabled="editorCtrl.session.patternURL.length === 0"
-              class="btn btn-success btn-xs btn-block input-group-button-xs"
-              ng-click="editorCtrl.loadURLPattern(editorCtrl.session.patternURL)">
-              Load
-            </button>
-          </span>
-        </div>
-      </div>
-      <div class="col-xs-3">
-        <div
-          ngf-drop
-          ngf-select
-          ng-model="editorCtrl.session.filePattern"
-          class="drop-box"
-          ngf-drag-over-class="'dragover'"
-          ngf-multiple="false"
-          ngf-allow-dir="false"
-          accept=".yaml,.YAML"
-          ngf-pattern="'.yaml,.YAML'">
-          <i style="font-size:0.8em;">Select/Drag Pattern file</i></sm>
-        </div>
-        <div ngf-no-file-drop>
-          File Drag/Drop is not supported for this browser
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-xs-3">
-        <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
-          <button
-            id="simple-btn-keyboard-nav"
-            type="button"
-            class="btn btn-xs btn-default btn-block"
-            uib-dropdown-toggle>
-              XSV Examples <span class="caret"></span>
-          </button>
-          <ul
-            class="dropdown-menu btn-group-menu-block"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="simple-btn-keyboard-nav">
-
-            <li ng-repeat="e in editorCtrl.examplesXSV" role="menuitem">
-              <a ng-click="editorCtrl.loadSourceXSVItem(e.file, e.title, e.url)" href="">
-                {{e.title}}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="input-group input-group-sm">
-          <input
-            ng-model="editorCtrl.session.XSVURL"
-            type="text"
-            class="form-control input-group-xs"
-            placeholder="Enter a URL to a CSV/TSV file"
-            aria-describedby="import-url">
-
-          <span class="input-group-btn">
-            <button
-              type="button"
-              ng-disabled="editorCtrl.session.XSVURL.length === 0"
-              class="btn btn-success btn-xs btn-block input-group-button-xs"
-              ng-click="editorCtrl.loadURLXSV(editorCtrl.session.XSVURL)">
-              Load
-            </button>
-          </span>
-        </div>
-      </div>
-      <div class="col-xs-3">
-        <div
-          ngf-drop
-          ngf-select
-          ng-model="editorCtrl.session.fileXSV"
-          class="drop-box"
-          ngf-drag-over-class="'dragover'"
-          ngf-multiple="false"
-          ngf-allow-dir="false"
-          accept=".csv,.CSV,.tsv,.TSV"
-          ngf-pattern="'.csv,.CSV,.tsv,.TSV'">
-          <i style="font-size:0.8em;">Select/Drag XSV file</i></sm>
-        </div>
-        <div ngf-no-file-drop>
-          File Drag/Drop is not supported for this browser
-        </div>
-      </div>
-    </div>
-
-
-    <hr>
-
-    <div class="row" ng-if="editorCtrl.session.parsedXSV">
-      <div class="col-xs-3">
+<div class="editor-container container-fluid">
+  <div class="row">
+    <div class="col-xs-3">
+      <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
         <button
+          id="simple-btn-keyboard-nav"
           type="button"
-          ng-click="editorCtrl.addRow()"
-          class="btn btn-xs btn-primary btn-block">
-            Add Row
+          class="btn btn-xs btn-default btn-block"
+          uib-dropdown-toggle>
+            Pattern Examples <span class="caret"></span>
         </button>
-      </div>
-      <div class="col-xs-9">
-        <a
-          href="{{editorCtrl.getCellURL()}}"
-          target="_blank"
-          title="{{editorCtrl.getCellTitle()}}">
-          {{editorCtrl.getCellDetails()}}
-        </a>
-      </div>
-    </div>
+        <ul
+          class="dropdown-menu btn-group-menu-block"
+          uib-dropdown-menu
+          role="menu"
+          aria-labelledby="simple-btn-keyboard-nav">
 
+          <li ng-repeat="e in editorCtrl.examplesPattern" role="menuitem">
+            <a ng-click="editorCtrl.loadSourcePatternItem(e.file, e.title, e.url)" href="">
+              {{e.title}}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <div class="input-group input-group-sm">
+        <input
+          ng-model="editorCtrl.session.patternURL"
+          type="text"
+          class="form-control input-group-xs"
+          placeholder="Enter a URL to a CSV/TSV file"
+          aria-describedby="import-url">
 
-    <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
-      <div class="col-xs-12 pre-scrollable">
-        <pre><sm>{{editorCtrl.session.errorMessagePattern}}</sm></pre>
+        <span class="input-group-btn">
+          <button
+            type="button"
+            ng-disabled="editorCtrl.session.patternURL.length === 0"
+            class="btn btn-success btn-xs btn-block input-group-button-xs"
+            ng-click="editorCtrl.loadURLPattern(editorCtrl.session.patternURL)">
+            Load
+          </button>
+        </span>
       </div>
     </div>
-    <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
-      <div class="col-xs-12">
-        <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
+    <div class="col-xs-3">
+      <div
+        ngf-drop
+        ngf-select
+        ng-model="editorCtrl.session.filePattern"
+        class="drop-box"
+        ngf-drag-over-class="'dragover'"
+        ngf-multiple="false"
+        ngf-allow-dir="false"
+        accept=".yaml,.YAML"
+        ngf-pattern="'.yaml,.YAML'">
+        <i style="font-size:0.8em;">Select/Drag Pattern file</i></sm>
+      </div>
+      <div ngf-no-file-drop>
+        File Drag/Drop is not supported for this browser
       </div>
     </div>
-
-    <div class="row" ng-if="editorCtrl.session.sourceXSV">
-      <div class="col-xs-12">
-        <div
-          id="grid1"
-          ui-grid="editorCtrl.gridOptions"
-          ui-grid-edit
-          ui-grid-cellNav
-          ui-grid-resize-columns
-          ui-grid-auto-resize
-          class="grid"
-          style="margin:0;padding:0;">
-        </div>
-      </div>
-    </div>
-    <hr id="bottom_of_grid">
   </div>
 
-  <script type="text/ng-template" id="cellStateTemplate">
-    <div class="ui-grid-cell-contents table-editor-default-cell">
-      {{grid.getCellValue(row, col)}}
-    </div>
-  </script>
+  <div class="row">
+    <div class="col-xs-3">
+      <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
+        <button
+          id="simple-btn-keyboard-nav"
+          type="button"
+          class="btn btn-xs btn-default btn-block"
+          uib-dropdown-toggle>
+            XSV Examples <span class="caret"></span>
+        </button>
+        <ul
+          class="dropdown-menu btn-group-menu-block"
+          uib-dropdown-menu
+          role="menu"
+          aria-labelledby="simple-btn-keyboard-nav">
 
-  <script type="text/ng-template" id="cellStateReadonlyTemplate">
-    <div class="ui-grid-cell-contents" >
-      <i>{{grid.getCellValue(row, col)}}</i>
+          <li ng-repeat="e in editorCtrl.examplesXSV" role="menuitem">
+            <a ng-click="editorCtrl.loadSourceXSVItem(e.file, e.title, e.url)" href="">
+              {{e.title}}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
-  </script>
+    <div class="col-xs-6">
+      <div class="input-group input-group-sm">
+        <input
+          ng-model="editorCtrl.session.XSVURL"
+          type="text"
+          class="form-control input-group-xs"
+          placeholder="Enter a URL to a CSV/TSV file"
+          aria-describedby="import-url">
 
-  <script type="text/ng-template" id="cellStateEditableTemplate">
-    <div
-      class="ui-grid-cell-contents table-editor-default-cell">
-      <form
-        name="inputForm">
-        <textarea
-          type="INPUT_TYPE"
-          ng-class="'colt' + col.uid"
-          ui-grid-editor
-          ng-model="MODEL_COL_FIELD">
-        </textarea>
-      </form>
+        <span class="input-group-btn">
+          <button
+            type="button"
+            ng-disabled="editorCtrl.session.XSVURL.length === 0"
+            class="btn btn-success btn-xs btn-block input-group-button-xs"
+            ng-click="editorCtrl.loadURLXSV(editorCtrl.session.XSVURL)">
+            Load
+          </button>
+        </span>
+      </div>
     </div>
-  </script>
+    <div class="col-xs-3">
+      <div
+        ngf-drop
+        ngf-select
+        ng-model="editorCtrl.session.fileXSV"
+        class="drop-box"
+        ngf-drag-over-class="'dragover'"
+        ngf-multiple="false"
+        ngf-allow-dir="false"
+        accept=".csv,.CSV,.tsv,.TSV,.tab,.TAB"
+        ngf-pattern="'.csv,.CSV,.tsv,.TSV,.tab,.TAB'">
+        <i style="font-size:0.8em;">Select/Drag XSV file</i></sm>
+      </div>
+      <div ngf-no-file-drop>
+        File Drag/Drop is not supported for this browser
+      </div>
+    </div>
+  </div>
 
-  <script type="text/ng-template" id="customTemplate.html">
-    <a>
+  <div class="row" ng-if="editorCtrl.session.parsedXSV">
+    <div class="col-xs-4">
+      <button
+        type="button"
+        ng-click="editorCtrl.addRow()"
+        class="btn btn-xs btn-primary btn-block">
+          Add Row
+      </button>
+    </div>
+    <div class="col-xs-8">
+      <a
+        style="font-size:12px;line-height:1em;"
+        href="{{editorCtrl.getCellURL()}}"
+        target="_blank"
+        title="{{editorCtrl.getCellTitle()}}">
+        {{editorCtrl.getCellDetails()}}
+      </a>
+    </div>
+  </div>
+
+
+  <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
+    <div class="col-xs-12 pre-scrollable">
+      <pre><sm>{{editorCtrl.session.errorMessagePattern}}</sm></pre>
+    </div>
+  </div>
+  <div class="row" ng-if="editorCtrl.session.errorMessageXSV">
+    <div class="col-xs-12">
+      <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
+    </div>
+  </div>
+
+  <div
+    class="row"
+    ng-hide="!editorCtrl.session.parsedXSV">
+    <div class="col-xs-12">
+      <div
+        id="grid1"
+        ui-grid="editorCtrl.gridOptions"
+        ui-grid-edit
+        ui-grid-cellNav
+        ui-grid-resize-columns
+        ui-grid-auto-resize
+        class="grid"
+        style="margin:0;padding:0;">
+      </div>
+    </div>
+  </div>
+
+  <div style="height:25vh;"></div>
+  <div id="bottom_of_page"></div>
+</div>
+
+<script type="text/ng-template" id="cellStateTemplate">
+  <div class="ui-grid-cell-contents table-editor-default-cell">
+    {{grid.getCellValue(row, col)}}
+  </div>
+</script>
+
+<script type="text/ng-template" id="cellStateReadonlyTemplate">
+  <div class="ui-grid-cell-contents" >
+    <i>{{grid.getCellValue(row, col)}}</i>
+  </div>
+</script>
+
+<script type="text/ng-template" id="cellStateEditableTemplate">
+  <div
+    class="ui-grid-cell-contents table-editor-default-cell">
+    <form
+      name="inputForm">
+      <textarea
+        type="INPUT_TYPE"
+        ng-class="'colt' + col.uid"
+        ui-grid-editor
+        ng-model="MODEL_COL_FIELD">
+      </textarea>
+    </form>
+  </div>
+</script>
+
+<script type="text/ng-template" id="customTemplate.html">
+  <a>
 
 <!--       <span style="display:inline-block;min-width:320px;width:320px;font-size:0.7em;font-style:bold;" ng-bind-html="match.model | json"></span>
- -->
-      <span style="display:inline-block;width:120px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
-      <span ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></span>
-    </a>
-  </script>
+-->
+    <span style="display:inline-block;width:150px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
+    <span ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></span>
+  </a>
+</script>
 
-  <script type="text/ng-template" id="cellStateAutocompleteTemplate">
-    <div class="typeaheadcontainer">
-      <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
-        <i class="fa fa-spinner fa-spin fa-fw"></i>
-      </div>
-      <textarea
-        type="text"
-        ng-model="MODEL_COL_FIELD"
-        show-list xtypeahead
-        uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
-        typeahead-append-to-body="true"
-        append-to-body="true"
-        typeahead-loading="loadingItems"
-        typeahead-no-results="grid.appScope.noResults"
-        typeahead-template-url="customTemplate.html"
-        typeahead-editable="true"
-        ng-trim="false"
-        typeahead-min-length=0
-        typeahead-is-open="'true'"
-        typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
-        class="typeaheadcontrol form-control">
-      </textarea>
-      <div class="no-results" ng-show="grid.appScope.noResults">
-        No Results Found
-      </div>
+<script type="text/ng-template" id="cellStateAutocompleteTemplate">
+  <div class="typeaheadcontainer">
+    <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
+      <i class="fa fa-spinner fa-spin fa-fw"></i>
     </div>
-  </script>
+    <textarea
+      type="text"
+      ng-model="MODEL_COL_FIELD"
+      show-list xtypeahead
+      uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
+      typeahead-append-to-body="true"
+      typeahead-loading="loadingItems"
+      typeahead-no-results="grid.appScope.noResults"
+      typeahead-template-url="customTemplate.html"
+      typeahead-editable="true"
+      ng-trim="false"
+      typeahead-min-length=0
+      typeahead-is-open="'true'"
+      typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
+      class="typeaheadcontrol form-control">
+    </textarea>
+    <div class="no-results" ng-show="grid.appScope.noResults">
+      No Results Found
+    </div>
+  </div>
+</script>
 
-  <script type="text/ng-template" id="TERowTemplate">
-    <div
-      ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid"
-      ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'"
-      class="ui-grid-cell"
-      ng-class="{ 'ui-grid-row-header-cell': col.isRowHeader }"
-      role="{{col.isRowHeader ? 'rowheader' : 'gridcell'}}"
-      ui-grid-cell>
-    </div>
-    <div class="ui-grid-row-anchor id="scroll_anchor_{{row.uid}}">
-    </div>
-  </script>
-
-</div>
+<script type="text/ng-template" id="TERowTemplate">
+  <div
+    ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid"
+    ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'"
+    class="ui-grid-cell"
+    ng-class="{ 'ui-grid-row-header-cell': col.isRowHeader }"
+    role="{{col.isRowHeader ? 'rowheader' : 'gridcell'}}"
+    ui-grid-cell>
+  </div>
+  <div class="ui-grid-row-anchor id="scroll_anchor_{{row.uid}}">
+  </div>
+</script>

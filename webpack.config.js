@@ -2,6 +2,7 @@ var webpack = require('webpack');
 var _ = require('lodash');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const WebpackBrowserPlugin = require('webpack-browser-plugin');
 var path = require('path');
 
 var nodeEnvironment = process.env.BUILD;
@@ -116,12 +117,19 @@ var config = {
   },
 
   devServer: {
-    inline: false,
+    inline: true,
     contentBase: dist,
     historyApiFallback: true
   },
 };
 
+if (!production) {
+  config.plugins.push(
+    new WebpackBrowserPlugin({
+      browser: 'Firefox'
+    })
+  );
+}
 config.plugins.push(
   new CopyWebpackPlugin([
       { from: '../config.yaml' },

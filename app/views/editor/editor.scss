@@ -3,6 +3,10 @@
 	padding: 0;
 }
 
+.ui-grid-viewport {
+  overflow-anchor: none;
+}
+
 .drop-box {
   background: #F8F8F8;
   border: 2px dashed lightblue;

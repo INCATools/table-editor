@@ -59,9 +59,9 @@ npm run build    # 'npm run fastbuild' to avoid minification
 
 ```
 npm run dev
-open http://localhost:8080/webpack-dev-server/table-editor # On MacOSX
+open http://localhost:8085/webpack-dev-server/table-editor # On MacOSX
 # Alternatively, point your browser to:
-#   http://localhost:8080/webpack-dev-server/table-editor
+#   http://localhost:8085/webpack-dev-server/table-editor
 #
 ```
 
