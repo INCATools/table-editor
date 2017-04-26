@@ -73,7 +73,7 @@ export default class EditorController {
         type: 'csv'
       },
       {
-        url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/master/rare-diseases/annotated/OMIM-154400.tab?token=ACVkeScw02OzWffVVErr6YwkT5pO9-jDks5Y_oyhwA%3D%3D',
+        url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/82ffee0d369b445bea04eafcd54e242cae29e546/rare-diseases/annotated/OMIM-154400.tab?token=ACVkebM8gDm2c0fImV7zau54Td4bUTl1ks5ZCdI7wA%3D%3D',
         title: 'HPO TSV ACROFACIAL DYSOSTOSIS 1 (Remote)',
         type: 'tsv'
       },
@@ -84,6 +84,7 @@ export default class EditorController {
       }
     ];
     this.exportedXSV = null;
+
 
     this.session = session;
     if (session.initialized) {
