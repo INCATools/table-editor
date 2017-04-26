@@ -37,8 +37,8 @@ globalAutocomplete:   # Mostly for HPO testing without a separate YAML
     label: 'Phenotype Name'
     root_class: 'UPHENO:0001001'
     lookup_type: 'golr'
-  'Evidence ID':
-    label: 'Evidence Name'
-    root_class: 'ECO:0000000'
-    lookup_type: 'golr'
+#  'Evidence ID':
+#    label: 'Evidence Name'
+#    root_class: 'ECO:0000000'
+#    lookup_type: 'golr'
 

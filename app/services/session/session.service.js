@@ -59,9 +59,8 @@ export default class SessionService {
     document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
   }
 
-
   golrLookup(colName, oldValue, val, acEntry) {
-    var golrURLBase = 'https://solr.monarchinitiative.org/solr/ontology/select';
+    var golrURLBase = 'https://solr-dev.monarchinitiative.org/solr/ontology/select';
     var whichClosure = acEntry.root_class;
     var requestParams = {
       defType: 'edismax',
@@ -80,6 +79,131 @@ export default class SessionService {
       _: Date.now()
     };
 
+/*
+  The following are experiments with using the Monarch /search ontology for AC.
+  Unfortunately, the Monarch /search core doesn't seem to have as fine-grained closures
+  needed for our purposes, but I may end up revisiting this, so I'm keeping the code around
+  for a while. DBK
+    var golrURLBaseImproved = 'https://solr.monarchinitiative.org/solr/search/select';
+    var requestParamsImproved = {
+      defType: 'edismax',
+      qt: 'standard',
+      wt: 'json',
+      start: 0,
+      rows: '15',
+      fl: '*,score',
+      'facet.mincount': 1,
+      'facet.sort': 'count',
+      'json.nl': 'arrarr',
+      'facet.limit': '25',
+      fq: 'category:"Phenotype"',
+      // fq: 'isa_partof_closure:"' + whichClosure + '"',
+      'facet.field': 'id',
+      // fq: 'isa_partof_closure:"' + whichClosure + '"',
+      // q: 'annotation_class_label_searchable:*' + val + '*',
+      q: val + '+"' + val + '"',
+      qf: [
+    'label_searchable^1',
+    'definition_searchable^1',
+    'synonym_searchable^1',
+    'iri_searchable^2',
+    'id_searchable^2',
+    'equivalent_iri_searchable^1',
+    'equivalent_curie_searchable^1',
+    'taxon_label_searchable^1',
+    'taxon_label_synonym_searchable^1',
+    'iri_std^3',
+    'iri_kw^3',
+    'iri_eng^3',
+    'id_std^3',
+    'id_kw^3',
+    'id_eng^3',
+    'label_std^2',
+    'label_kw^2',
+    'label_eng^2',
+    'definition_std^1',
+    'definition_kw^1',
+    'definition_eng^1',
+    'synonym_std^1',
+    'synonym_kw^1',
+    'synonym_eng^1',
+    'category_std^1',
+    'category_kw^1',
+    'category_eng^1',
+    'equivalent_iri_std^1',
+    'equivalent_iri_kw^1',
+    'equivalent_iri_eng^1',
+    'equivalent_curie_std^1',
+    'equivalent_curie_kw^1',
+    'equivalent_curie_eng^1',
+    'taxon_label_std^1',
+    'taxon_label_kw^1',
+    'taxon_label_eng^1',
+    'taxon_label_synonym_std^1',
+    'taxon_label_synonym_kw^1',
+    'taxon_label_synonym_eng^1'
+    ]
+    };
+
+    var requestParamsFromMonarchAC = {
+      defType: 'edismax',
+      qt: 'standard',
+      indent: 'on',
+      wt: 'json',
+      start: 0,
+      fl: '*,score',
+      facet: true,
+      'facet.mincount': 1,
+      'facet.sort': 'count',
+      'json.nl': 'arrarr',
+      'facet.limit': '25',
+      hl: true,
+      'hl.simple.pre': '<em class="hilite">',
+      'hl.snippets': '1000',
+      'facet.field': 'id',
+      q: val, // 'sedoheptulos+"sedoheptulos"',
+      qf: [ 'label_searchable^1',
+            'definition_searchable^1',
+            'synonym_searchable^1',
+            'iri_searchable^2',
+            'id_searchable^2',
+            'equivalent_iri_searchable^1',
+            'equivalent_curie_searchable^1',
+            'taxon_label_searchable^1',
+            'taxon_label_synonym_searchable^1',
+            'iri_std^3',
+            'iri_kw^3',
+            'iri_eng^3',
+            'id_std^3',
+            'id_kw^3',
+            'id_eng^3',
+            'label_std^2',
+            'label_kw^2',
+            'label_eng^2',
+            'definition_std^1',
+            'definition_kw^1',
+            'definition_eng^1',
+            'synonym_std^1',
+            'synonym_kw^1',
+            'synonym_eng^1',
+            'category_std^1',
+            'category_kw^1',
+            'category_eng^1',
+            'equivalent_iri_std^1',
+            'equivalent_iri_kw^1',
+            'equivalent_iri_eng^1',
+            'equivalent_curie_std^1',
+            'equivalent_curie_kw^1',
+            'equivalent_curie_eng^1',
+            'taxon_label_std^1',
+            'taxon_label_kw^1',
+            'taxon_label_eng^1',
+            'taxon_label_synonym_std^1',
+            'taxon_label_synonym_kw^1',
+            'taxon_label_synonym_eng^1']
+    };
+*/
+
     var trusted = this.$sce.trustAsResourceUrl(golrURLBase);
     return this.$http.jsonp(
       trusted,
@@ -95,6 +219,7 @@ export default class SessionService {
             return {
               id: item.id,
               name: item.annotation_class_label
+              // name: item.label[0]
             };
           });
           // console.log('GOLR success', golrURLBase, requestParams, data, result);
