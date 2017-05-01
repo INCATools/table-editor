@@ -1,14 +1,188 @@
 import _ from 'lodash';
 import Papa from 'papaparse';
+import yaml from 'js-yaml';
+
+/* global angular */
 
 export default class SessionService {
-  constructor($http, $timeout, $location, $sce) {
+  constructor($http, $timeout, $location, $sce, $rootScope) {
     this.name = 'DefaultSessionName';
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
     this.$sce = $sce;
+    this.$rootScope = $rootScope;
+    this.defaultConfigURL = 'configurations/hpo/config.yaml';
+
+    var that = this;
+    var searchParams = this.$location.search();
+    if (searchParams.config) {
+      var config = searchParams.config;
+      that.loadURLConfig(config);
+    }
+    else if (that.defaultConfigURL) {
+      that.loadURLConfig(that.defaultConfigURL);
+    }
   }
+
+
+  loadSourceConfig(source, title, url) {
+    this.sourceConfig = source;
+    this.titleConfig = title;
+    this.configURL = url;
+    this.errorMessageConfig = null;
+    if (url) {
+      var search = this.$location.search();
+      search.config = url;
+      this.$location.search(search);
+    }
+    else {
+      this.$location.search({});
+    }
+    var that = this;
+    this.parseConfig(function() {
+      that.$rootScope.$broadcast('parsedConfig');
+    });
+  }
+
+  loadURLConfig(configURL) {
+    var that = this;
+    this.configURL = configURL;
+    this.$http.get(configURL, {withCredentials: false}).then(
+      function(result) {
+        that.loadSourceConfig(result.data, configURL, configURL);
+      },
+      function(error) {
+        that.setErrorConfig('Error loading URL ' + configURL + '\n\n' + JSON.stringify(error));
+      }
+    );
+  }
+
+  generateDefaultACRegistry() {
+    var that = this;
+    that.autocompleteRegistry = {};
+    _.each(that.parsedConfig.globalAutocomplete, function(entry, columnName) {
+      that.autocompleteRegistry[columnName] = {
+        iriPrefix: 'http://purl.obolibrary.org/obo/',
+        curiePrefix: entry.curiePrefix,
+        idColumn: columnName,
+        labelColumn: entry.label,
+        root_class: entry.root_class,
+        lookup_type: entry.lookup_type
+      };
+
+      if (entry.label) {
+        that.autocompleteRegistry[entry.label] = angular.copy(that.autocompleteRegistry[columnName]);
+      }
+    });
+  }
+
+  parseConfig(continuation) {
+    try {
+      var doc = yaml.safeLoad(this.sourceConfig);
+      this.parsedConfig = doc;
+
+      var that = this;
+      this.generateDefaultACRegistry();
+      this.initialized = true;
+
+      continuation();
+    }
+    catch (e) {
+      console.log('error', e);
+    }
+  }
+
+  stripQuotes(s) {
+    return s.replace(/^'/, '').replace(/'$/, '');
+  }
+
+  parsePattern(continuation) {
+    var that = this;
+
+    try {
+      var doc = yaml.safeLoad(this.sourcePattern);
+      this.parsedPattern = doc;
+
+      this.generateDefaultACRegistry();
+      _.each(this.parsedPattern.vars,
+        function(classname, key) {
+          if (that.parsedPattern) {
+            classname = that.stripQuotes(classname);
+            var curie = that.parsedPattern.classes[classname];
+            if (!curie) {
+              that.setErrorPattern('Error in pattern for var "' + classname + '"\n' + JSON.stringify(that.parsedPattern, null, 2));
+            }
+            else {
+              var curiePrefix = curie.split(':')[0];
+              var configEntry = that.parsedConfig.prefixes[curiePrefix] ||
+                    {
+                      autocomplete: 'ols',
+                      iriPrefix: 'http://purl.obolibrary.org/obo/'
+                    };
+
+              var labelColumn = key + ' label';
+              that.autocompleteRegistry[key] = {
+                idColumn: key,
+                labelColumn: labelColumn,
+                root_class: curie,
+                lookup_type: configEntry.autocomplete,
+                iriPrefix: configEntry.iriPrefix,
+                curiePrefix: curiePrefix
+              };
+              that.autocompleteRegistry[labelColumn] = {
+                idColumn: key,
+                labelColumn: labelColumn,
+                root_class: curie,
+                lookup_type: configEntry.autocomplete,
+                iriPrefix: configEntry.iriPrefix,
+                curiePrefix: curiePrefix
+              };
+            }
+          }
+        });
+      if (!this.parsedPattern.vars) {
+        this.parsedPattern.vars = [];
+      }
+      continuation();
+    }
+    catch (e) {
+      console.log('error', e);
+    }
+  }
+
+  parseXSV(continuation) {
+    var that = this;
+    var config = {
+      download: false,
+      // delimiter: '\t',  // auto-detect
+      header: true,
+      comments: true,
+      // dynamicTyping: false,
+      // preview: 0,
+      // encoding: "",
+      // worker: false,
+      // comments: false,
+      // step: undefined,
+      // complete: undefined,
+      // error: undefined,
+      // download: false,
+      skipEmptyLines: true,
+      // chunk: undefined,
+      // fastMode: undefined,
+      // beforeFirstChunk: undefined,
+      // withCredentials: undefined
+    };
+
+
+    config.complete = function(results, file) {
+      that.parsedXSV = results;
+      continuation();
+    };
+
+    Papa.parse(this.sourceXSV, config);
+  }
+
 
   exportXSV(xsvType) {
     var delimiter = ((xsvType === 'tsv') || (xsvType === 'tab')) ?
@@ -58,6 +232,8 @@ export default class SessionService {
     link.click();
     document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
   }
+
+
 
   golrLookup(colName, oldValue, val, acEntry) {
     var golrURLBase = 'https://solr-dev.monarchinitiative.org/solr/ontology/select';
@@ -236,46 +412,52 @@ export default class SessionService {
   }
 
   olsLookup(colName, oldValue, val, acEntry) {
-    var olsURLBase = 'http://www.ebi.ac.uk/ols/api/select';
-    var whichClosure = this.generateIRI(acEntry.iriPrefix, acEntry.root_class);
-    var ontology = acEntry.curiePrefix.toLowerCase();
-    var requestParams = {
-      q: val,
-      type: 'class',
-      fieldList: 'iri,label,short_form,description',
-      // local: true,
-      ontology: ontology,
-      allChildrenOf: whichClosure,
-      rows: 15
-    };
+    if (!val || val.length === 0) {
+      return [];
+    }
+    else {
+      // console.log('olsLookup', colName, oldValue, val, acEntry);
+      var olsURLBase = 'http://www.ebi.ac.uk/ols/api/select';
+      var whichClosure = this.generateIRI(acEntry.iriPrefix, acEntry.root_class);
+      var ontology = acEntry.curiePrefix.toLowerCase();
+      var requestParams = {
+        q: val,
+        type: 'class',
+        fieldList: 'iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type',
+        // local: true,
+        ontology: ontology,
+        allChildrenOf: whichClosure,
+        rows: 15
+      };
 
-    // requestParams.ontology = ontology;
-    // if (ontology !== 'exo') {
-    //   requestParams.ontology = ontology;
-    // }
+      // requestParams.ontology = ontology;
+      // if (ontology !== 'exo') {
+      //   requestParams.ontology = ontology;
+      // }
 
-    return this.$http.get(
-      olsURLBase,
-      {
-        withCredentials: false,
-        params: requestParams
-      })
-      .then(
-        function(response) {
-          var data = response.data.response.docs;
-          // console.log('OLS success', olsURLBase, requestParams, data);
-          var result = data.map(function(item) {
-            return {
-              id: item.short_form,
-              name: item.label
-            };
-          });
-          return result;
-        },
-        function(error) {
-          console.log('OLS error: ', olsURLBase, requestParams, error);
-        }
-      );
+      return this.$http.get(
+        olsURLBase,
+        {
+          withCredentials: false,
+          params: requestParams
+        })
+        .then(
+          function(response) {
+            var data = response.data.response.docs;
+            // console.log('OLS success', olsURLBase, requestParams, data);
+            var result = data.map(function(item) {
+              return {
+                id: item.obo_id,  // short_form,
+                name: item.label
+              };
+            });
+            return result;
+          },
+          function(error) {
+            console.log('OLS error: ', olsURLBase, requestParams, error);
+          }
+        );
+    }
   }
 
 
@@ -296,5 +478,39 @@ export default class SessionService {
         return result;
       });
   }
+
+
+
+  inlineLookup(colName, oldValue, val, acEntry) {
+    var inlineBlock = this.parsedConfig.inline;
+    var terms = [
+      {id: 'BEER:0000001', name: 'Pilsner'},
+      {id: 'BEER:0000002', name: 'Lager'},
+      {id: 'BEER:0000003', name: 'Ale'},
+      {id: 'BEER:0000004', name: 'Pale Ale'},
+      {id: 'BEER:0000005', name: 'India Pale Ale'},
+      {id: 'BEER:0000006', name: 'Porter'},
+      {id: 'BEER:0000007', name: 'Stout'}
+    ];
+
+    if (inlineBlock && inlineBlock[colName]) {
+      terms = _.map(inlineBlock[colName], function(v) {
+        return {
+          id: v,
+          name: v
+        };
+      });
+    }
+
+    var matches = [];
+    _.each(terms, function(v) {
+      if (v.name.toUpperCase().indexOf(val.toUpperCase()) >= 0) {
+        matches.push(v);
+      }
+    });
+
+    return matches;
+  }
+
 }
-SessionService.$inject = ['$http', '$timeout', '$location', '$sce'];
+SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope'];

@@ -1,0 +1,41 @@
+inline:
+  'Evidence ID':
+    - IEA
+    - TAS
+    - PCS
+    - ICE
+  'Evidence Name':
+    - IEA
+    - TAS
+    - PCS
+    - ICE
+
+patternless: true
+
+globalAutocomplete:   # Mostly for HPO testing without a separate YAML
+  'Disease ID':
+    label: 'Disease Name'
+    root_class: 'DOID:4'
+    lookup_type: 'golr'
+  'Age of Onset ID':
+    label: 'Age of Onset Name'
+    root_class: 'HP:0003674'
+    lookup_type: 'golr'
+  'Phenotype ID':
+    label: 'Phenotype Name'
+    # root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    curiePrefix: 'HP'
+    lookup_type: 'ols'
+  'Evidence ID':
+    label: 'Evidence Name'
+    lookup_type: 'inline'
+
+defaultXSVs:
+  - url: 'configurations/hpo/OMIM-101400.tab'
+    title: 'SAETHRE-CHOTZEN SYNDROME'
+    type: 'tsv'
+  - url: 'configurations/hpo/OMIM-102400.tab'
+    title: 'ACROOSTEOLYSIS'
+    type: 'tsv'
+

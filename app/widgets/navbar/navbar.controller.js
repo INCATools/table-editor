@@ -1,11 +1,11 @@
 export default class NavbarController {
-  constructor(session) {
+  constructor(session, $location) {
     this.name = 'navbar';
     this.session = session;
+    this.baseURL = $location.protocol() + '://' + $location.host() + ':' + $location.port();  //  + $location.path();
   }
 
   exportCSV() {
-    console.log('exportCSV');
     this.session.exportXSV('csv');
   }
 
@@ -18,4 +18,4 @@ export default class NavbarController {
   }
 }
 
-NavbarController.$inject = ['session'];
+NavbarController.$inject = ['session', '$location'];

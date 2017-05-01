@@ -117,8 +117,10 @@ var config = {
   },
 
   devServer: {
+    hot: false,
     inline: true,
     contentBase: dist,
+    watchContentBase: true,
     historyApiFallback: true
   },
 };
@@ -126,15 +128,14 @@ var config = {
 if (!production) {
   config.plugins.push(
     new WebpackBrowserPlugin({
-      browser: 'Firefox'
+      browser: 'Safari'   // 'Firefox'
     })
   );
 }
 config.plugins.push(
   new CopyWebpackPlugin([
-      { from: '../config.yaml' },
       { from: '../README.md' },
-      { from: '../examples', to: 'examples' }
+      { from: '../configurations', to: 'configurations' }
   ]));
 
 config.plugins.push(
