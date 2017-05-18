@@ -19,106 +19,123 @@ if (!String.prototype.endsWith) {
 
 export default class EditorController {
   // constructor arglist must match invocation in app.js
-  constructor($scope, $http, $timeout, $location, $anchorScroll, uiGridConstants, uiGridEditConstants, session) {
+  constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, uiGridConstants, uiGridEditConstants, session) {
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
+    this.$rootScope = $rootScope;
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
     this.$anchorScroll = $anchorScroll;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
-    this.examplesPattern = [
-      {
-        url: 'examples/exposure_to_chemical.yaml',
-        title: 'Pattern: Exposure to Chemical (Local)',
-        type: 'yaml'
-      },
-      {
-        url: 'examples/abnormalLevelOfChemicalInEntity.yaml',
-        title: 'Pattern: Abnormal Level of Chemical in Entity (Local)',
-        type: 'yaml'
-      },
-      {
-        url: 'examples/exposure_to_levels_in_medium.yaml',
-        title: 'Pattern: Exposure to Levels in Medium (Local)',
-        type: 'yaml'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
-        title: 'Pattern: Exposure to Chemical (Remote)',
-        type: 'yaml'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns/abnormalLevelOfChemicalInEntity',
-        title: 'Pattern: Abnormal Level of Chemical in Entity (Remote)',
-        type: 'yaml'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_levels_in_medium.yaml',
-        title: 'Pattern: Exposure to Levels in Medium (Remote)',
-        type: 'yaml'
-      }
-    ];
-    this.examplesXSV = [
-      {
-        url: 'examples/exposure_to_chemical.csv',
-        title: 'Exposure to Chemical CSV (Local)',
-        type: 'csv'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
-        title: 'Exposure to Chemical CSV (Remote)',
-        type: 'csv'
-      },
-      {
-        url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/82ffee0d369b445bea04eafcd54e242cae29e546/rare-diseases/annotated/OMIM-154400.tab?token=ACVkebM8gDm2c0fImV7zau54Td4bUTl1ks5ZCdI7wA%3D%3D',
-        title: 'HPO TSV ACROFACIAL DYSOSTOSIS 1 (Remote)',
-        type: 'tsv'
-      },
-      {
-        url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/25041c5926ac90977f8c6a86523fe1a19133eb5d/genetest.tsv',
-        title: 'HPO TSV Fake Debugging Example (Remote)',
-        type: 'tsv'
-      }
-    ];
+    this.examplesPattern = null;
+    //   {
+    //     url: 'examples/exposure_to_chemical.yaml',
+    //     title: 'Pattern: Exposure to Chemical (Local)',
+    //     type: 'yaml'
+    //   },
+    //   {
+    //     url: 'examples/abnormalLevelOfChemicalInEntity.yaml',
+    //     title: 'Pattern: Abnormal Level of Chemical in Entity (Local)',
+    //     type: 'yaml'
+    //   },
+    //   {
+    //     url: 'examples/exposure_to_levels_in_medium.yaml',
+    //     title: 'Pattern: Exposure to Levels in Medium (Local)',
+    //     type: 'yaml'
+    //   },
+    //   {
+    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
+    //     title: 'Pattern: Exposure to Chemical (Remote)',
+    //     type: 'yaml'
+    //   },
+    //   {
+    //     url: 'https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns/abnormalLevelOfChemicalInEntity',
+    //     title: 'Pattern: Abnormal Level of Chemical in Entity (Remote)',
+    //     type: 'yaml'
+    //   },
+    //   {
+    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_levels_in_medium.yaml',
+    //     title: 'Pattern: Exposure to Levels in Medium (Remote)',
+    //     type: 'yaml'
+    //   }
+    // ];
+    this.examplesXSV = null;
+    // [
+    //   {
+    //     url: 'examples/exposure_to_chemical.csv',
+    //     title: 'Exposure to Chemical CSV (Local)',
+    //     type: 'csv'
+    //   },
+    //   {
+    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
+    //     title: 'Exposure to Chemical CSV (Remote)',
+    //     type: 'csv'
+    //   },
+    //   {
+    //     url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/82ffee0d369b445bea04eafcd54e242cae29e546/rare-diseases/annotated/OMIM-154400.tab?token=ACVkebM8gDm2c0fImV7zau54Td4bUTl1ks5ZCdI7wA%3D%3D',
+    //     title: 'HPO TSV ACROFACIAL DYSOSTOSIS 1 (Remote)',
+    //     type: 'tsv'
+    //   },
+    //   {
+    //     url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/25041c5926ac90977f8c6a86523fe1a19133eb5d/genetest.tsv',
+    //     title: 'HPO TSV Fake Debugging Example (Remote)',
+    //     type: 'tsv'
+    //   }
+    // ];
+
     this.exportedXSV = null;
-
-
     this.session = session;
-    if (session.initialized) {
-      // console.log('session.initialized');
-    }
-    else {
-      // console.log('!session.initialized');
+
+    function completeInitialization() {
       session.showPatternSource = false;
       session.showPatternParsed = false;
-      this.setErrorPattern(null);
+      that.setErrorPattern(null);
       session.patternURL = null;
-      session.defaultpatternURL = null; // this.examplesPattern[0].url;
 
-      session.defaultConfigURL = './config.yaml';
+      if (session.parsedConfig.patternless) {
+        // console.log('patternless===true');
+      }
+      else {
+        if (session.parsedConfig.defaultPatterns) {
+          that.examplesPattern = session.parsedConfig.defaultPatterns;
+        }
+        if (that.examplesPattern.length > 0) {
+          session.defaultpatternURL = that.examplesPattern[0].url;
+        }
+      }
 
       session.showXSVSource = false;
       session.showXSVParsed = false;
       session.sourceXSV = '';
       session.titleXSV = '';
       session.errorMessageXSV = null;
-      this.setErrorXSV(null);
+      that.setErrorXSV(null);
 
       session.XSVURL = null;
-      session.defaultXSVURL = null; // this.examplesXSV[3].url;
+      if (session.parsedConfig.defaultXSVs) {
+        that.examplesXSV = session.parsedConfig.defaultXSVs;
+      }
+      session.defaultXSVURL = null;
 
-      var searchParams = this.$location.search();
-      if (searchParams.config) {
-        var config = searchParams.config;
-        that.loadURLConfig(config);
+      if (that.examplesXSV && that.examplesXSV.length > 0) {
+        session.defaultXSVURL = that.examplesXSV[0].url;
       }
-      else if (that.session.defaultConfigURL) {
-        that.loadURLConfig(that.session.defaultConfigURL);
-      }
+
+      that.parsedConfig();
     }
+
+    if (session.initialized) {
+      // console.log('session.initialized');
+      // completeInitialization();
+    }
+    else {
+      console.log('!session.initialized');
+      that.$rootScope.$on('parsedConfig', completeInitialization);
+    }
+
     this.$scope.$watch('editorCtrl.session.filePattern', function () {
       that.loadFilePattern(that.session.filePattern);
     });
@@ -156,7 +173,9 @@ export default class EditorController {
         if (acEntry) {
           var colId = row[acEntry.idColumn];
 
-          result = acEntry.iriPrefix + colId.replace(':', '_');
+          if (colId) {
+            result = acEntry.iriPrefix + colId.replace(':', '_');
+          }
         }
         else {
           result = 'http://www.ebi.ac.uk/ols/search?q=' + encodeURI(row[colName]);
@@ -200,13 +219,15 @@ export default class EditorController {
       }
       oldValue = rowEntity[acEntry.labelColumn];
     }
-    // console.log('getTerm', colName, oldValue, val, acEntry, this.session.autocompleteRegistry);
 
     if (acEntry && acEntry.lookup_type === 'golr') {
       return this.session.golrLookup(colName, oldValue, val, acEntry);
     }
     else if (acEntry && acEntry.lookup_type === 'ols') {
       return this.session.olsLookup(colName, oldValue, val, acEntry);
+    }
+    else if (acEntry && acEntry.lookup_type === 'inline') {
+      return this.session.inlineLookup(colName, oldValue, val, acEntry);
     }
     else {
       return this.session.monarchLookup(colName, oldValue, val, acEntry);
@@ -221,7 +242,6 @@ export default class EditorController {
 
     if (this.isAutocompleteColumn(cellName)) {
       var acEntry = this.session.autocompleteRegistry[cellName];
-      // console.log('termSelected', acEntry, cellName, cellValue);
       if (acEntry) {
         if (acEntry.idColumn) {
           cell.row.entity[acEntry.idColumn] = cellValue.id;
@@ -245,47 +265,88 @@ export default class EditorController {
       cell.row.entity[cellName] = cellValue;
     }
 
+    // console.log('termSelected', acEntry, cellName, cellValue, cell.row.entity);
+    var e = cell.row.entity;
+    if (!e['IRI label'] || e['IRI label'].length === 0) {
+      if (e.beer && e.yeast && e.anatomy) {
+        cell.row.entity['IRI label'] = '' + e['beer label'] + ' beer with ' + e['yeast label'] + ' from ' + e['anatomy label'];
+      }
+    }
     this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
+  }
+
+  convertIDToNumber(id) {
+    var prefix = this.session.parsedConfig.IRIGeneration.prefix;
+
+    var result = 0;
+    if (id.indexOf(prefix) === 0) {
+      id = id.slice(prefix.length + 1);
+      result = parseInt(id, 10);
+    }
+    else {
+      console.log('...ERROR in id', id);
+    }
+
+    return result;
+  }
+
+
+  convertNumberToID(number) {
+    var prefix = this.session.parsedConfig.IRIGeneration.prefix;
+    number = '000000' + number;
+    var result = prefix + ':' + number.slice(number.length - 6);
+    return result;
   }
 
   addRow() {
     var that = this;
-    var selCell = this.gridApi.cellNav.getFocusedCell();
-    var selRow = null;
-    if (selCell) {
-      selRow = selCell.row.entity;
-    }
-    else if (this.session.rowData.length > 0) {
-      selRow = this.session.rowData[this.session.rowData.length - 1];
+
+    var topRow;
+    if (this.session.rowData.length > 0) {
+      topRow = this.session.rowData[0];
     }
     else {
-      selRow = {};
+      topRow = null;
     }
-    var newRow = angular.copy(selRow);
-    newRow['Disease ID'] = '';
-    newRow['Disease Name'] = '';
-    newRow.iri = '';
-    newRow['iri label'] = '';
-    this.session.rowData.push(newRow);
+
+
+    var newRow;
+    var iriGeneration = this.session.parsedConfig.IRIGeneration;
+    if (iriGeneration) {
+      var lastIRINumber = this.session.parsedConfig.IRIGeneration.counter;
+
+      newRow = {};
+
+      ++lastIRINumber;
+
+      newRow.iri = this.convertNumberToID(lastIRINumber);
+    }
+    else {
+      newRow = {};
+
+      if (topRow) {
+        newRow['Disease ID'] = topRow['Disease ID'];
+        newRow['Disease Name'] = topRow['Disease Name'];
+      }
+    }
+
+    this.session.rowData.unshift(newRow);
     // this.gridApi.core.handleWindowResize();
 
     this.$timeout(function() {
       var rows = that.$scope.gridApi.grid.getVisibleRows();
-      // var rows = that.gridOptions.data;
-      var row = rows[rows.length - 1];
-      // $scope.gridOptions.data[rowIndex], $scope.gridOptions.columnDefs[colIndex]);
+      var row = rows[0];
 
-      that.$anchorScroll('bottom_of_page');
+      // that.$anchorScroll('bottom_of_page');
 
       that.$scope.gridApi.cellNav.scrollToFocus(
         row.entity,
-        that.$scope.gridApi.grid.columns[0]);
+        that.$scope.gridApi.grid.columns[6]);
 
-      // that.$timeout(function() {
-      //   that.$anchorScroll.yOffset = -800;
-      //   that.$anchorScroll('scroll_anchor_' + row.uid);
-      //   console.log('scroll_anchor_' + row.uid);
-      // }, 100);
+      that.$timeout(function() {
+        // that.$anchorScroll.yOffset = -800;
+        that.$anchorScroll('scroll_anchor_' + row.uid);
+      }, 100);
     }, 100);
   }
 
@@ -298,90 +359,36 @@ export default class EditorController {
     this.session.parsedConfig = null;
   }
 
-  generateDefaultACRegistry() {
+  parsedConfig() {
     var that = this;
-    that.session.autocompleteRegistry = {};
-    _.each(that.session.parsedConfig.globalAutocomplete, function(entry, columnName) {
-      that.session.autocompleteRegistry[columnName] = {
-        iriPrefix: 'http://purl.obolibrary.org/obo/',
-        idColumn: columnName,
-        labelColumn: entry.label,
-        root_class: entry.root_class,
-        lookup_type: entry.lookup_type
-      };
+    var searchParams = that.$location.search();
+    var patternUrl;
+    if (searchParams.yaml) {
+      patternUrl = searchParams.yaml;
+    }
+    else if (that.session.defaultpatternURL) {
+      patternUrl = that.session.defaultpatternURL;
+    }
 
-      if (entry.label) {
-        that.session.autocompleteRegistry[entry.label] = {
-          iriPrefix: 'http://purl.obolibrary.org/obo/',
-          idColumn: columnName,
-          labelColumn: entry.label,
-          root_class: entry.root_class,
-          lookup_type: entry.lookup_type
-        };
-      }
-    });
-  }
-
-  parseConfig() {
-    var renderElement = document.getElementById('ConfigParsed');
-
-    try {
-      var doc = yaml.safeLoad(this.session.sourceConfig);
-      this.session.parsedConfig = doc;
-      // console.log('parseConfig', this.session.parsedConfig);
-
-      var that = this;
-      this.generateDefaultACRegistry();
-      this.session.initialized = true;
-
-      var searchParams = this.$location.search();
-      if (searchParams.yaml) {
-        var url = searchParams.yaml;
-        this.loadURLPattern(url);
-      }
-      else if (this.session.defaultpatternURL) {
-        this.loadURLPattern(this.session.defaultpatternURL);
-      }
+    function patternLoaded() {
+      var xsvUrl;
       if (searchParams.xsv) {
-        var xsv = searchParams.xsv;
-        this.loadURLXSV(xsv);
+        xsvUrl = searchParams.xsv;
       }
-      else if (this.session.defaultXSVURL) {
-        this.loadURLXSV(this.session.defaultXSVURL);
+      else if (that.defaultXSVURL) {
+        xsvUrl = that.defaultXSVURL;
+      }
+      if (xsvUrl) {
+        that.loadURLXSV(xsvUrl);
       }
     }
-    catch (e) {
-      console.log('error', e);
-    }
-  }
 
-  loadSourceConfig(source, title, url) {
-    this.session.sourceConfig = source;
-    this.session.titleConfig = title;
-    this.session.configURL = url;
-    this.session.errorMessageConfig = null;
-    if (url) {
-      var search = this.$location.search();
-      search.config = url;
-      this.$location.search(search);
+    if (patternUrl) {
+      that.loadURLPattern(patternUrl, patternLoaded);
     }
     else {
-      this.$location.search({});
+      patternLoaded();
     }
-    this.parseConfig();
-  }
-
-  loadURLConfig(configURL) {
-    var that = this;
-    this.session.configURL = configURL;
-    this.$http.get(configURL, {withCredentials: false}).then(
-      function(result) {
-        that.loadSourceConfig(result.data, configURL, configURL);
-      },
-      function(error) {
-        that.setErrorConfig('Error loading URL ' + configURL + '\n\n' + JSON.stringify(error));
-      }
-    );
   }
 
   loadSourceConfigItem(source, title, url) {
@@ -421,61 +428,12 @@ export default class EditorController {
     this.session.parsedPattern = null;
   }
 
-  parsePattern() {
-    var that = this;
-    var renderElement = document.getElementById('PatternParsed');
-
-    try {
-      var doc = yaml.safeLoad(this.session.sourcePattern);
-      this.session.parsedPattern = doc;
-
-      // console.log('parsePattern', this.session.sourcePattern, this.session.parsedPattern, that.session.parsedConfig);
-      // Build the autocomplete Registry from the pattern yaml and the config yaml
-
-      this.generateDefaultACRegistry();
-      _.each(this.session.parsedPattern.vars,
-        function(classname, key) {
-          if (that.session.parsedPattern) {
-            classname = classname.replace(/^'/, '').replace(/'$/, '');
-            var curie = that.session.parsedPattern.classes[classname];
-            if (!curie) {
-              that.setErrorPattern('Error in pattern for var "' + classname + '"\n' + JSON.stringify(that.session.parsedPattern, null, 2));
-            }
-            else {
-              var curiePrefix = curie.split(':')[0];
-              var configEntry = that.session.parsedConfig[curiePrefix] ||
-                    {
-                      autocomplete: 'ols',
-                      iriPrefix: 'http://purl.obolibrary.org/obo/'
-                    };
-
-              var labelColumn = key + ' label';
-              that.session.autocompleteRegistry[key] = {
-                idColumn: key,
-                labelColumn: labelColumn,
-                root_class: curie,
-                lookup_type: configEntry.autocomplete,
-                iriPrefix: configEntry.iriPrefix,
-                curiePrefix: curiePrefix
-              };
-              that.session.autocompleteRegistry[labelColumn] = {
-                idColumn: key,
-                labelColumn: labelColumn,
-                root_class: curie,
-                lookup_type: configEntry.autocomplete,
-                iriPrefix: configEntry.iriPrefix,
-                curiePrefix: curiePrefix
-              };
-            }
-          }
-        });
-    }
-    catch (e) {
-      console.log('error', e);
-    }
+  stripQuotes(s) {
+    return s.replace(/^'/, '').replace(/'$/, '');
   }
 
-  loadSourcePattern(source, title, url) {
+  loadSourcePattern(source, title, url, continuation) {
+    var that = this;
     this.session.sourcePattern = source;
     this.session.titlePattern = title;
     this.session.patternURL = url;
@@ -488,18 +446,37 @@ export default class EditorController {
     else {
       this.$location.search({});
     }
-    this.parsePattern();
+
+    this.session.parsePattern(function() {
+      // console.log('parsedPattern', that.session.parsedPattern);
+      var fields = [];
+      _.each(that.session.parsedPattern.vars, function(v, k) {
+        fields.push(that.stripQuotes(v));
+        fields.push(that.stripQuotes(v) + ' label');
+      });
+      that.session.columnDefs = that.generateColumnDefsFromFields(fields);
+      that.session.rowData = [];
+      that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      that.gridOptions.data = that.session.rowData;
+      if (continuation) {
+        continuation();
+      }
+      that.$timeout(function() {
+        that.gridApi.core.handleWindowResize();
+      }, 0);
+    });
   }
 
-  loadURLPattern(patternURL) {
+  loadURLPattern(patternURL, continuation) {
     var that = this;
     this.session.patternURL = patternURL;
     this.$http.get(patternURL, {withCredentials: false}).then(
       function(result) {
-        that.loadSourcePattern(result.data, patternURL, patternURL);
+        that.loadSourcePattern(result.data, patternURL, patternURL, continuation);
       },
       function(error) {
         that.setErrorPattern('Error loading URL ' + patternURL + '\n\n' + JSON.stringify(error));
+        continuation();
       }
     );
   }
@@ -538,22 +515,35 @@ export default class EditorController {
     this.session.parsedXSV = null;
   }
 
-  generateColumnDefsFromXSV(fields) {
+  generateColumnDefsFromFields(fields) {
     var that = this;
     function sanitizeColumnName(f) {
       return f.replace('(', '_').replace(')', '_');
     }
 
-    var columnDefs = _.map(fields, function(f) {
+    var fieldsWithIRI = angular.copy(fields);
+
+    if (!this.session.parsedConfig.patternless) {
+      fieldsWithIRI.unshift('iri label');
+      fieldsWithIRI.unshift('iri');
+    }
+
+    var columnDefs = _.map(fieldsWithIRI, function(f) {
       var sanitizedName = sanitizeColumnName(f);
       var result = {
         name: sanitizedName,
         field: sanitizedName,
         displayName: f,
         minWidth: 100,
+        maxWidth: 120,
         enableCellEdit: false,
         enableCellEditOnFocus: false
       };
+
+      if (sanitizedName.indexOf(' label') === -1) {
+        result.minWidth = 90;
+        result.maxWidth = 90;
+      }
 
       if (that.isAutocompleteColumn(f)) {
         result.enableCellEditOnFocus = true;
@@ -575,7 +565,7 @@ export default class EditorController {
     });
 
     var lastCol = columnDefs[columnDefs.length - 1];
-    if (!lastCol.name || lastCol.name.length === 0) {
+    if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
       columnDefs.length = columnDefs.length - 1;
     }
 
@@ -592,43 +582,63 @@ export default class EditorController {
     return rowData;
   }
 
+  compareColumnDefs(patternColumns, xsvColumns) {
+    var result = true;
+
+    if (patternColumns.length + 2 !== xsvColumns.length) {
+      console.log('#compareColumnDefs length mismatch:', patternColumns.length + 2, xsvColumns.length);
+      result = false;
+    }
+    else {
+      // console.log('compare',
+      //   patternColumns[0], xsvColumns.slice(2)[0],
+      //   patternColumns[1], xsvColumns.slice(2)[1]);
+      result = _.isEqual(patternColumns, xsvColumns.slice(2));
+    }
+    return result;
+  }
+
   parseXSV() {
     var that = this;
-    var renderElement = document.getElementById('XSVParsed');
-    var config = {
-      download: false,
-      // delimiter: '\t',  // auto-detect
-      header: true,
-      comments: true,
-      // dynamicTyping: false,
-      // preview: 0,
-      // encoding: "",
-      // worker: false,
-      // comments: false,
-      // step: undefined,
-      // complete: undefined,
-      // error: undefined,
-      // download: false,
-      skipEmptyLines: true,
-      // chunk: undefined,
-      // fastMode: undefined,
-      // beforeFirstChunk: undefined,
-      // withCredentials: undefined
-    };
+    this.session.parseXSV(function() {
+      var xsvColumns = that.generateColumnDefsFromFields(that.session.parsedXSV.meta.fields);
 
+      var columnsMatch = true;
+      if (that.session.parsedPattern) {
+        console.log('Pattern used. Verify conformance with XSV',
+          that.session.columnDefs,
+          xsvColumns);
 
-    config.complete = function(results, file) {
-        that.session.parsedXSV = results; // .data;
-        that.session.columnDefs = that.generateColumnDefsFromXSV(results.meta.fields);
-        that.session.rowData = that.generateRowDataFromXSV(results.data);
-        that.gridOptions.columnDefs = that.session.columnDefs;
+        if (that.compareColumnDefs(that.session.columnDefs, xsvColumns)) {
+          console.log('#Consistent column defs in Pattern vs XSV');
+          xsvColumns = that.session.columnDefs;
+        }
+        else {
+          console.log('#Inconsistent column defs in Pattern vs XSV');
+          columnsMatch = false;
+        }
+      }
+      else {
+        // console.log('No pattern used. Generate columns from XSV', xsvColumns);
+      }
+
+      that.session.columnDefs = xsvColumns;
+
+      if (columnsMatch) {
+        that.session.rowData = that.generateRowDataFromXSV(that.session.parsedXSV.data);
+
+        that.session.rowData.reverse();
+        that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
         that.gridOptions.data = that.session.rowData;
-      that.$timeout(function() {
-        that.gridApi.core.handleWindowResize();
-      }, 0);
-    };
-
-    Papa.parse(this.session.sourceXSV, config);
+        that.$timeout(function() {
+          that.gridApi.core.handleWindowResize();
+        }, 0);
+      }
+      else {
+        that.session.rowData = [];
+        that.setErrorXSV('Error: XSV Columns do not match Pattern Columns');
+      }
+    });
   }
 
   loadSourceXSV(source, title, url) {
@@ -766,7 +776,7 @@ export default class EditorController {
 
       that.$timeout(function() {
         if (that.session.columnDefs) {
-          that.gridOptions.columnDefs = that.session.columnDefs;
+          that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
           that.gridOptions.data = that.session.rowData;
         }
         that.gridApi.core.handleWindowResize();
@@ -775,6 +785,6 @@ export default class EditorController {
   }
 }
 
-EditorController.$inject = ['$scope', '$http', '$timeout', '$location', '$anchorScroll',
+EditorController.$inject = ['$scope', '$rootScope', '$http', '$timeout', '$location', '$anchorScroll',
                           'uiGridConstants', 'uiGridEditConstants', 'session'];
 

@@ -23,6 +23,29 @@ prefixes:	    # User specifies this once per team/project
   ECO:
     iriPrefix: http://purl.obolibrary.org/obo/
     autocomplete: solr
+  NCBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  UBERON:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  BEER:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: inline
+
+IRIGeneration:
+  prefix: BEER
+  counter: 0000010
+
+inline:
+  BEER:
+    - Pilsner
+    - Lager
+    - Ale
+    - Pale
+    - India
+    - Porter
+    - Stout
 
 globalAutocomplete:   # Mostly for HPO testing without a separate YAML
   'Disease ID':

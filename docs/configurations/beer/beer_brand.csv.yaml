@@ -1,0 +1,16 @@
+pattern_name: exo/patterns/exposure_to_chemical
+classes:
+  beer type: ENVO:00010483
+  yeast type: NCBITaxon:4932
+
+relations:
+  part of: BFO_0000050
+
+vars:
+  beertype: "'beer type'"
+  yeasttype: "'yeast type'"
+
+name:
+  text: "%s beer"
+  vars:
+    - beertype
