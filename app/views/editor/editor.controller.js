@@ -178,7 +178,7 @@ export default class EditorController {
           }
         }
         else {
-          result = 'http://www.ebi.ac.uk/ols/search?q=' + encodeURI(row[colName]);
+          result = 'https://www.ebi.ac.uk/ols/search?q=' + encodeURI(row[colName]);
         }
       }
     }

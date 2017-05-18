@@ -417,7 +417,7 @@ export default class SessionService {
     }
     else {
       // console.log('olsLookup', colName, oldValue, val, acEntry);
-      var olsURLBase = 'http://www.ebi.ac.uk/ols/api/select';
+      var olsURLBase = 'https://www.ebi.ac.uk/ols/api/select';
       var whichClosure = this.generateIRI(acEntry.iriPrefix, acEntry.root_class);
       var ontology = acEntry.curiePrefix.toLowerCase();
       var requestParams = {
