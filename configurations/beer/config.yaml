@@ -21,6 +21,7 @@ prefixes:     # User specifies this once per team/project
     autocomplete: inline
 
 IRIGeneration:
+  prefix: BEER
   type: counter
   counter: 0000010
 

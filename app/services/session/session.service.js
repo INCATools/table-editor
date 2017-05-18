@@ -503,11 +503,15 @@ export default class SessionService {
     }
 
     var matches = [];
-    _.each(terms, function(v) {
-      if (v.name.toUpperCase().indexOf(val.toUpperCase()) >= 0) {
-        matches.push(v);
-      }
-    });
+
+    if (val) {
+      var valUpper = val.toUpperCase();
+      _.each(terms, function(v) {
+        if (v.name.toUpperCase().indexOf(valUpper) >= 0) {
+          matches.push(v);
+        }
+      });
+    }
 
     return matches;
   }

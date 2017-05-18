@@ -313,14 +313,13 @@ export default class EditorController {
     var newRow;
     var iriGeneration = this.session.parsedConfig.IRIGeneration;
     if (iriGeneration) {
-      var selRow = null;
       var lastIRINumber = this.session.parsedConfig.IRIGeneration.counter;
 
       newRow = {};
 
       ++lastIRINumber;
 
-      newRow.IRI = this.convertNumberToID(lastIRINumber);
+      newRow.iri = this.convertNumberToID(lastIRINumber);
     }
     else {
       newRow = {};
@@ -336,9 +335,7 @@ export default class EditorController {
 
     this.$timeout(function() {
       var rows = that.$scope.gridApi.grid.getVisibleRows();
-      // var rows = that.gridOptions.data;
       var row = rows[0];
-      // $scope.gridOptions.data[rowIndex], $scope.gridOptions.columnDefs[colIndex]);
 
       // that.$anchorScroll('bottom_of_page');
 
@@ -451,7 +448,7 @@ export default class EditorController {
     }
 
     this.session.parsePattern(function() {
-      console.log('parsedPattern', that.session.parsedPattern);
+      // console.log('parsedPattern', that.session.parsedPattern);
       var fields = [];
       _.each(that.session.parsedPattern.vars, function(v, k) {
         fields.push(that.stripQuotes(v));
@@ -459,7 +456,7 @@ export default class EditorController {
       });
       that.session.columnDefs = that.generateColumnDefsFromFields(fields);
       that.session.rowData = [];
-      that.gridOptions.columnDefs = that.session.columnDefs;
+      that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
       that.gridOptions.data = that.session.rowData;
       if (continuation) {
         continuation();
@@ -525,8 +522,11 @@ export default class EditorController {
     }
 
     var fieldsWithIRI = angular.copy(fields);
-    // fieldsWithIRI.unshift('IRI label');
-    // fieldsWithIRI.unshift('IRI');
+
+    if (!this.session.parsedConfig.patternless) {
+      fieldsWithIRI.unshift('iri label');
+      fieldsWithIRI.unshift('iri');
+    }
 
     var columnDefs = _.map(fieldsWithIRI, function(f) {
       var sanitizedName = sanitizeColumnName(f);
@@ -590,7 +590,9 @@ export default class EditorController {
       result = false;
     }
     else {
-      console.log('compare', patternColumns, xsvColumns.slice(2));
+      // console.log('compare',
+      //   patternColumns[0], xsvColumns.slice(2)[0],
+      //   patternColumns[1], xsvColumns.slice(2)[1]);
       result = _.isEqual(patternColumns, xsvColumns.slice(2));
     }
     return result;
@@ -609,6 +611,7 @@ export default class EditorController {
 
         if (that.compareColumnDefs(that.session.columnDefs, xsvColumns)) {
           console.log('#Consistent column defs in Pattern vs XSV');
+          xsvColumns = that.session.columnDefs;
         }
         else {
           console.log('#Inconsistent column defs in Pattern vs XSV');
@@ -625,7 +628,7 @@ export default class EditorController {
         that.session.rowData = that.generateRowDataFromXSV(that.session.parsedXSV.data);
 
         that.session.rowData.reverse();
-        that.gridOptions.columnDefs = that.session.columnDefs;
+        that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
         that.gridOptions.data = that.session.rowData;
         that.$timeout(function() {
           that.gridApi.core.handleWindowResize();
@@ -773,7 +776,7 @@ export default class EditorController {
 
       that.$timeout(function() {
         if (that.session.columnDefs) {
-          that.gridOptions.columnDefs = that.session.columnDefs;
+          that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
           that.gridOptions.data = that.session.rowData;
         }
         that.gridApi.core.handleWindowResize();
