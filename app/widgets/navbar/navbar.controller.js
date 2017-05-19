@@ -2,7 +2,7 @@ export default class NavbarController {
   constructor(session, $location) {
     this.name = 'navbar';
     this.session = session;
-    this.baseURL = $location.protocol() + '://' + $location.host() + ':' + $location.port();  //  + $location.path();
+    this.baseURL = $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/table-editor/';  //  + $location.path();
   }
 
   exportCSV() {
