@@ -37,7 +37,7 @@ describe('Editor', () => {
     // template specs
     // tip: use regex to ensure correct bindings are used e.g., {{  }}
     it('has YAML Examples in template', () => {
-      expect(EditorTemplate).to.match(/YAML Examples/g);
+      expect(EditorTemplate).to.match(/Pattern Examples/g);
     });
   });
 

@@ -235,6 +235,7 @@ export default class EditorController {
   }
 
   termSelected(item, model, label, event) {
+    var that = this;
     var cellNav = this.gridApi.cellNav;
     var cell = cellNav.getFocusedCell();
     var cellName = cell.col.colDef.name;
@@ -266,12 +267,22 @@ export default class EditorController {
     }
 
     // console.log('termSelected', acEntry, cellName, cellValue, cell.row.entity);
-    var e = cell.row.entity;
-    if (!e['IRI label'] || e['IRI label'].length === 0) {
-      if (e.beer && e.yeast && e.anatomy) {
-        cell.row.entity['IRI label'] = '' + e['beer label'] + ' beer with ' + e['yeast label'] + ' from ' + e['anatomy label'];
-      }
-    }
+    // var e = cell.row.entity;0
+    // if (!e['IRI label'] || e['IRI label'].length === 0) {
+    //   if (e.beer && e.yeast && e.anatomy) {
+    //     cell.row.entity['IRI label'] = '' + e['beer label'] + ' beer with ' + e['yeast label'] + ' from ' + e['anatomy label'];
+    //   }
+    // }
+
+    this.$timeout(function() {
+      that.$scope.gridApi.cellNav.scrollToFocus(
+        cell.row.entity,
+        cell.col.colDef);
+      }, 250);
+
+    //   $scope.gridApi.cellNav.scrollToFocus( row, $scope.gridOptions.columnDefs[colIndex]);
+
+
     this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
   }
 
@@ -334,20 +345,52 @@ export default class EditorController {
     // this.gridApi.core.handleWindowResize();
 
     this.$timeout(function() {
-      var rows = that.$scope.gridApi.grid.getVisibleRows();
-      var row = rows[0];
+      var rows = that.$scope.gridApi.grid.getVisibleRows(); // that.session.rowData;
+      var col = that.$scope.gridApi.grid.columns[7];
+      var colUID = col.uid;
+      var rowUID;
+      var row;
+      _.each(rows, function(r) {
+        if (r.entity === newRow) {
+          row = r;
+          rowUID = r.uid;
+        }
+      });
+      // var row = rows[0];
 
+      // console.log('row', row, ' col', col);
       // that.$anchorScroll('bottom_of_page');
 
-      that.$scope.gridApi.cellNav.scrollToFocus(
-        row.entity,
-        that.$scope.gridApi.grid.columns[6]);
+      that.$timeout(function() {
+        that.$anchorScroll.yOffset = 0;
+        var anchor = 'scroll_anchor_' + rowUID + '_' + colUID;
+        // console.log('anchor', anchor);
+        that.$anchorScroll(anchor);
+      }, 10);
+
 
       that.$timeout(function() {
-        // that.$anchorScroll.yOffset = -800;
-        that.$anchorScroll('scroll_anchor_' + row.uid);
-      }, 100);
-    }, 100);
+        that.$scope.gridApi.cellNav.scrollToFocus(
+          row.entity,
+          col.colDef).then(function(rr) {
+            // console.log('s2f');
+          });
+      }, 50);
+
+
+
+
+      // that.$scope.gridApi.cellNav.scrollToFocus(
+      //   row.entity,
+      //   col.colDef).then(function(rr) {
+      //     that.$timeout(function() {
+      //       that.$anchorScroll.yOffset = 0;
+      //       var anchor = 'scroll_anchor_' + rowUID + '_' + colUID;
+      //       that.$anchorScroll(anchor);
+      //     }, 50);
+      //   });
+
+    }, 50);
   }
 
   // Config stuff
@@ -528,22 +571,31 @@ export default class EditorController {
       fieldsWithIRI.unshift('iri');
     }
 
+    var unnamedColumnIndex = 0;
     var columnDefs = _.map(fieldsWithIRI, function(f) {
       var sanitizedName = sanitizeColumnName(f);
+      var visible = true;
+      if (f === '') {
+        sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
+        ++unnamedColumnIndex;
+        visible = false;
+      }
       var result = {
         name: sanitizedName,
         field: sanitizedName,
+        originalName: f,
         displayName: f,
-        minWidth: 100,
-        maxWidth: 120,
+        minWidth: 90,
+        // maxWidth: 120,
         enableCellEdit: false,
-        enableCellEditOnFocus: false
+        enableCellEditOnFocus: false,
+        visible: visible
       };
 
-      if (sanitizedName.indexOf(' label') === -1) {
-        result.minWidth = 90;
-        result.maxWidth = 90;
-      }
+      // if (sanitizedName.indexOf(' label') === -1) {
+      //   result.minWidth = 90;
+      //   result.maxWidth = 90;
+      // }
 
       if (that.isAutocompleteColumn(f)) {
         result.enableCellEditOnFocus = true;
@@ -573,10 +625,17 @@ export default class EditorController {
   }
 
   generateRowDataFromXSV(data) {
+    let xsvColumns = this.session.columnDefs;
     var rowData = _.map(data, function(row) {
       // Not much going on here; this is just an identity mapping for now
       // But other types of transformation might be necessary in the future.
-      return row;
+
+      var transformedRow = {};
+      _.each(xsvColumns, function(columnDef) {
+        transformedRow[columnDef.field] = row[columnDef.originalName];
+      });
+
+      return transformedRow;
     });
 
     return rowData;

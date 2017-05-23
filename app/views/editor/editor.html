@@ -174,7 +174,7 @@
     </div>
   </div>
 
-  <div id="bottom_of_page"></div>
+  <div id="bottom_of_page" style="height:400px;"></div>
 </div>
 
 <script type="text/ng-template" id="cellStateTemplate">
@@ -248,8 +248,7 @@
     class="ui-grid-cell"
     ng-class="{ 'ui-grid-row-header-cell': col.isRowHeader }"
     role="{{col.isRowHeader ? 'rowheader' : 'gridcell'}}"
-    ui-grid-cell>
-  </div>
-  <div class="ui-grid-row-anchor id="scroll_anchor_{{row.uid}}">
+    ui-grid-cell
+    id="scroll_anchor_{{row.uid}}_{{col.uid}}">
   </div>
 </script>

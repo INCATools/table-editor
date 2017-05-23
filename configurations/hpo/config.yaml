@@ -32,6 +32,9 @@ globalAutocomplete:   # Mostly for HPO testing without a separate YAML
     lookup_type: 'inline'
 
 defaultXSVs:
+  - url: 'configurations/hpo/DEBUG.tab'
+    title: 'DEBUG'
+    type: 'tsv'
   - url: 'configurations/hpo/OMIM-101400.tab'
     title: 'SAETHRE-CHOTZEN SYNDROME'
     type: 'tsv'

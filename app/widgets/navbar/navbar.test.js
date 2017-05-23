@@ -6,13 +6,25 @@ import NavbarComponent from './navbar.component';
 import NavbarTemplate from './navbar.html';
 
 describe('Navbar', () => {
-  let $rootScope, makeController;
+  let $location;
+  let $rootScope;
+  let makeController;
+
 
   beforeEach(window.module('app'));
-  beforeEach(inject((_$rootScope_) => {
+  beforeEach(inject((_$rootScope_, _$controller_) => {
     $rootScope = _$rootScope_;
     makeController = () => {
-      return new NavbarController();
+      let ctrl = _$controller_(NavbarController,
+        {
+          $location: {
+            protocol: function() { return 'protocol'; },
+            host: function() { return 'host'; },
+            port: function() { return 'port'; }
+          }
+        });
+
+      return ctrl;
     };
   }));
 
