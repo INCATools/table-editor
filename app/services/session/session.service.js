@@ -196,11 +196,22 @@ export default class SessionService {
       newline: "\n"
     };
 
+    let xsvColumns = this.columnDefs;
+
     var gridData = _.map(this.rowData, function(row) {
-      var result = _.omit(row, '$$hashKey');
-      return result;
+      // var result = _.omit(row, '$$hashKey');
+
+      var transformedRow = {};
+      _.each(xsvColumns, function(columnDef) {
+        transformedRow[columnDef.originalName] = row[columnDef.field];
+      });
+
+      return transformedRow;
     });
+
+    gridData.reverse();
     var text = Papa.unparse(gridData, config);
+    text = text + '\n';
 
     var data = new Blob([text], {type: 'text/plain'});
     // If we are replacing a previously generated file we need to
