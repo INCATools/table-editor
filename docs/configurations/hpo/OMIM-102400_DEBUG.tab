@@ -1,0 +1,6 @@
+Disease ID	Disease Name	Gene ID	Gene Name	Genotype	Gene Symbol(s)	Phenotype ID	Phenotype Name	Age of Onset ID	Age of Onset Name	Evidence ID	Evidence Name	Frequency	Sex ID	Sex Name	Negation ID	Negation Name	Description	Pub	Assigned by	Date Created	
+OMIM:102400	ACROOSTEOLYSIS					HP:0000006	Autosomal dominant inheritance			TAS	TAS							OMIM:102400	HPO:probinson		
+OMIM:102400	ACROOSTEOLYSIS					HP:0009771	Osteolytic defects of the phalanges of the hand			TAS	TAS							OMIM:102400	HPO:probinson		
+OMIM:102400	ACROOSTEOLYSIS					HP:0003621	Juvenile onset			TAS	TAS							OMIM:102400	HPO:probinson		
+OMIM:102400	ACROOSTEOLYSIS					HP:0010177	Osteolytic defects of the phalanges of the toes			TAS	TAS							OMIM:102400	HPO:probinson	30.12.2015	
+OMIM:102400	ACROOSTEOLYSIS	GENEID	GENENAME	GENOTYPE		PHENOTYPEID	PHENOTYPEID	AOSID	AOSNAME	EID	ENAME	FREQUENCY	SEXID	SEXNAME	NEGID	NEGNAME	DESC	PUB	ASSIGNEDBY	DATE	

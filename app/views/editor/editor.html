@@ -126,15 +126,7 @@
   </div>
 
   <div class="row" ng-if="editorCtrl.session.parsedPattern || editorCtrl.session.parsedXSV">
-    <div class="col-xs-4">
-      <button
-        type="button"
-        ng-click="editorCtrl.addRow()"
-        class="btn btn-xs btn-primary btn-block">
-          Add Row
-      </button>
-    </div>
-    <div class="col-xs-8">
+    <div class="col-xs-12">
       <a
         style="font-size:12px;line-height:1em;"
         href="{{editorCtrl.getCellURL()}}"
@@ -221,8 +213,15 @@
     </div>
     <textarea
       type="text"
+      ng-model-options="{
+        'updateOn': 'default blur',
+        'debounce': {
+          'default': 250,
+          'blur': 0
+        }
+      }"
       ng-model="MODEL_COL_FIELD"
-      show-list xtypeahead
+      show-list
       uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
       typeahead-append-to-body="true"
       typeahead-loading="loadingItems"
@@ -252,3 +251,32 @@
     id="scroll_anchor_{{row.uid}}_{{col.uid}}">
   </div>
 </script>
+
+<script type="text/ng-template" id="uigridActionHeader">
+  <button
+    type="button"
+    title="Add Association"
+    class="btn btn-primary btn-xs xbtn-compact"
+    ng-click="grid.appScope.editorCtrl.addRow()">
+    <i class="fa fa-plus fa-fw"></i>
+  </button>
+</script>
+
+<script type="text/ng-template" id="uigridActionCell">
+  <div
+    class="ui-grid-cell-contents"
+    title="TOOLTIP">
+    <div
+      class="text-center action-row">
+      <button
+        type="button"
+        title="Delete Association"
+        class="btn btn-default btn-xs btn-compact"
+        ng-click="grid.appScope.editorCtrl.deleteRow(row.entity)">
+        <i class="fa fa-trash-o fa-fw"></i>
+      </button>
+    </div>
+  </div>
+</script>
+
+

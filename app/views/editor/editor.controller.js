@@ -19,7 +19,7 @@ if (!String.prototype.endsWith) {
 
 export default class EditorController {
   // constructor arglist must match invocation in app.js
-  constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, uiGridConstants, uiGridEditConstants, session) {
+  constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, $window, uiGridConstants, uiGridEditConstants, session) {
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
@@ -28,63 +28,12 @@ export default class EditorController {
     this.$timeout = $timeout;
     this.$location = $location;
     this.$anchorScroll = $anchorScroll;
+    this.$window = $window;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesPattern = null;
-    //   {
-    //     url: 'examples/exposure_to_chemical.yaml',
-    //     title: 'Pattern: Exposure to Chemical (Local)',
-    //     type: 'yaml'
-    //   },
-    //   {
-    //     url: 'examples/abnormalLevelOfChemicalInEntity.yaml',
-    //     title: 'Pattern: Abnormal Level of Chemical in Entity (Local)',
-    //     type: 'yaml'
-    //   },
-    //   {
-    //     url: 'examples/exposure_to_levels_in_medium.yaml',
-    //     title: 'Pattern: Exposure to Levels in Medium (Local)',
-    //     type: 'yaml'
-    //   },
-    //   {
-    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_chemical.yaml',
-    //     title: 'Pattern: Exposure to Chemical (Remote)',
-    //     type: 'yaml'
-    //   },
-    //   {
-    //     url: 'https://raw.githubusercontent.com/obophenotype/upheno/master/src/patterns/abnormalLevelOfChemicalInEntity',
-    //     title: 'Pattern: Abnormal Level of Chemical in Entity (Remote)',
-    //     type: 'yaml'
-    //   },
-    //   {
-    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/patterns/exposure_to_levels_in_medium.yaml',
-    //     title: 'Pattern: Exposure to Levels in Medium (Remote)',
-    //     type: 'yaml'
-    //   }
-    // ];
+
     this.examplesXSV = null;
-    // [
-    //   {
-    //     url: 'examples/exposure_to_chemical.csv',
-    //     title: 'Exposure to Chemical CSV (Local)',
-    //     type: 'csv'
-    //   },
-    //   {
-    //     url: 'https://raw.githubusercontent.com/cmungall/environmental-conditions/master/src/ontology/modules/exposure_to_chemical.csv',
-    //     title: 'Exposure to Chemical CSV (Remote)',
-    //     type: 'csv'
-    //   },
-    //   {
-    //     url: 'https://raw.githubusercontent.com/monarch-initiative/hpo-annotation-data/82ffee0d369b445bea04eafcd54e242cae29e546/rare-diseases/annotated/OMIM-154400.tab?token=ACVkebM8gDm2c0fImV7zau54Td4bUTl1ks5ZCdI7wA%3D%3D',
-    //     title: 'HPO TSV ACROFACIAL DYSOSTOSIS 1 (Remote)',
-    //     type: 'tsv'
-    //   },
-    //   {
-    //     url: 'https://gist.githubusercontent.com/DoctorBud/8d2f7e33d0055c13f310f1e767225ffa/raw/25041c5926ac90977f8c6a86523fe1a19133eb5d/genetest.tsv',
-    //     title: 'HPO TSV Fake Debugging Example (Remote)',
-    //     type: 'tsv'
-    //   }
-    // ];
 
     this.exportedXSV = null;
     this.session = session;
@@ -309,6 +258,15 @@ export default class EditorController {
     return result;
   }
 
+  deleteRow(entity) {
+    if (this.$window.confirm('Are you sure you want to delete this entry?')) {
+      var foundIndex = this.session.rowData.indexOf(entity);
+      if (foundIndex >= 0) {
+        this.session.rowData.splice(foundIndex, 1);
+      }
+    }
+  }
+
   addRow() {
     var that = this;
 
@@ -346,7 +304,7 @@ export default class EditorController {
 
     this.$timeout(function() {
       var rows = that.$scope.gridApi.grid.getVisibleRows(); // that.session.rowData;
-      var col = that.$scope.gridApi.grid.columns[7];
+      var col = that.$scope.gridApi.grid.columns[8];
       var colUID = col.uid;
       var rowUID;
       var row;
@@ -418,13 +376,14 @@ export default class EditorController {
       if (searchParams.xsv) {
         xsvUrl = searchParams.xsv;
       }
-      else if (that.defaultXSVURL) {
-        xsvUrl = that.defaultXSVURL;
+      else if (that.session.defaultXSVURL) {
+        xsvUrl = that.session.defaultXSVURL;
       }
       if (xsvUrl) {
         that.loadURLXSV(xsvUrl);
       }
     }
+
 
     if (patternUrl) {
       that.loadURLPattern(patternUrl, patternLoaded);
@@ -621,6 +580,25 @@ export default class EditorController {
       columnDefs.length = columnDefs.length - 1;
     }
 
+    let commandColumn = {
+      name: 'Command',
+      displayName: '',
+      width: 30,
+      field: '',
+      resizable: false,
+      cellTemplate: 'uigridActionCell',
+      enableCellEdit: false,
+      enableCellSelection: false,
+      enableCellEditOnFocus: false,
+      enableSorting: false,
+      allowCellFocus: false,
+      enableHiding: false,
+      enableColumnMenu: false,
+      headerCellTemplate: 'uigridActionHeader'
+    };
+
+    columnDefs.unshift(commandColumn);
+
     return columnDefs;
   }
 
@@ -772,6 +750,15 @@ export default class EditorController {
     return result;
   }
 
+  setSorting(enabled) {
+    this.gridOptions.enableSorting = enabled;
+    _.each(this.gridOptions.columnDefs, function(columnDef) {
+      if (columnDef.cellTemplate !== 'uigridActionCell') {
+        columnDef.enableSorting = enabled;
+      }
+    });
+    this.gridApi.core.notifyDataChange(this.uiGridConstants.dataChange.COLUMN);
+  }
 
   setupGrid() {
     var that = this;
@@ -791,13 +778,6 @@ export default class EditorController {
     this.$scope.debugFormat = angular.bind(this, this.debugFormat);
     this.$scope.getTerm = angular.bind(this, this.getTerm);
     this.$scope.termSelected = angular.bind(this, this.termSelected);
-    this.$scope.modelOptions = {
-      debounce: {
-        default: 500,
-        blur: 250
-      },
-      getterSetter: true
-    };
 
     this.lastCellEdited = null;
     this.gridOptions.onRegisterApi = function(gridApi) {
@@ -806,30 +786,37 @@ export default class EditorController {
 
       gridApi.edit.on.beginCellEdit(that.$scope, function(rowEntity, colDef) {
         // console.log("beginCellEdit: " + angular.toJson(colDef.field));
+        that.setSorting(false);
       });
 
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
         // console.log("afterCellEdit: " + angular.toJson(colDef.field));
         that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
+        that.setSorting(true);
       });
 
       gridApi.edit.on.cancelCellEdit(that.$scope, function(rowEntity, colDef) {
         // console.log("cancelCellEdit: " + angular.toJson(colDef.field));
+        that.setSorting(true);
       });
 
       gridApi.cellNav.on.viewPortKeyDown(that.$scope, function(event, newRowCol) {
-          var row = newRowCol.row;
-          var col = newRowCol.col;
-          if (event.keyCode === 32) {
-            that.$scope.gridApi.cellNav.scrollToFocus(
-              row.entity,
-              that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
-          }
+        // console.log('viewPortKeyDown', event.keyCode, event);
+        var row = newRowCol.row;
+        var col = newRowCol.col;
+        if (event.keyCode === 32) {
+          that.$scope.gridApi.cellNav.scrollToFocus(
+            row.entity,
+            that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
+        }
+        else if (event.keyCode === 27) {
+          that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
+        }
       });
 
       gridApi.cellNav.on.navigate(that.$scope, function(newRowCol, oldRowCol) {
           // console.log('navigate', newRowCol, oldRowCol);
-          that.$scope.$broadcast(that.uiGridEditConstants.events.END_CELL_EDIT);
+          that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
           that.$scope.noResults = false;
       });
 
@@ -844,6 +831,6 @@ export default class EditorController {
   }
 }
 
-EditorController.$inject = ['$scope', '$rootScope', '$http', '$timeout', '$location', '$anchorScroll',
+EditorController.$inject = ['$scope', '$rootScope', '$http', '$timeout', '$location', '$anchorScroll', '$window',
                           'uiGridConstants', 'uiGridEditConstants', 'session'];
 

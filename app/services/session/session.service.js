@@ -203,7 +203,10 @@ export default class SessionService {
 
       var transformedRow = {};
       _.each(xsvColumns, function(columnDef) {
-        transformedRow[columnDef.originalName] = row[columnDef.field];
+        // console.log('columnDef.field', columnDef.field, row);
+        if (columnDef.field.length > 0) {
+          transformedRow[columnDef.originalName] = row[columnDef.field];
+        }
       });
 
       return transformedRow;
