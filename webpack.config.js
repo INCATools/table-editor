@@ -185,7 +185,7 @@ switch (nodeEnvironment) {
     break;
 
   default:
-    console.warn('Unknown or Undefigned Node Environment. Please refer to package.json for available build commands.');
+    console.warn('Unknown or Undefined Node Environment. Please refer to package.json for available build commands.');
 }
 
 module.exports = config;
