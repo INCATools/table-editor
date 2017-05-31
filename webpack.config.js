@@ -142,7 +142,7 @@ config.plugins.push(
   new HtmlWebpackPlugin({
     template: path.join(app, indexFile),
     inject: 'head',
-    baseUrl: baseURL
+    baseURL: baseURL
   }));
 
 switch (nodeEnvironment) {

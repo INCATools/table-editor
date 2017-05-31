@@ -1,4 +1,14 @@
 <div class="editor-container container-fluid">
+<!--   <button
+    type="button"
+    title="Add Association"
+    class="btn btn-primary btn-xs xbtn-compact"
+    ng-click="editorCtrl.openGitHub()">
+    <i class="fa fa-github fa-fw"></i>
+  </button>
+
+ -->
+
   <div class="row" ng-if="!editorCtrl.session.parsedConfig.patternless">
     <div class="col-xs-3">
       <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
@@ -29,7 +39,7 @@
           ng-model="editorCtrl.session.patternURL"
           type="text"
           class="form-control input-group-xs"
-          placeholder="Enter a URL to a CSV/TSV file"
+          placeholder="Enter a URL to a YAML Pattern file"
           aria-describedby="import-url">
 
         <span class="input-group-btn">
@@ -78,6 +88,12 @@
           role="menu"
           aria-labelledby="simple-btn-keyboard-nav">
 
+          <li role="menuitem">
+            <a ng-click="editorCtrl.loadNewXSV()" href="">
+              New Table
+            </a>
+          </li>
+
           <li ng-repeat="e in editorCtrl.examplesXSV" role="menuitem">
             <a ng-click="editorCtrl.loadSourceXSVItem(e.file, e.title, e.url)" href="">
               {{e.title}}
@@ -125,18 +141,26 @@
     </div>
   </div>
 
-  <div class="row" ng-if="editorCtrl.session.parsedPattern || editorCtrl.session.parsedXSV">
-    <div class="col-xs-12">
+  <div
+    class="row"
+    ng-if="editorCtrl.session.parsedPattern || editorCtrl.session.parsedXSV"
+    style="min-height:80px;padding:0;margin:1px; border:2px solid lightgray;border-radius:5px;background:ivory;">
+    <div class="col-xs-8">
+      <h6>{{editorCtrl.getRowTitle()}}</h6>
+    </div>
+    <div class="col-xs-4">
       <a
         style="font-size:12px;line-height:1em;"
         href="{{editorCtrl.getCellURL()}}"
         target="_blank"
-        title="{{editorCtrl.getCellTitle()}}">
-        {{editorCtrl.getCellDetails()}}
+        title="Cell: {{editorCtrl.getCellTitle()}}">
+        <h6>{{editorCtrl.getCellDetails()}}</h6>
       </a>
     </div>
+    <div class="col-xs-12">
+      <h6><b>{{editorCtrl.getRowDetails()}}</b></h6>
+    </div>
   </div>
-
 
   <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
     <div class="col-xs-12 pre-scrollable">

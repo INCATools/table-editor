@@ -12,6 +12,10 @@ inline:
 
 patternless: true
 
+IRIGeneration:
+  prefix: HP
+  type: uuid
+
 globalAutocomplete:   # Mostly for HPO testing without a separate YAML
   'Disease ID':
     label: 'Disease Name'
@@ -31,10 +35,30 @@ globalAutocomplete:   # Mostly for HPO testing without a separate YAML
     label: 'Evidence Name'
     lookup_type: 'inline'
 
+defaultFields:
+  - 'Disease ID'
+  - 'Disease Name'
+  - 'Gene ID'
+  - 'Gene Name'
+  - 'Genotype'
+  - 'Gene Symbol(s)'
+  - 'Phenotype ID'
+  - 'Phenotype Name'
+  - 'Age of Onset ID'
+  - 'Age of Onset Name'
+  - 'Evidence ID'
+  - 'Evidence Name'
+  - 'Frequency'
+  - 'Sex ID'
+  - 'Sex Name'
+  - 'Negation ID'
+  - 'Negation Name'
+  - 'Description'
+  - 'Pub'
+  - 'Assigned by'
+  - 'Date Created'
+
 defaultXSVs:
-  - url: 'configurations/hpo/EMPTY.tab'
-    title: 'New'
-    type: 'tsv'
   - url: 'configurations/hpo/DEBUG.tab'
     title: 'DEBUG'
     type: 'tsv'

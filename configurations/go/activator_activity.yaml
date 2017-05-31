@@ -1,0 +1,40 @@
+pattern_name: activator_activity
+
+classes:
+  molecular function: GO:0003674
+  catalytic activity: GO:0003824
+
+
+relations:
+  directly positively regulates: RO:0002629
+
+
+vars:
+  'regulated activity': "'catalytic activity'"
+
+data_list_vars:
+  def_dbxrefs: "xsd:string"
+
+name:
+  text: "%s activator activity"
+  vars:
+    - 'regulated activity'
+
+
+def:
+  text: >
+    Direct interaction with a gene product or complex that has %s,
+    resulting in positive regulation of its %s. Direct interaction
+    in this case includes binding and interactions leading to
+    covalent modification.
+  vars:
+    - 'regulated activity'
+    - 'regulated activity'
+  xrefs: def_dbxrefs
+
+
+equivalentTo:
+  text: "'molecular function' that 'directly positively regulates' some %s"
+  vars:
+    - 'regulated activity'
+

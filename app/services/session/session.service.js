@@ -12,7 +12,9 @@ export default class SessionService {
     this.$location = $location;
     this.$sce = $sce;
     this.$rootScope = $rootScope;
-    this.defaultConfigURL = 'configurations/hpo/config.yaml';
+    this.defaultConfigName = 'go';
+
+    this.initializeState();
 
     var that = this;
     var searchParams = this.$location.search();
@@ -20,25 +22,64 @@ export default class SessionService {
       var config = searchParams.config;
       that.loadURLConfig(config);
     }
-    else if (that.defaultConfigURL) {
-      that.loadURLConfig(that.defaultConfigURL);
+    else if (that.defaultConfigName) {
+      that.loadConfigurationByName(that.defaultConfigName);
     }
   }
 
+  initializeState() {
+    this.parsedPattern = null;
+    this.autocompleteRegistry = null;
+    this.columnDefs = null;
+    this.rowData = null;
+
+    this.titleConfig = null;
+    this.sourceConfig = null;
+    this.parsedConfig = null;
+    this.errorMessageConfig = null;
+
+    this.defaultPatternURL = null;
+    this.defaultXSVURL = null;
+
+    this.filePattern = null;
+    this.titlePattern = null;
+    this.sourcePattern = null;
+    this.parsedPattern = null;
+    this.patternURL = null;
+    this.errorMessagePattern = null;
+
+    this.fileXSV = null;
+    this.titleXSV = null;
+    this.sourceXSV = null;
+    this.parsedXSV = null;
+    this.XSVURL = null;
+    this.errorMessageXSV = null;
+  }
+
+  loadConfigurationByName(name) {
+    const configByName = {
+      hpo: 'configurations/hpo/config.yaml',
+      ecto: 'configurations/ecto/config.yaml',
+      go: 'configurations/go/config.yaml',
+      beer: 'configurations/beer/config.yaml'
+    };
+
+    var config = configByName[name] || 'configurations/ecto/config.yaml';
+    this.loadURLConfig(config);
+  }
 
   loadSourceConfig(source, title, url) {
+    this.initializeState();
+    // console.log('loadSourceConfig', title, url, JSON.stringify(this.rowData));
     this.sourceConfig = source;
     this.titleConfig = title;
     this.configURL = url;
     this.errorMessageConfig = null;
+    var search = {};
     if (url) {
-      var search = this.$location.search();
       search.config = url;
-      this.$location.search(search);
     }
-    else {
-      this.$location.search({});
-    }
+    this.$location.search(search);
     var that = this;
     this.parseConfig(function() {
       that.$rootScope.$broadcast('parsedConfig');
@@ -193,7 +234,7 @@ export default class SessionService {
       quoteChar: '"',
       delimiter: delimiter,
       header: true,
-      newline: "\n"
+      newline: '\r\n'
     };
 
     let xsvColumns = this.columnDefs;

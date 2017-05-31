@@ -29,39 +29,26 @@ prefixes:	    # User specifies this once per team/project
   UBERON:
     iriPrefix: http://purl.obolibrary.org/obo/
     autocomplete: ols
-  BEER:
+  ECTO:
     iriPrefix: http://purl.obolibrary.org/obo/
     autocomplete: inline
 
 IRIGeneration:
-  prefix: BEER
-  counter: 0000010
+  prefix: ECTO
+  type: uuid
 
-inline:
-  BEER:
-    - Pilsner
-    - Lager
-    - Ale
-    - Pale
-    - India
-    - Porter
-    - Stout
+defaultPatterns:
+  - url: 'configurations/ecto/exposure_to_chemical.yaml'
+    title: 'Exposure to Chemical'
+    type: 'yaml'
+  - url: 'configurations/ecto/abnormalLevelOfChemicalInEntity.yaml'
+    title: 'Abnormal Level of Chemical in Entity'
+    type: 'yaml'
+  - url: 'configurations/ecto/exposure_to_levels_in_medium.yaml'
+    title: 'Exposure to Levels in Medium'
+    type: 'yaml'
 
-globalAutocomplete:   # Mostly for HPO testing without a separate YAML
-  'Disease ID':
-    label: 'Disease Name'
-    root_class: 'DOID:4'
-    lookup_type: 'golr'
-  'Age of Onset ID':
-    label: 'Age of Onset Name'
-    root_class: 'HP:0003674'
-    lookup_type: 'golr'
-  'Phenotype ID':
-    label: 'Phenotype Name'
-    root_class: 'UPHENO:0001001'
-    lookup_type: 'golr'
-#  'Evidence ID':
-#    label: 'Evidence Name'
-#    root_class: 'ECO:0000000'
-#    lookup_type: 'golr'
-
+defaultXSVs:
+  - url: 'configurations/ecto/exposure_to_chemical.csv'
+    title: 'Exposure to Chemical'
+    type: 'csv'

@@ -16,6 +16,10 @@ export default class NavbarController {
   exportTAB() {
     this.session.exportXSV('tab');
   }
+
+  setConfiguration(name) {
+    this.session.loadConfigurationByName(name);
+  }
 }
 
 NavbarController.$inject = ['session', '$location'];
