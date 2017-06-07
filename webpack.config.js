@@ -148,20 +148,22 @@ config.plugins.push(
 switch (nodeEnvironment) {
   case 'production':
     config.plugins.push(
-      // Reference: http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
-      // Minify all javascript, switch loaders to minimizing mode
+      new webpack.LoaderOptionsPlugin({
+        minimize: true,
+        debug: false
+      }),
       new webpack.optimize.UglifyJsPlugin({
         sourceMap: false,
-        mangle: debugMode ?
-                  false :
-                  {
-                    // except: ['$', '$scope', '$compile', '$timeout', '$rootScope', '$http',
-                    //           '$rootScopeProvider',
-                    //           '$location', '$state', '$q']
-                  },
+        beautify: false,
+        mangle: {
+          screw_ie8: true,
+          keep_fnames: true
+        },
         compress: {
-          warnings: false
-        }
+          warnings: true,
+          screw_ie8: true
+        },
+        comments: false
       })
     );
     config.plugins.push(new webpack.optimize.CommonsChunkPlugin({name: 'vendor', minChunks: Infinity}));
