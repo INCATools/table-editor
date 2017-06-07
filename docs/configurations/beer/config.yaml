@@ -22,8 +22,7 @@ prefixes:     # User specifies this once per team/project
 
 IRIGeneration:
   prefix: BEER
-  type: counter
-  counter: 0000010
+  type: uuid
 
 inline:
   BEER:
@@ -40,11 +39,11 @@ defaultPatterns:
   - url: 'configurations/beer/beer.yaml'
     title: 'Beer'
     type: 'yaml'
-  - url: 'configurations/beer/beer_yeast_anatomy.yaml'
-    title: 'Beer Yeast Anatomy'
-    type: 'yaml'
   - url: 'configurations/beer/beer_yeast.yaml'
     title: 'Beer Yeast'
+    type: 'yaml'
+  - url: 'configurations/beer/beer_yeast_anatomy.yaml'
+    title: 'Beer Yeast Anatomy'
     type: 'yaml'
 
 defaultXSVs:

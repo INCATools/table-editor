@@ -13,11 +13,11 @@
 
   <div class="collapse navbar-collapse" ng-class="!navCollapsed && 'in'">
     <ul class="nav navbar-nav">
-      <li><a ui-sref="editor" ng-click='navCollapsed = true'>Editor</a></li>
-      <li><a ui-sref="settings" ng-click='navCollapsed = true'>
-        Settings&nbsp;
-        <i class="fa fa-cogs"></i>
-      </a></li>
+      <li>
+        <a ui-sref="editor" ng-click='navCollapsed = true'>
+          Editor
+        </a>
+      </li>
       <li class="dropdown" uib-dropdown>
         <a
           class="dropdown-toggle"
@@ -31,7 +31,6 @@
             <a
               type="button"
               ng-click="navBarCtrl.exportCSV()">
-              <i class="glyphicon glyphicon-save-file"></i>
               Export CSV
             </a>
           </li>
@@ -39,7 +38,6 @@
             <a
               type="button"
               ng-click="navBarCtrl.exportTSV()">
-              <i class="glyphicon glyphicon-save-file"></i>
               Export TSV
             </a>
           </li>
@@ -47,12 +45,52 @@
             <a
               type="button"
               ng-click="navBarCtrl.exportTAB()">
-              <i class="glyphicon glyphicon-save-file"></i>
               Export TAB
             </a>
           </li>
         </ul>
       </li>
+      <li class="dropdown" uib-dropdown>
+        <a
+          class="dropdown-toggle"
+          uib-dropdown-toggle>
+          Configuration
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.setConfiguration('go')">
+              GO
+            </a>
+          </li>
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.setConfiguration('hpo')">
+              HPO
+            </a>
+          </li>
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.setConfiguration('ecto')">
+              ECTO
+            </a>
+          </li>
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.setConfiguration('beer')">
+              BEER
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li><a ui-sref="settings" ng-click='navCollapsed = true'>
+        About
+      </a></li>
     </ul>
   </div>
 </nav>

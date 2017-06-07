@@ -38,17 +38,14 @@ IRIGeneration:
   type: uuid
 
 defaultPatterns:
-  - url: 'configurations/ecto/exposure_to_chemical.yaml'
-    title: 'Exposure to Chemical'
+  - url: 'configurations/go/activator_activity.yaml'
+    title: 'Activator Activity'
     type: 'yaml'
-  - url: 'configurations/ecto/abnormalLevelOfChemicalInEntity.yaml'
-    title: 'Abnormal Level of Chemical in Entity'
-    type: 'yaml'
-  - url: 'configurations/ecto/exposure_to_levels_in_medium.yaml'
-    title: 'Exposure to Levels in Medium'
+  - url: 'configurations/go/membrane_region.yaml'
+    title: 'Membrane Region'
     type: 'yaml'
 
 defaultXSVs:
-  - url: 'configurations/ecto/exposure_to_chemical.csv'
-    title: 'Exposure to Chemical'
-    type: 'csv'
+  - url: 'configurations/go/activator_activity.tsv'
+    title: 'Activator Activity'
+    type: 'tsv'
