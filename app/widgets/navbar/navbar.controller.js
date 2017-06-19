@@ -3,6 +3,16 @@ export default class NavbarController {
     this.name = 'navbar';
     this.session = session;
     this.baseURL = $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/table-editor/';  //  + $location.path();
+    this.logoImage = 'INCA.png';
+
+    if (window.configTE) {
+      if (window.configTE.baseURL) {
+        this.baseURL = window.configTE.baseURL;
+      }
+      if (window.configTE.logoImage) {
+        this.logoImage = window.configTE.logoImage;
+      }
+    }
   }
 
   exportCSV() {

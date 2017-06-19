@@ -352,6 +352,7 @@ export default class EditorController {
   addRow() {
     var that = this;
 
+    this.setErrorXSV(null);
     var topRow;
     if (this.session.rowData.length > 0) {
       topRow = this.session.rowData[0];
@@ -550,6 +551,9 @@ export default class EditorController {
       that.$timeout(function() {
         that.gridApi.core.handleWindowResize();
       }, 0);
+    },
+    function(errors) {
+      that.setErrorPattern(errors);
     });
   }
 
@@ -718,14 +722,17 @@ export default class EditorController {
     }
     else {
       if (patternColumns.length !== xsvColumns.length) {
-        console.log('#compareColumnDefs length mismatch:', patternColumns.length + 2, xsvColumns.length);
+        console.log('#compareColumnDefs length mismatch:', patternColumns, xsvColumns);
         result = false;
       }
       else {
-        // console.log('compare', patternColumns, xsvColumns);
         result = _.isEqual(patternColumns, xsvColumns);
+        if (!result) {
+          console.log('#compareColumnDefs !equal', patternColumns, xsvColumns);
+        }
       }
     }
+
     return result;
   }
 
@@ -770,7 +777,7 @@ export default class EditorController {
           that.loadNewXSV();
           // that.session.rowData = [];
           // that.gridOptions.data = that.session.rowData;
-          that.session.columnDefs = angular.copy(that.gridOptions.columnDefs);
+          // that.session.columnDefs = angular.copy(that.gridOptions.columnDefs);
           that.setErrorXSV('Error: XSV Columns do not match Pattern Columns');
         }, 0);
       }
