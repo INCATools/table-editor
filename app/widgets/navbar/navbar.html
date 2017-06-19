@@ -7,7 +7,10 @@
       <span class="icon-bar"></span>
     </button>
     <a class="navbar-brand" href="{{navBarCtrl.baseURL}}" target="_self">
-      <img ng-class="!navCollapsed && 'in'" src="INCA.png">
+      <img
+        ng-class="!navCollapsed && 'in'"
+        style="margin:2px 5px;xpadding:0;height:35px;"
+        ng-src="{{navBarCtrl.logoImage}}">
     </a>
   </div>
 
@@ -58,32 +61,11 @@
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" role="menu">
-          <li>
+          <li ng-repeat="configName in navBarCtrl.session.configNames">
             <a
               type="button"
-              ng-click="navBarCtrl.setConfiguration('go')">
-              GO
-            </a>
-          </li>
-          <li>
-            <a
-              type="button"
-              ng-click="navBarCtrl.setConfiguration('hpo')">
-              HPO
-            </a>
-          </li>
-          <li>
-            <a
-              type="button"
-              ng-click="navBarCtrl.setConfiguration('ecto')">
-              ECTO
-            </a>
-          </li>
-          <li>
-            <a
-              type="button"
-              ng-click="navBarCtrl.setConfiguration('beer')">
-              BEER
+              ng-click="navBarCtrl.setConfiguration(configName)">
+              {{configName}}
             </a>
           </li>
         </ul>

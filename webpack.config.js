@@ -32,7 +32,10 @@ var config = {
 
   output: {
     path: outputPath,
-    filename: outputFile
+    filename: outputFile,
+    publicPath: production ?
+                  'https://incatools.github.io/table-editor/' :
+                  'http://127.0.0.1:8085/'
   },
 
   resolve: {
@@ -121,7 +124,8 @@ var config = {
     inline: true,
     contentBase: dist,
     watchContentBase: true,
-    historyApiFallback: true
+    historyApiFallback: true,
+   headers: { "Access-Control-Allow-Origin": "*" }
   },
 };
 
@@ -134,6 +138,7 @@ if (!production) {
 }
 config.plugins.push(
   new CopyWebpackPlugin([
+      { from: 'widgets/navbar/INCA.png' },
       { from: '../README.md' },
       { from: '../configurations', to: 'configurations' }
   ]));
@@ -147,25 +152,28 @@ config.plugins.push(
 
 switch (nodeEnvironment) {
   case 'production':
-    config.plugins.push(
-      new webpack.LoaderOptionsPlugin({
-        minimize: true,
-        debug: false
-      }),
-      new webpack.optimize.UglifyJsPlugin({
-        sourceMap: false,
-        beautify: false,
-        mangle: {
-          screw_ie8: true,
-          keep_fnames: true
-        },
-        compress: {
-          warnings: true,
-          screw_ie8: true
-        },
-        comments: false
-      })
-    );
+    if (!debugMode) {
+      config.plugins.push(
+        new webpack.LoaderOptionsPlugin({
+          minimize: true,
+          debug: false
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+          sourceMap: false,
+          beautify: false,
+          mangle: {
+            screw_ie8: true,
+            keep_fnames: true
+          },
+          compress: {
+            warnings: true,
+            screw_ie8: true
+          },
+          comments: false
+        })
+      );
+    }
+
     config.plugins.push(new webpack.optimize.CommonsChunkPlugin({name: 'vendor', minChunks: Infinity}));
 
     config.output.filename = '[name].js';

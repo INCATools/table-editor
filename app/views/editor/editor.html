@@ -164,7 +164,7 @@
 
   <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
     <div class="col-xs-12 pre-scrollable">
-      <pre><sm>{{editorCtrl.session.errorMessagePattern}}</sm></pre>
+      <pre><sm>{{editorCtrl.session.errorMessagePattern | json}}</sm></pre>
     </div>
   </div>
   <div class="row" ng-if="editorCtrl.session.errorMessageXSV">

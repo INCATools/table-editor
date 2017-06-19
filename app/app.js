@@ -1,3 +1,18 @@
+// /* global __webpack_public_path__ */
+// /* global __webpack_require__ */
+// console.log('xxxold __webpack_public_path__', __webpack_public_path__);
+//
+//
+// if (window.configTE && window.configTE.bundleURL) {
+//   /* eslint no-global-assign: 0 */
+//   /* eslint no-native-reassign: 0 */
+//   /* eslint camelcase: 0 */
+//   __webpack_public_path__ = window.configTE.bundleURL;
+//   console.log('new __webpack_public_path__', __webpack_public_path__);
+//   __webpack_require__.p = __webpack_public_path__;
+//   console.log('new __webpack_require__.p', __webpack_require__.p);
+// }
+
 // Angular & Router ES6 Imports
 import angular from 'angular';
 import angularUIRouter from 'angular-ui-router';

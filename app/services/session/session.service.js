@@ -18,7 +18,7 @@ export default class SessionService {
 
     var that = this;
     var searchParams = this.$location.search();
-    if (searchParams.config) {
+    if (searchParams && searchParams.config) {
       var config = searchParams.config;
       that.loadURLConfig(config);
     }
@@ -54,18 +54,33 @@ export default class SessionService {
     this.parsedXSV = null;
     this.XSVURL = null;
     this.errorMessageXSV = null;
-  }
 
-  loadConfigurationByName(name) {
-    const configByName = {
+    this.configNames = [
+      'hpo',
+      'go',
+      'ecto',
+      'beer'
+    ];
+    this.configByName = {
       hpo: 'configurations/hpo/config.yaml',
       ecto: 'configurations/ecto/config.yaml',
       go: 'configurations/go/config.yaml',
       beer: 'configurations/beer/config.yaml'
     };
 
-    var config = configByName[name] || 'configurations/ecto/config.yaml';
-    this.loadURLConfig(config);
+    if (window.configTE) {
+      // console.log('window.configTE', window.configTE);
+      this.configNames = window.configTE.configNames;
+      this.configByName = window.configTE.configByName;
+      this.defaultConfigName = this.configNames[0];
+    }
+  }
+
+  loadConfigurationByName(name) {
+    var config = this.configByName[name];
+    if (config) {
+      this.loadURLConfig(config);
+    }
   }
 
   loadSourceConfig(source, title, url) {
@@ -138,8 +153,10 @@ export default class SessionService {
     return s.replace(/^'/, '').replace(/'$/, '');
   }
 
-  parsePattern(continuation) {
+  parsePattern(continuation, continuationErrors) {
     var that = this;
+
+    var errors = [];
 
     try {
       var doc = yaml.safeLoad(this.sourcePattern);
@@ -149,46 +166,97 @@ export default class SessionService {
       _.each(this.parsedPattern.vars,
         function(classname, key) {
           if (that.parsedPattern) {
-            classname = that.stripQuotes(classname);
-            var curie = that.parsedPattern.classes[classname];
-            if (!curie) {
-              that.setErrorPattern('Error in pattern for var "' + classname + '"\n' + JSON.stringify(that.parsedPattern, null, 2));
-            }
-            else {
-              var curiePrefix = curie.split(':')[0];
-              var configEntry = that.parsedConfig.prefixes[curiePrefix] ||
-                    {
-                      autocomplete: 'ols',
-                      iriPrefix: 'http://purl.obolibrary.org/obo/'
-                    };
+            let compressSpaces = classname.replace(/ [ ]+/g, ' ');
+            let varClasses = compressSpaces.split(' or ');
+            let cleanedVarClasses = varClasses.map(function(c) {
+              let cNoQuotes = that.stripQuotes(c);
+              return cNoQuotes;
+            });
+            let curies = cleanedVarClasses.map(function(c) {
+              let curie = that.parsedPattern.classes[c];
+              return curie;
+            });
+            // console.log('parsedPattern', classname, key, that.parsedPattern, varClasses, cleanedVarClasses, curies);
 
-              var labelColumn = key + ' label';
-              that.autocompleteRegistry[key] = {
-                idColumn: key,
-                labelColumn: labelColumn,
-                root_class: curie,
-                lookup_type: configEntry.autocomplete,
-                iriPrefix: configEntry.iriPrefix,
-                curiePrefix: curiePrefix
-              };
-              that.autocompleteRegistry[labelColumn] = {
-                idColumn: key,
-                labelColumn: labelColumn,
-                root_class: curie,
-                lookup_type: configEntry.autocomplete,
-                iriPrefix: configEntry.iriPrefix,
-                curiePrefix: curiePrefix
-              };
-            }
+            var configEntries = [];
+            var curieRoots = [];
+            var curiePrefixes = [];
+            var lookupType = null;
+            var iriPrefix = null;
+            curies.forEach(function(curie) {
+              if (!curie) {
+                const error = 'Error in pattern for var "' + classname + '"';
+                console.log('error', error, that.parsedPattern);
+                errors.push(error);
+              }
+              else {
+                curie = that.ensureColons(curie);
+                var curiePrefix = curie.split(':')[0];
+                var configEntry = that.parsedConfig.prefixes[curiePrefix] ||
+                      {
+                        autocomplete: 'ols',
+                        iriPrefix: 'http://purl.obolibrary.org/obo/'
+                      };
+                if (!lookupType) {
+                  lookupType = configEntry.autocomplete;
+                }
+                else if (lookupType !== configEntry.autocomplete) {
+                  const error = 'Multiple lookup_types detected' + lookupType + '/' + configEntry.autocomplete;
+                  console.log('error', error, that.parsedPattern);
+                  errors.push(error);
+                }
+                if (!iriPrefix) {
+                  iriPrefix = configEntry.iriPrefix;
+                }
+                else if (iriPrefix !== configEntry.iriPrefix) {
+                  const error = 'Multiple iriPrefixes detected' + iriPrefix + '/' + iriPrefix;
+                  console.log('error', error, that.parsedPattern);
+                  errors.push(error);
+                }
+                configEntries.push(configEntry);
+                curieRoots.push(curie);
+                curiePrefixes = curiePrefix;
+              }
+            });
+
+            var labelColumn = key + ' label';
+            that.autocompleteRegistry[key] = {
+              idColumn: key,
+              labelColumn: labelColumn,
+              root_class: curieRoots,
+              lookup_type: lookupType,
+              iriPrefix: iriPrefix,
+              curiePrefix: curiePrefixes
+            };
+            that.autocompleteRegistry[labelColumn] = {
+              idColumn: key,
+              labelColumn: labelColumn,
+              root_class: curieRoots,
+              lookup_type: lookupType,
+              iriPrefix: iriPrefix,
+              curiePrefix: curiePrefixes
+            };
+
+            // console.log('that.autocompleteRegistry', that.autocompleteRegistry[key]);
           }
         });
       if (!this.parsedPattern.vars) {
         this.parsedPattern.vars = [];
       }
-      continuation();
     }
     catch (e) {
-      console.log('error', e);
+      const error = 'Error parsing pattern: ' + e;
+      console.log(error);
+      errors.push(error);
+    }
+
+    if (errors.length > 0) {
+      if (continuationErrors) {
+        continuationErrors(errors);
+      }
+    }
+    else if (continuation) {
+      continuation();
     }
   }
 
@@ -291,7 +359,7 @@ export default class SessionService {
 
 
   golrLookup(colName, oldValue, val, acEntry) {
-    var golrURLBase = 'https://solr-dev.monarchinitiative.org/solr/ontology/select';
+    var golrURLBase = 'https://solr.monarchinitiative.org/solr/ontology/select';
     var whichClosure = acEntry.root_class;
     var requestParams = {
       defType: 'edismax',
@@ -462,26 +530,34 @@ export default class SessionService {
       );
   }
 
-  generateIRI(iriPrefix, curie) {
-    return iriPrefix + curie.replace(/:/, '_');
+  ensureUnderscores(curie) {
+    return curie.replace(/:/, '_');
+  }
+
+  ensureColons(curie) {
+    return curie.replace(/_/, ':');
   }
 
   olsLookup(colName, oldValue, val, acEntry) {
+    var that = this;
     if (!val || val.length === 0) {
       return [];
     }
     else {
       // console.log('olsLookup', colName, oldValue, val, acEntry);
       var olsURLBase = 'https://www.ebi.ac.uk/ols/api/select';
-      var whichClosure = this.generateIRI(acEntry.iriPrefix, acEntry.root_class);
-      var ontology = acEntry.curiePrefix.toLowerCase();
+      var whichClosures = acEntry.root_class.map(function(c) {
+        var whichClosure = acEntry.iriPrefix + that.ensureUnderscores(c);
+        return whichClosure;
+      });
+      // var ontology = acEntry.curiePrefix.toLowerCase();
       var requestParams = {
         q: val,
         type: 'class',
         fieldList: 'iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type',
         // local: true,
-        ontology: ontology,
-        allChildrenOf: whichClosure,
+        // ontology: ontologies,
+        allChildrenOf: whichClosures,
         rows: 15
       };
 
