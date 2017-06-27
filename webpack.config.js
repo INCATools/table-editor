@@ -14,6 +14,7 @@ var uigrid = path.join(__dirname, 'node_modules/angular-ui-grid');
 var fa = path.resolve(__dirname, 'node_modules/font-awesome');
 
 var production = process.env.BUILD === 'production';
+var lproduction = process.env.BUILD === 'lproduction';
 var debugMode = !production;
 
 console.log('production', production);
@@ -23,7 +24,7 @@ var entryFile = './app.js';
 var outputPath = dist;
 var outputFile = './bundle.js';
 var indexFile = 'index.ejs';
-var baseURL = production ? '/table-editor/' : '/';
+var baseURL = (production || lproduction) ? '/table-editor/' : '/';
 
 var config = {
   context: app,
@@ -33,9 +34,11 @@ var config = {
   output: {
     path: outputPath,
     filename: outputFile,
-    publicPath: production ?
+    publicPath: production ? /* eslint no-nested-ternary: 0 */
                   'https://incatools.github.io/table-editor/' :
-                  'http://127.0.0.1:8085/'
+                  (lproduction ?
+                    'http://127.0.0.1:8085/table-editor/' :
+                    '/')
   },
 
   resolve: {
@@ -129,7 +132,7 @@ var config = {
   },
 };
 
-if (!production) {
+if (!production && !lproduction) {
   config.plugins.push(
     new WebpackBrowserPlugin({
       browser: 'Safari'   // 'Firefox'
@@ -151,6 +154,8 @@ config.plugins.push(
   }));
 
 switch (nodeEnvironment) {
+  /* eslint no-fallthrough: 0 */
+  case 'lproduction':
   case 'production':
     if (!debugMode) {
       config.plugins.push(
@@ -174,13 +179,13 @@ switch (nodeEnvironment) {
       );
     }
 
-    config.plugins.push(new webpack.optimize.CommonsChunkPlugin({name: 'vendor', minChunks: Infinity}));
+    // config.plugins.push(new webpack.optimize.CommonsChunkPlugin({name: 'vendor', minChunks: Infinity}));
 
     config.output.filename = '[name].js';
 
     config.entry = {
       bundle: entryFile,
-      vendor: ['angular', 'angular-ui-router', 'lodash']
+      // vendor: ['angular', 'angular-ui-router', 'lodash']
     };
     config.devtool = 'source-map';
     break;

@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 
 export default class SessionService {
   constructor($http, $timeout, $location, $sce, $rootScope) {
+    var that = this;
     this.name = 'DefaultSessionName';
     this.$http = $http;
     this.$timeout = $timeout;
@@ -14,17 +15,62 @@ export default class SessionService {
     this.$rootScope = $rootScope;
     this.defaultConfigName = 'go';
 
-    this.initializeState();
+    this.loadSiteConfig(function() {
+      that.initializeState();
 
+      var searchParams = that.$location.search();
+      if (searchParams && searchParams.config) {
+        var config = searchParams.config;
+        that.loadURLConfig(config);
+      }
+      else if (that.defaultConfigName) {
+        that.loadConfigurationByName(that.defaultConfigName);
+      }
+    });
+  }
+
+  loadSiteConfig(continuation) {
     var that = this;
-    var searchParams = this.$location.search();
-    if (searchParams && searchParams.config) {
-      var config = searchParams.config;
-      that.loadURLConfig(config);
-    }
-    else if (that.defaultConfigName) {
-      that.loadConfigurationByName(that.defaultConfigName);
-    }
+    var siteConfigURL = window.location.origin + '/configurations/index.json';
+    this.baseURL = null;
+    this.logoImage = null;
+
+    let loc = this.$location;
+    this.baseURL = loc.protocol() + '://' + loc.host() + ':' + loc.port() + '/table-editor/';  //  + $location.path();
+    this.logoImage = null;
+    this.configNames = [];
+    this.configByName = {};
+
+    this.$http.get(
+      siteConfigURL,
+      {
+        withCredentials: false
+      }).then(
+      function(result) {
+        let data = result.data;
+        console.log('data', data);
+        that.configNames = data.configNames;
+        that.logoImage = data.logoImage || 'INCA.png';
+        that.baseURL = data.baseURL || that.baseURL;
+        that.configNames.forEach(function(c) {
+          that.configByName[c] = 'configurations/' + c + '/config.yaml';
+        });
+        that.defaultConfigName = that.configNames[0];
+
+        console.log('#configNames', that.configNames);
+        console.log('#logoImage', that.logoImage);
+        console.log('#baseURL', that.baseURL);
+        console.log('#defaultConfigName', that.defaultConfigName);
+        continuation();
+      },
+      function(error) {
+        const errmsg = 'Error loading Site Configuration '
+                          + siteConfigURL + '\n\n'
+                          + JSON.stringify(error);
+        console.log('errmsg', errmsg, error);
+        that.setErrorConfig(errmsg);
+      }
+    );
   }
 
   initializeState() {
@@ -54,26 +100,13 @@ export default class SessionService {
     this.parsedXSV = null;
     this.XSVURL = null;
     this.errorMessageXSV = null;
+  }
 
-    this.configNames = [
-      'hpo',
-      'go',
-      'ecto',
-      'beer'
-    ];
-    this.configByName = {
-      hpo: 'configurations/hpo/config.yaml',
-      ecto: 'configurations/ecto/config.yaml',
-      go: 'configurations/go/config.yaml',
-      beer: 'configurations/beer/config.yaml'
-    };
-
-    if (window.configTE) {
-      // console.log('window.configTE', window.configTE);
-      this.configNames = window.configTE.configNames;
-      this.configByName = window.configTE.configByName;
-      this.defaultConfigName = this.configNames[0];
-    }
+  setErrorConfig(error) {
+    this.errorMessageConfig = error;
+    this.titleConfig = '';
+    this.sourceConfig = '';
+    this.parsedConfig = null;
   }
 
   loadConfigurationByName(name) {
@@ -90,7 +123,7 @@ export default class SessionService {
     this.titleConfig = title;
     this.configURL = url;
     this.errorMessageConfig = null;
-    var search = {};
+    var search = this.$location.search();
     if (url) {
       search.config = url;
     }
@@ -123,7 +156,7 @@ export default class SessionService {
         curiePrefix: entry.curiePrefix,
         idColumn: columnName,
         labelColumn: entry.label,
-        root_class: entry.root_class,
+        root_class: [entry.root_class],
         lookup_type: entry.lookup_type
       };
 
@@ -517,8 +550,7 @@ export default class SessionService {
           var result = data.map(function(item) {
             return {
               id: item.id,
-              name: item.annotation_class_label
-              // name: item.label[0]
+              label: item.annotation_class_label
             };
           });
           // console.log('GOLR success', golrURLBase, requestParams, data, result);
@@ -579,7 +611,7 @@ export default class SessionService {
             var result = data.map(function(item) {
               return {
                 id: item.obo_id,  // short_form,
-                name: item.label
+                label: item.label
               };
             });
             return result;
@@ -603,49 +635,45 @@ export default class SessionService {
       .then(function(response) {
         var data = response.data;
         console.log('Monarch success', data);
-        var result = data.map(function(item) {
-          return item;
-        });
+        var result = data.map(
+          function(item) {
+            return {
+              id: item.id,
+              label: item.name
+            };
+          });
         return result;
       });
   }
 
 
-
   inlineLookup(colName, oldValue, val, acEntry) {
     var inlineBlock = this.parsedConfig.inline;
-    var terms = [
-      {id: 'BEER:0000001', name: 'Pilsner'},
-      {id: 'BEER:0000002', name: 'Lager'},
-      {id: 'BEER:0000003', name: 'Ale'},
-      {id: 'BEER:0000004', name: 'Pale Ale'},
-      {id: 'BEER:0000005', name: 'India Pale Ale'},
-      {id: 'BEER:0000006', name: 'Porter'},
-      {id: 'BEER:0000007', name: 'Stout'}
-    ];
 
+    var terms = [];
     if (inlineBlock && inlineBlock[colName]) {
-      terms = _.map(inlineBlock[colName], function(v) {
-        return {
-          id: v,
-          name: v
-        };
-      });
+      terms = inlineBlock[colName];
     }
 
     var matches = [];
 
-    if (val) {
+    val = val || '';
+    if (val !== null) {
       var valUpper = val.toUpperCase();
       _.each(terms, function(v) {
-        if (v.name.toUpperCase().indexOf(valUpper) >= 0) {
+        if (v.label.toUpperCase().indexOf(valUpper) >= 0) {
           matches.push(v);
         }
       });
     }
 
-    return matches;
-  }
+    return new Promise(function(resolve, reject) {
+      setTimeout(function() {
+        resolve(matches);
+      }, 20);
+    });
 
+    // return matches;
+  }
 }
 SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope'];

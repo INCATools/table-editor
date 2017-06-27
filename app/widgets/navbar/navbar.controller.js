@@ -2,17 +2,7 @@ export default class NavbarController {
   constructor(session, $location) {
     this.name = 'navbar';
     this.session = session;
-    this.baseURL = $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/table-editor/';  //  + $location.path();
-    this.logoImage = 'INCA.png';
-
-    if (window.configTE) {
-      if (window.configTE.baseURL) {
-        this.baseURL = window.configTE.baseURL;
-      }
-      if (window.configTE.logoImage) {
-        this.logoImage = window.configTE.logoImage;
-      }
-    }
+    this.$location = $location;
   }
 
   exportCSV() {
@@ -28,6 +18,8 @@ export default class NavbarController {
   }
 
   setConfiguration(name) {
+    this.$location.search('yaml', null);
+    this.$location.search('xsv', null);
     this.session.loadConfigurationByName(name);
   }
 }
