@@ -1,6 +1,6 @@
 pattern_name: beer/patterns/beer_yeast
 classes:
-  beer: BEER:0000001
+  beer: BEER:0000000
   yeast: NCBITaxon:4932
 
 relations:

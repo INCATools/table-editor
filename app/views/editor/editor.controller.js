@@ -102,14 +102,17 @@ export default class EditorController {
 
   getRowTitle() {
     var cellNav = this.gridApi.cellNav;
-    var cell = cellNav.getFocusedCell();
     var label = '';
-    var pattern = this.session.parsedPattern;
-    if (cell && pattern) {
-      var text = pattern.name.text;
-      var vars = pattern.name.vars;
 
-      ({label} = this.applySubstitution(cell.row, text, vars));
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
+      var pattern = this.session.parsedPattern;
+      if (cell && pattern && pattern.name) {
+        var text = pattern.name.text;
+        var vars = pattern.name.vars;
+
+        ({label} = this.applySubstitution(cell.row, text, vars));
+      }
     }
 
     return label;
@@ -117,29 +120,34 @@ export default class EditorController {
 
   getRowURL() {
     var cellNav = this.gridApi.cellNav;
-    var cell = cellNav.getFocusedCell();
     var label = '';
-    var pattern = this.session.parsedPattern;
-    if (cell && pattern) {
-      var text = pattern.name.text;
-      var vars = pattern.name.vars;
 
-      ({label} = this.applySubstitution(cell.row, text, vars));
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
+      var pattern = this.session.parsedPattern;
+      if (cell && pattern && pattern.name) {
+        var text = pattern.name.text;
+        var vars = pattern.name.vars;
+
+        ({label} = this.applySubstitution(cell.row, text, vars));
+      }
     }
 
     return label;
   }
 
   getRowDetails() {
-    var cellNav = this.gridApi.cellNav;
-    var cell = cellNav.getFocusedCell();
     var label = '';
-    var pattern = this.session.parsedPattern;
-    if (cell && pattern) {
-      var text = pattern.name.text;
-      var vars = pattern.name.vars;
+    var cellNav = this.gridApi.cellNav;
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
+      var pattern = this.session.parsedPattern;
+      if (cell && pattern && pattern.name) {
+        var text = pattern.name.text;
+        var vars = pattern.name.vars;
 
-      ({label} = this.applySubstitution(cell.row, text, vars));
+        ({label} = this.applySubstitution(cell.row, text, vars));
+      }
     }
 
     return label;
@@ -147,10 +155,11 @@ export default class EditorController {
 
   getCellTitle() {
     var result = '';
-    if (this.gridApi) {
-      var cell = this.gridApi.cellNav.getFocusedCell();
+    var cellNav = this.gridApi.cellNav;
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
       if (cell) {
-        result = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
+        result = cell.col.colDef.name;
       }
     }
 
@@ -159,11 +168,13 @@ export default class EditorController {
 
   getCellURL() {
     var result = '';
-    if (this.gridApi) {
-      var cell = this.gridApi.cellNav.getFocusedCell();
+    var cellNav = this.gridApi.cellNav;
+
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
       if (cell) {
-        var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
-        var row = this.gridApi.cellNav.getFocusedCell().row.entity;
+        var colName = cell.col.colDef.name;
+        var row = cell.row.entity;
         var acEntry = this.session.autocompleteRegistry[colName];
         if (acEntry) {
           var colId = row[acEntry.idColumn];
@@ -183,11 +194,12 @@ export default class EditorController {
 
   getCellDetails() {
     var result = '';
-    if (this.gridApi) {
-      var cell = this.gridApi.cellNav.getFocusedCell();
+    var cellNav = this.gridApi.cellNav;
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
       if (cell) {
-        var colName = this.gridApi.cellNav.getFocusedCell().col.colDef.name;
-        var row = this.gridApi.cellNav.getFocusedCell().row.entity;
+        var colName = cell.col.colDef.name;
+        var row = cell.row.entity;
         var acEntry = this.session.autocompleteRegistry[colName];
         if (acEntry) {
           var colId = row[acEntry.idColumn];
@@ -208,25 +220,25 @@ export default class EditorController {
     var acEntry = this.session.autocompleteRegistry[colName];
     var oldValue = rowEntity[colName];
 
-    if (acEntry.labelColumn) {
-      if (val === oldValue) {
-        val = rowEntity[acEntry.labelColumn];
-      }
-      oldValue = rowEntity[acEntry.labelColumn];
+    if (colName === acEntry.labelColumn) {
+      colName = acEntry.idColumn;
     }
 
+    var result;
     if (acEntry && acEntry.lookup_type === 'golr') {
-      return this.session.golrLookup(colName, oldValue, val, acEntry);
+      result = this.session.golrLookup(colName, oldValue, val, acEntry);
     }
     else if (acEntry && acEntry.lookup_type === 'ols') {
-      return this.session.olsLookup(colName, oldValue, val, acEntry);
+      result = this.session.olsLookup(colName, oldValue, val, acEntry);
     }
     else if (acEntry && acEntry.lookup_type === 'inline') {
-      return this.session.inlineLookup(colName, oldValue, val, acEntry);
+      result = this.session.inlineLookup(colName, oldValue, val, acEntry);
     }
     else {
-      return this.session.monarchLookup(colName, oldValue, val, acEntry);
+      result = this.session.monarchLookup(colName, oldValue, val, acEntry);
     }
+
+    return result;
   }
 
   applySubstitution(row, text, vars) {
@@ -267,48 +279,54 @@ export default class EditorController {
   }
 
   termSelected(item, model, label, event) {
+    // console.log('termSelected', item, model, label, this.gridApi);
+
     var that = this;
     var cellNav = this.gridApi.cellNav;
-    var cell = cellNav.getFocusedCell();
-    var cellName = cell.col.colDef.name;
-    var cellValue = cell.row.entity[cellName];
+    if (cellNav) {
+      var cell = cellNav.getFocusedCell();
+      var cellName = cell.col.colDef.name;
+      var cellValue = cell.row.entity[cellName];
 
-    if (this.isAutocompleteColumn(cellName)) {
-      var acEntry = this.session.autocompleteRegistry[cellName];
-      if (acEntry) {
-        if (acEntry.idColumn) {
-          cell.row.entity[acEntry.idColumn] = cellValue.id;
+      // console.log('termSelected', cellName, cellValue, cell, cell.row.entity);
+
+      if (this.isAutocompleteColumn(cellName)) {
+        var acEntry = this.session.autocompleteRegistry[cellName];
+        if (acEntry) {
+          if (acEntry.idColumn) {
+            cell.row.entity[acEntry.idColumn] = cellValue.id;
+          }
+          else {
+            cell.row.entity[cellName] = cellValue.id;
+          }
+          if (acEntry.labelColumn) {
+            cell.row.entity[acEntry.labelColumn] = cellValue.label;
+          }
         }
         else {
           cell.row.entity[cellName] = cellValue.id;
-        }
-        if (acEntry.labelColumn) {
-          cell.row.entity[acEntry.labelColumn] = cellValue.name;
+          if (cellValue.label) {
+            var labelField = (cellName + ' label');
+            cell.row.entity[labelField] = cellValue.label;
+          }
         }
       }
       else {
-        cell.row.entity[cellName] = cellValue.id;
-        if (cellValue.label) {
-          var labelField = (cellName + ' label');
-          cell.row.entity[labelField] = cellValue.name;
-        }
+        cell.row.entity[cellName] = cellValue;
       }
+
+      that.updateIRILabelForRow(cell.row);
+
+      // this.$timeout(function() {
+      //   that.$scope.gridApi.cellNav.scrollToFocus(
+      //     cell.row.entity,
+      //     cell.col.colDef);
+      //   }, 250);
+
+      //   $scope.gridApi.cellNav.scrollToFocus( row, $scope.gridOptions.columnDefs[colIndex]);
+
+      this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
     }
-    else {
-      cell.row.entity[cellName] = cellValue;
-    }
-
-    that.updateIRILabelForRow(cell.row);
-
-    // this.$timeout(function() {
-    //   that.$scope.gridApi.cellNav.scrollToFocus(
-    //     cell.row.entity,
-    //     cell.col.colDef);
-    //   }, 250);
-
-    //   $scope.gridApi.cellNav.scrollToFocus( row, $scope.gridOptions.columnDefs[colIndex]);
-
-    this.$scope.$broadcast(this.uiGridEditConstants.events.END_CELL_EDIT);
   }
 
   convertIDToNumber(id) {
@@ -382,9 +400,12 @@ export default class EditorController {
     this.session.rowData.unshift(newRow);
     // this.gridApi.core.handleWindowResize();
 
+/*
     this.$timeout(function() {
       var rows = that.$scope.gridApi.grid.getVisibleRows(); // that.session.rowData;
       var col = that.$scope.gridApi.grid.columns[4];
+      console.log('rows', rows);
+      console.log('col', col);
       var colUID = col.uid;
       var rowUID;
       var row;
@@ -426,16 +447,11 @@ export default class EditorController {
       //   });
 
     }, 50);
+*/
+
   }
 
   // Config stuff
-
-  setErrorConfig(error) {
-    this.session.errorMessageConfig = error;
-    this.session.titleConfig = '';
-    this.session.sourceConfig = '';
-    this.session.parsedConfig = null;
-  }
 
   parsedConfig() {
     var that = this;
@@ -448,8 +464,10 @@ export default class EditorController {
       patternURL = that.session.defaultPatternURL;
     }
 
+    // console.log('parsedConfig', searchParams, patternURL, that.session.defaultXSVURL);
+
     function patternLoaded() {
-      // console.log('patternLoaded', searchParams.xsv, that.session.defaultXSVURL);
+      // console.log('patternLoaded', searchParams.yaml, searchParams.xsv, patternURL, that.session.defaultXSVURL);
       var xsvURL;
       if (searchParams.xsv) {
         xsvURL = searchParams.xsv;
@@ -665,6 +683,7 @@ export default class EditorController {
       }
       else {
         result.cellTemplate = 'cellStateReadonlyTemplate';
+        result.enableCellEdit = false;
       }
 
       return result;
@@ -905,7 +924,7 @@ export default class EditorController {
       // keyDownOverrides: [{keyCode: 27}]
     };
 
-    this.$scope.noResults = false;
+    // this.$scope.noResults = false;
     this.$scope.debugFormat = angular.bind(this, this.debugFormat);
     this.$scope.getTerm = angular.bind(this, this.getTerm);
     this.$scope.termSelected = angular.bind(this, this.termSelected);
@@ -916,38 +935,48 @@ export default class EditorController {
       that.$scope.gridApi = gridApi;
 
       gridApi.edit.on.beginCellEdit(that.$scope, function(rowEntity, colDef) {
-        // console.log("beginCellEdit: " + angular.toJson(colDef.field));
+        // console.log('beginCellEdit: ', rowEntity, colDef);
         that.setSorting(false);
       });
 
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
-        // console.log("afterCellEdit: " + angular.toJson(colDef.field));
+        // console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
+        // rowEntity[colDef.name] = newValue;
         that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
         that.setSorting(true);
       });
 
       gridApi.edit.on.cancelCellEdit(that.$scope, function(rowEntity, colDef) {
-        // console.log("cancelCellEdit: " + angular.toJson(colDef.field));
+        // console.log('cancelCellEdit: ', rowEntity, colDef);
         that.setSorting(true);
       });
 
-      gridApi.cellNav.on.viewPortKeyDown(that.$scope, function(event, newRowCol) {
-        var row = newRowCol.row;
-        var col = newRowCol.col;
-        if (event.keyCode === 32) {
-          // that.$scope.gridApi.cellNav.scrollToFocus(
-          //   row.entity,
-          //   that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
-        }
-        else if (event.keyCode === 27) {
-          that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
-        }
-      });
+      // gridApi.cellNav.on.viewPortKeyDown(that.$scope, function(event, newRowCol) {
+      //   console.log('viewPortKeyDown', event.keyCode);
+      //   var row = newRowCol.row;
+      //   var col = newRowCol.col;
+      //   if (event.keyCode === 32) {
+      //     // that.$scope.gridApi.cellNav.scrollToFocus(
+      //     //   row.entity,
+      //     //   that.$scope.gridApi.grid.columns[that.$scope.gridApi.grid.columns.length - 1]);
+      //   }
+      //   else if (event.keyCode === 27) {
+      //     that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
+      //   }
+      // });
 
       gridApi.cellNav.on.navigate(that.$scope, function(newRowCol, oldRowCol) {
-          // console.log('navigate', newRowCol, oldRowCol);
-          that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
-          that.$scope.noResults = false;
+        // console.log('xnavigate', oldRowCol, newRowCol, gridApi);
+        if (oldRowCol) {
+          // console.log('noresults:', 'noResults' + oldRowCol.row.uid + '_' + oldRowCol.col.uid);
+          delete that.$scope['noResults' + oldRowCol.row.uid + '_' + oldRowCol.col.uid];
+          gridApi.edit.raise.cancelCellEdit(oldRowCol.row.entity, oldRowCol.col.colDef);
+          // that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
+          // that.$timeout(function() {
+          //   that.$scope.noResults = false;
+          //   that.$scope.$broadcast(that.uiGridEditConstants.events.CANCEL_CELL_EDIT);
+          // }, 0);
+        }
       });
 
       that.$timeout(function() {

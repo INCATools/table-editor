@@ -123,6 +123,14 @@
   // border:1px solid red;
 }
 
+.typeahead-is-open {
+  border:5px solid red !important;
+}
+
+.typeahead-is-closed {
+  // border:5px solid green !important;
+}
+
 .no-results {
   top:-20px;
   font-face:italic;

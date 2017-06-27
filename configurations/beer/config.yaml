@@ -25,15 +25,23 @@ IRIGeneration:
   type: uuid
 
 inline:
-  BEER:
-    - Pilsner
-    - Lager
-    - Ale
-    - Pale
-    - India
-    - Porter
-    - Stout
-    - Wheat
+  beer:
+    - id: 'BEER:0000001'
+      label: 'Pilsner'
+    - id: 'BEER:0000002'
+      label: 'Lager'
+    - id: 'BEER:0000003'
+      label: 'Ale'
+    - id: 'BEER:0000004'
+      label: 'Pale Ale'
+    - id: 'BEER:0000005'
+      label: 'India Pale Ale'
+    - id: 'BEER:0000006'
+      label: 'Porter'
+    - id: 'BEER:0000007'
+      label: 'Stout'
+    - id: 'BEER:0000008'
+      label: 'Wheat'
 
 defaultPatterns:
   - url: 'configurations/beer/beer.yaml'

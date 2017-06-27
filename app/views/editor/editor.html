@@ -226,13 +226,16 @@
 <!--       <span style="display:inline-block;min-width:320px;width:320px;font-size:0.7em;font-style:bold;" ng-bind-html="match.model | json"></span>
 -->
     <span style="display:inline-block;width:150px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
-    <span ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></span>
+    <span ng-bind-html="match.model.label | uibTypeaheadHighlight:query"></span>
   </a>
 </script>
 
+
 <script type="text/ng-template" id="cellStateAutocompleteTemplate">
   <div class="typeaheadcontainer">
-    <div style="position:absolute;z-index:100;margin-left:4px;" ng-show="loadingItems">
+    <div
+      style="position:absolute;z-index:100;margin-left:4px;"
+      ng-show="loadingItems">
       <i class="fa fa-spinner fa-spin fa-fw"></i>
     </div>
     <textarea
@@ -245,24 +248,36 @@
         }
       }"
       ng-model="MODEL_COL_FIELD"
+      ng-trim="false"
       show-list
+      xshow-list-new
+      xtypeahead
+      xbud-grid-editor
+      xui-grid-editor
+      xtypeahead-focus
       uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
       typeahead-append-to-body="true"
+      xtypeahead-focus-on-select="true"
+      xtypeahead-select-on-blur="false"
       typeahead-loading="loadingItems"
-      typeahead-no-results="grid.appScope.noResults"
+      typeahead-no-results="grid.appScope['noResults' + row.uid + '_' + col.uid]"
       typeahead-template-url="customTemplate.html"
       typeahead-editable="true"
-      ng-trim="false"
       typeahead-min-length=0
+      xtypeahead-is-open="isOpen"
       typeahead-is-open="'true'"
       typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
-      class="typeaheadcontrol form-control">
+      class="typeaheadcontrol form-control"
+      ng-class="isOpen ? 'typeahead-is-open' : 'typeahead-is-closed'">
     </textarea>
-    <div class="no-results" ng-show="grid.appScope.noResults">
+    <div class="no-results"
+      xng-init="grid.appScope['noResults' + row.uid + '_' + col.uid] = true"
+      ng-show="grid.appScope['noResults' + row.uid + '_' + col.uid]">
       No Results Found
     </div>
   </div>
 </script>
+
 
 <script type="text/ng-template" id="TERowTemplate">
   <div

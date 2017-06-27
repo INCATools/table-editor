@@ -1,14 +1,22 @@
 inline:
   'Evidence ID':
-    - IEA
-    - TAS
-    - PCS
-    - ICE
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
   'Evidence Name':
-    - IEA
-    - TAS
-    - PCS
-    - ICE
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
 
 patternless: true
 
