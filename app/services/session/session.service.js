@@ -31,7 +31,7 @@ export default class SessionService {
 
   loadSiteConfig(continuation) {
     var that = this;
-    var siteConfigURL = window.location.origin + '/configurations/index.json';
+    var siteConfigURL = window.location.origin + '/' + window.location.pathname + 'configurations/index.json';
     this.baseURL = null;
     this.logoImage = null;
 
