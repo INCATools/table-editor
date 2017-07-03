@@ -48,7 +48,6 @@ export default class SessionService {
       }).then(
       function(result) {
         let data = result.data;
-        console.log('data', data);
         that.configNames = data.configNames;
         that.logoImage = data.logoImage || 'INCA.png';
         that.baseURL = data.baseURL || that.baseURL;
@@ -57,10 +56,10 @@ export default class SessionService {
         });
         that.defaultConfigName = that.configNames[0];
 
-        console.log('#configNames', that.configNames);
-        console.log('#logoImage', that.logoImage);
-        console.log('#baseURL', that.baseURL);
-        console.log('#defaultConfigName', that.defaultConfigName);
+        // console.log('#configNames', that.configNames);
+        // console.log('#logoImage', that.logoImage);
+        // console.log('#baseURL', that.baseURL);
+        // console.log('#defaultConfigName', that.defaultConfigName);
         continuation();
       },
       function(error) {
@@ -139,7 +138,25 @@ export default class SessionService {
     this.configURL = configURL;
     this.$http.get(configURL, {withCredentials: false}).then(
       function(result) {
-        that.loadSourceConfig(result.data, configURL, configURL);
+        var configSource = result.data;
+        // console.log('configSource:', configSource);
+        var menuURL = configURL.replace(/config\.yaml$/, 'menu.yaml');
+        that.$http.get(menuURL, {withCredentials: false}).then(
+          function(menuResult) {
+            var menuSource = menuResult.data;
+            configSource += '\n';
+            configSource += menuSource;
+
+            // console.log('menuSource:', menuSource);
+            that.loadSourceConfig(configSource, configURL, configURL);
+          },
+          function(error) {
+            var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
+            console.log(errmsg);
+            that.setErrorConfig(errmsg);
+            that.loadSourceConfig(configSource, configURL, configURL);
+          }
+        );
       },
       function(error) {
         that.setErrorConfig('Error loading URL ' + configURL + '\n\n' + JSON.stringify(error));

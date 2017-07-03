@@ -329,29 +329,6 @@ export default class EditorController {
     }
   }
 
-  convertIDToNumber(id) {
-    var prefix = this.session.parsedConfig.IRIGeneration.prefix;
-
-    var result = 0;
-    if (id.indexOf(prefix) === 0) {
-      id = id.slice(prefix.length + 1);
-      result = parseInt(id, 10);
-    }
-    else {
-      console.log('...ERROR in id', id);
-    }
-
-    return result;
-  }
-
-
-  convertNumberToID(number) {
-    var prefix = this.session.parsedConfig.IRIGeneration.prefix;
-    number = '000000' + number;
-    var result = prefix + ':' + number.slice(number.length - 6);
-    return result;
-  }
-
   deleteRow(entity) {
     if (this.$window.confirm('Are you sure you want to delete this entry?')) {
       var foundIndex = this.session.rowData.indexOf(entity);
@@ -380,21 +357,21 @@ export default class EditorController {
     }
     var newRow = {};
     var iriGeneration = this.session.parsedConfig.IRIGeneration;
-    if (iriGeneration.type === 'uuid') {
-      newRow.iri = uuidv4(iriGeneration.prefix);
-    }
-    else if (iriGeneration.type === 'counter') {
-      var lastIRINumber = this.session.parsedConfig.IRIGeneration.counter;
-
-      ++lastIRINumber;
-
-      newRow.iri = this.convertNumberToID(lastIRINumber);
+    var iriGenerationType = (iriGeneration && iriGeneration.type) ?
+                                iriGeneration.type :
+                                'uuid';
+    if (iriGenerationType === 'uuid') {
+      var iriGenerationPrefix = (iriGeneration && iriGeneration.prefix) ?
+                                  iriGeneration.prefix :
+                                  'INCA';
+      newRow.iri = uuidv4(iriGenerationPrefix);
     }
     else {
-      if (topRow) {
-        newRow['Disease ID'] = topRow['Disease ID'];
-        newRow['Disease Name'] = topRow['Disease Name'];
-      }
+      console.log('Unknown iriGeneration', iriGeneration);
+      // if (topRow) {
+      //   newRow['Disease ID'] = topRow['Disease ID'];
+      //   newRow['Disease Name'] = topRow['Disease Name'];
+      // }
     }
 
     this.session.rowData.unshift(newRow);
