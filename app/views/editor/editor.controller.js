@@ -456,7 +456,7 @@ export default class EditorController {
         that.loadURLXSV(xsvURL);
       }
       else {
-        that.loadNewXSV();
+        that.loadCorrespondingXSV(patternURL);
       }
     }
 
@@ -511,6 +511,7 @@ export default class EditorController {
   }
 
   loadSourcePattern(source, title, url, continuation) {
+    // console.log('loadSourcePattern', url, title, source.slice(0, 20));
     var that = this;
     this.session.sourcePattern = source;
     this.session.titlePattern = title;
@@ -526,16 +527,13 @@ export default class EditorController {
     }
 
     this.session.parsePattern(function() {
-      // console.log('parsedPattern', that.session.parsedPattern);
+      // console.log('parsePattern', that.session.parsedPattern);
       var fields = [];
       _.each(that.session.parsedPattern.vars, function(v, k) {
         fields.push(that.stripQuotes(k));
         fields.push(that.stripQuotes(k) + ' label');
       });
 
-      that.loadNewXSV();
-      // that.session.rowData = [];
-      // that.gridOptions.data = that.session.rowData;
       that.session.columnDefs = that.generateColumnDefsFromFields(fields, true);
       that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
       that.setErrorPattern(null);
@@ -553,6 +551,7 @@ export default class EditorController {
   }
 
   loadURLPattern(patternURL, continuation) {
+    // console.log('loadURLPattern', patternURL);
     var that = this;
     this.session.patternURL = patternURL;
     this.$http.get(patternURL, {withCredentials: false}).then(
@@ -722,7 +721,11 @@ export default class EditorController {
         result = false;
       }
       else {
-        result = _.isEqual(patternColumns, xsvColumns);
+        var sortedPatternColumns = _.sortBy(patternColumns, 'name');
+        var sortedXSVColumns = _.sortBy(xsvColumns, 'name');
+        result = _.isEqual(sortedPatternColumns, sortedXSVColumns);
+        // console.log('sortedPatternColumns', sortedPatternColumns);
+        // console.log('sortedXSVColumns', sortedXSVColumns);
         if (!result) {
           console.log('#compareColumnDefs !equal', patternColumns, xsvColumns);
         }
@@ -778,6 +781,11 @@ export default class EditorController {
         }, 0);
       }
     });
+  }
+
+  loadCorrespondingXSV(patternURL) {
+    // console.log('loadCorrespondingXSV', patternURL, this.parsedConfig);
+    this.loadNewXSV();
   }
 
   loadNewXSV() {
