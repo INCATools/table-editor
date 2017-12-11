@@ -1,5 +1,5 @@
 import angular from 'angular';
-import angularUIRouter from 'angular-ui-router';
+import angularUIRouter from '@uirouter/angularjs';
 
 import ngsanitize from 'angular-sanitize';
 import nguibootstrap from 'angular-ui-bootstrap';
