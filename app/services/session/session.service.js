@@ -224,6 +224,10 @@ export default class SessionService {
             });
             let curies = cleanedVarClasses.map(function(c) {
               let curie = that.parsedPattern.classes[c];
+              if (!curie) {
+                var acEntry = that.autocompleteRegistry[c];
+                curie = that.autocompleteRegistry[c].root_class[0];
+              }
               return curie;
             });
             // console.log('parsedPattern', classname, key, that.parsedPattern, varClasses, cleanedVarClasses, curies);
@@ -234,7 +238,7 @@ export default class SessionService {
             var lookupType = null;
             var iriPrefix = null;
             curies.forEach(function(curie) {
-              if (!curie) {
+              if (typeof curie !== 'string') {
                 const error = 'Error in pattern for var "' + classname + '"';
                 console.log('error', error, that.parsedPattern);
                 errors.push(error);
@@ -595,7 +599,17 @@ export default class SessionService {
     else {
       // console.log('olsLookup', colName, oldValue, val, acEntry);
       var olsURLBase = 'https://www.ebi.ac.uk/ols/api/select';
-      var whichClosures = acEntry.root_class.map(function(c) {
+      var whichClosures = [];
+      acEntry.root_class.forEach(function(c) {
+        if (c === '') {
+
+        }
+        else {
+          var whichClosure = acEntry.iriPrefix + that.ensureUnderscores(c);
+          whichClosures.push(whichClosure);
+        }
+      });
+      acEntry.root_class.map(function(c) {
         var whichClosure = acEntry.iriPrefix + that.ensureUnderscores(c);
         return whichClosure;
       });
@@ -606,10 +620,15 @@ export default class SessionService {
         fieldList: 'iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type',
         // local: true,
         // ontology: ontologies,
-        allChildrenOf: whichClosures,
         rows: 15
       };
 
+      if (whichClosures.length === 0) {
+        requestParams.local = true;
+      }
+      else {
+        requestParams.allChildrenOf = whichClosures;
+      }
       // requestParams.ontology = ontology;
       // if (ontology !== 'exo') {
       //   requestParams.ontology = ontology;
@@ -627,7 +646,7 @@ export default class SessionService {
             // console.log('OLS success', olsURLBase, requestParams, data);
             var result = data.map(function(item) {
               return {
-                id: item.obo_id,  // short_form,
+                id: item.obo_id || that.ensureColons(item.short_form),
                 label: item.label
               };
             });
@@ -639,7 +658,6 @@ export default class SessionService {
         );
     }
   }
-
 
   monarchLookup(colName, oldValue, val, acEntry) {
     return this.$http.get(
