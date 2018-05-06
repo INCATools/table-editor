@@ -31,4 +31,22 @@ export default app => {
   app.config(['JSONFormatterConfigProvider', function (JSONFormatterConfigProvider) {
       JSONFormatterConfigProvider.hoverPreviewEnabled = true;
     }]);
+
+  app.config([ '$provide', function($provide) {
+    $provide.decorator('uiGridEditService', [
+      '$delegate',
+      function myServiceDecorator($delegate) {
+        var isStartEditKey = $delegate.isStartEditKey;
+
+        function isStartEditKeyOverride(event) {
+          // console.log('isStartEditKeyOverride', event);
+          return (event.keyCode === 13) || isStartEditKey.apply($delegate, [event]);
+        }
+
+        $delegate.isStartEditKey = isStartEditKeyOverride;
+        return $delegate;
+      }
+    ]);
+  }]);
+
 };

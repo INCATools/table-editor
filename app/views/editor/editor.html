@@ -1,15 +1,19 @@
 <div class="editor-container container-fluid">
-<!--   <button
-    type="button"
-    title="Add Association"
-    class="btn btn-primary btn-xs xbtn-compact"
-    ng-click="editorCtrl.openGitHub()">
-    <i class="fa fa-github fa-fw"></i>
-  </button>
+  <div
+    class="row"
+    id="typeahead-anchor">
+  </div>
 
- -->
-
-  <div class="row" ng-if="!editorCtrl.session.parsedConfig.patternless">
+  <div
+    class="row"
+    ng-if="editorCtrl.session.parsedConfig.patternless">
+    <div class="col-xs-12">
+      <div style="height:25px;">&nbsp;</div>
+    </div>
+  </div>
+  <div
+    class="row"
+    ng-if="!editorCtrl.session.parsedConfig.patternless">
     <div class="col-xs-3">
       <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
         <button
@@ -17,7 +21,7 @@
           type="button"
           class="btn btn-xs btn-default btn-block"
           uib-dropdown-toggle>
-            Pattern Examples <span class="caret"></span>
+            Patterns <span class="caret"></span>
         </button>
         <ul
           class="dropdown-menu btn-group-menu-block"
@@ -38,7 +42,7 @@
         <input
           ng-model="editorCtrl.session.patternURL"
           type="text"
-          class="form-control input-group-xs"
+          class="form-control input-group-xs zero-z"
           placeholder="Enter a URL to a YAML Pattern file"
           aria-describedby="import-url">
 
@@ -46,7 +50,7 @@
           <button
             type="button"
             ng-disabled="editorCtrl.session.patternURL.length === 0"
-            class="btn btn-success btn-xs btn-block input-group-button-xs"
+            class="btn btn-success btn-xs btn-block input-group-button-xs zero-z"
             ng-click="editorCtrl.loadURLPattern(editorCtrl.session.patternURL)">
             Load
           </button>
@@ -71,7 +75,6 @@
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-xs-3">
       <div class="btn-group btn-group-block" uib-dropdown keyboard-nav>
@@ -80,7 +83,7 @@
           type="button"
           class="btn btn-xs btn-default btn-block"
           uib-dropdown-toggle>
-            XSV Examples <span class="caret"></span>
+            XSVs <span class="caret"></span>
         </button>
         <ul
           class="dropdown-menu btn-group-menu-block"
@@ -107,7 +110,7 @@
         <input
           ng-model="editorCtrl.session.XSVURL"
           type="text"
-          class="form-control input-group-xs"
+          class="form-control input-group-xs zero-z"
           placeholder="Enter a URL to a CSV/TSV file"
           aria-describedby="import-url">
 
@@ -115,7 +118,7 @@
           <button
             type="button"
             ng-disabled="editorCtrl.session.XSVURL.length === 0"
-            class="btn btn-success btn-xs btn-block input-group-button-xs"
+            class="btn btn-success btn-xs btn-block input-group-button-xs zero-z"
             ng-click="editorCtrl.loadURLXSV(editorCtrl.session.XSVURL)">
             Load
           </button>
@@ -141,25 +144,20 @@
     </div>
   </div>
 
+
   <div
-    class="row"
-    ng-if="editorCtrl.session.parsedPattern || editorCtrl.session.parsedXSV"
-    style="min-height:80px;padding:0;margin:1px; border:2px solid lightgray;border-radius:5px;background:ivory;">
-    <div class="col-xs-8">
-      <h6>{{editorCtrl.getRowTitle()}}</h6>
-    </div>
-    <div class="col-xs-4">
+    class="row detail-header"
+    ng-if="editorCtrl.session.parsedConfig.patternless || editorCtrl.session.parsedPattern || editorCtrl.session.parsedXSV">
+    <h6>{{editorCtrl.getRowTitle()}}
       <a
         style="font-size:12px;line-height:1em;"
         href="{{editorCtrl.getCellURL()}}"
         target="_blank"
         title="Cell: {{editorCtrl.getCellTitle()}}">
-        <h6>{{editorCtrl.getCellDetails()}}</h6>
+        {{editorCtrl.getCellDetails()}}
       </a>
-    </div>
-    <div class="col-xs-12">
-      <h6><b>{{editorCtrl.getRowDetails()}}</b></h6>
-    </div>
+    </h6>
+    <h6>{{editorCtrl.getRowDetails()}}</h6>
   </div>
 
   <div class="row" ng-if="editorCtrl.session.errorMessagePattern">
@@ -172,6 +170,19 @@
       <pre>{{editorCtrl.session.errorMessageXSV}}</pre>
     </div>
   </div>
+
+<!--
+  <div
+    ng-if="editorCtrl.$scope.showTypeahead"
+    class="typeaheadcontainer">
+    <button
+      class="btn btn-xs"
+      ng-click="editorCtrl.$scope.showTypeahead=false"
+      style="float:right;">
+      <i class="fa fa-compass fa-fw"></i>
+    <button>
+  </div>
+ -->
 
   <div
     class="row"
@@ -190,7 +201,7 @@
     </div>
   </div>
 
-  <div id="bottom_of_page" style="height:400px;"></div>
+  <div id="bottom_of_page" style="height:20px;"></div>
 </div>
 
 <script type="text/ng-template" id="cellStateTemplate">
@@ -202,6 +213,73 @@
 <script type="text/ng-template" id="cellStateReadonlyTemplate">
   <div class="ui-grid-cell-contents" >
     <i>{{grid.getCellValue(row, col)}}</i>
+  </div>
+</script>
+
+<script type="text/ng-template" id="customTemplate.html">
+  <a>
+<!--
+    <span style="display:inline-block;min-width:320px;width:320px;font-size:0.7em;font-style:bold;" ng-bind-html="match.model | json"></span>
+ -->
+    <span style="display:inline-block;width:150px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
+    <span ng-bind-html="match.model.label | uibTypeaheadHighlight:query"></span>
+  </a>
+</script>
+
+
+<script type="text/ng-template" id="customPopupTemplate.html">
+  <div class="custom-popup-wrapper"
+     xng-style="{top: position().top+'px', left: position().left+'px'}"
+     ng-show="isOpen() && !moveInProgress"
+     aria-hidden="{{!isOpen()}}">
+    <ul class="dropdown-menu" role="listbox">
+      <li class="uib-typeahead-match" ng-repeat="match in matches track by $index" ng-class="{active: isActive($index) }"
+        ng-mouseenter="selectActive($index)" ng-click="selectMatch($index)" role="option" id="{{::match.id}}">
+        <div uib-typeahead-match index="$index" match="match" query="query" template-url="templateUrl"></div>
+      </li>
+    </ul>
+  </div>
+</script>
+
+
+<script type="text/ng-template" id="cellStateAutocompleteTemplate">
+  <div class="typeaheadcontainer">
+    <div
+      style="position:absolute;z-index:100;margin-left:4px;"
+      ng-show="loadingItems">
+      <i class="fa fa-spinner fa-spin fa-fw"></i>
+    </div>
+    <form
+      name="inputForm">
+    <textarea
+      type="text"
+      ng-keydown="grid.appScope.textareaKeydown($event)"
+      ng-model="MODEL_COL_FIELD"
+      ng-trim="false"
+      show-list
+      typeahead-popup-template-url="customPopupTemplate.html"
+      name="inputForm"
+      xui-grid-editor
+      uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
+      typeahead-append-to="grid.appScope.typeaheadAnchor"
+      typeahead-focus-on-select="false"
+      typeahead-select-on-blur="false"
+      typeahead-loading="loadingItems"
+      typeahead-no-results="grid.appScope.noResults[row.uid + '_' + col.uid]"
+      typeahead-template-url="customTemplate.html"
+      typeahead-editable="false"
+      typeahead-min-length=0
+      typeahead-is-open="grid.appScope.isOpenX[row.uid + '_' + col.uid]"
+      typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
+      class="typeaheadcontrol"
+      ng-class="grid.appScope.isOpenX[row.uid + '_' + col.uid] ? 'typeahead-is-open' : 'typeahead-is-closed'">
+    </textarea>
+    </form>
+    <div class="no-results"
+      xng-init="grid.appScope.noResults[row.uid + '_' + col.uid] = true"
+      ng-show="grid.appScope.noResults[row.uid + '_' + col.uid]">
+      No Results Found
+    </div>
   </div>
 </script>
 
@@ -220,60 +298,22 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="customTemplate.html">
-  <a>
 
-<!--       <span style="display:inline-block;min-width:320px;width:320px;font-size:0.7em;font-style:bold;" ng-bind-html="match.model | json"></span>
--->
-    <span style="display:inline-block;width:150px;font-size:0.9em;font-style:italic;" ng-bind-html="match.model.id | uibTypeaheadHighlight:query"></span>
-    <span ng-bind-html="match.model.label | uibTypeaheadHighlight:query"></span>
-  </a>
-</script>
-
-
-<script type="text/ng-template" id="cellStateAutocompleteTemplate">
-  <div class="typeaheadcontainer">
-    <div
-      style="position:absolute;z-index:100;margin-left:4px;"
-      ng-show="loadingItems">
-      <i class="fa fa-spinner fa-spin fa-fw"></i>
-    </div>
-    <textarea
-      type="text"
-      ng-model-options="{
-        'updateOn': 'default blur',
-        'debounce': {
-          'default': 250,
-          'blur': 0
-        }
-      }"
-      ng-model="MODEL_COL_FIELD"
-      ng-trim="false"
-      show-list
-      xshow-list-new
-      xtypeahead
-      xbud-grid-editor
-      xui-grid-editor
-      xtypeahead-focus
-      uib-typeahead="term as term.label for term in grid.appScope.getTerm(row.entity, col.colDef.name, $viewValue)"
-      typeahead-append-to-body="true"
-      xtypeahead-focus-on-select="true"
-      xtypeahead-select-on-blur="false"
-      typeahead-loading="loadingItems"
-      typeahead-no-results="grid.appScope['noResults' + row.uid + '_' + col.uid]"
-      typeahead-template-url="customTemplate.html"
-      typeahead-editable="true"
-      typeahead-min-length=0
-      xtypeahead-is-open="isOpen"
-      typeahead-is-open="'true'"
-      typeahead-on-select="grid.appScope.termSelected($item, $model, $label, $event)"
-      class="typeaheadcontrol form-control"
-      ng-class="isOpen ? 'typeahead-is-open' : 'typeahead-is-closed'">
-    </textarea>
-    <div class="no-results"
-      xng-init="grid.appScope['noResults' + row.uid + '_' + col.uid] = true"
-      ng-show="grid.appScope['noResults' + row.uid + '_' + col.uid]">
-      No Results Found
+<script type="text/ng-template" id="cellStateBooleanTemplate">
+  <div
+    class="ui-grid-cell-contents table-editor-default-cell">
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        ng-model="MODEL_COL_FIELD"
+        name="NOT"
+        ng-true-value="'NOT'"
+        ng-false-value="''"
+        id="defaultCheck1">
+      <label class="form-check-label" for="defaultCheck1">
+        NOT
+      </label>
     </div>
   </div>
 </script>

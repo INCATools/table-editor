@@ -134,25 +134,6 @@ app.directive('typeaheadFocus', function () {
   };
 });
 
-app.config([ '$provide', function($provide) {
-  $provide.decorator('uiGridEditService', [
-    '$delegate',
-    function myServiceDecorator($delegate) {
-      console.log('myServiceDecorator', $delegate);
-
-      var isStartEditKey = $delegate.isStartEditKey;
-
-      function isStartEditKeyOverride() {
-        console.log('isStartEditKeyOverride', arguments);
-        // new service function
-        isStartEditKey.apply($delegate, arguments);
-      }
-
-      $delegate.isStartEditKey = isStartEditKeyOverride;
-      return $delegate;
-    }
-  ]);
-}]);
 */
 
 /*

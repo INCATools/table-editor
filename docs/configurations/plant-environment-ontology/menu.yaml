@@ -1,0 +1,20 @@
+defaultPatterns:
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/curie_map.yaml
+    title: curie_map.yaml
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/eo.yaml
+    title: eo.yaml
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/eo_role.yaml
+    title: eo_role.yaml
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/eo.tsv
+    title: eo.tsv
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/exposure-chebi.csv
+    title: exposure-chebi.csv
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/exposure-chebi_role.csv
+    title: exposure-chebi_role.csv
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/exposure-envo.csv
+    title: exposure-envo.csv
+  - url: https://raw.githubusercontent.com/Planteome/plant-environment-ontology/master/patterns/exposure-ncbitaxon.csv
+    title: exposure-ncbitaxon.csv
+

@@ -3,20 +3,22 @@ nav.navbar .navbar-brand img {
   margin: 5px;
 }
 
-
+nav.navbar {
+	min-height: 42px;
+}
 
 @media (max-width: $grid-float-breakpoint) {
 
-nav.navbar .navbar-brand img {
-  height: 25px;
-  margin: 2px;
-}
+	nav.navbar .navbar-brand img {
+	  height: 25px;
+	  margin: 2px;
+	}
 
 
-nav.navbar button.navbar-toggle {
-  padding: 8px 10px;
-  border: 1px solid transparent;
-}
+	nav.navbar button.navbar-toggle {
+	  padding: 8px 10px;
+	  border: 1px solid transparent;
+	}
 
 
 
