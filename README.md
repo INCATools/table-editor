@@ -5,6 +5,13 @@ The INCA table editor enables biomedical curators to create new term requests co
 
 Using a different configuration, the INCA table editor can also be used for instance-level annotations, such as between diseases and phenotypes, or genes and phenotypes, or a patient and phenotypes. This kind of annotation use case is sometimes called "A-box"; where as the terminology use case above is sometimes called "T-box".
 
+## Live demo site
+
+A live demo of the site can be seen at https://incatools.github.io/table-editor/; try out the beer example yourself (for other design patterns you will need to deploy it per instructions below). We welcome feedback.
+
+![Alt Text](https://media.giphy.com/media/LZkP2eXU51hYS5z4zn/giphy.gif)
+
+
 ## Deployment
 
 This lightweight web application is intended to be deployed as a static single-page website, where the site can then be used to view and edit spreadsheet-formatted data while supporting autocomplete and selection from semantically associated ontologies and dictionaries. Both TSV and CSV are supported, and are collectively referred to as XSV in the software and documentation.
@@ -15,7 +22,7 @@ The initial specification for this table-editor is drawn from https://github.com
 
 - Autocomplete is hardcoded to use the Monarch autocomplete server, rather than being dynamically parameterized via a URL parameter.
 - Selecting a cell should pop up the autocomplete menu immediately, rather than requiring a character be typed.
-- Currently, the suffix ' label' on a column indicates that it is non-editable and derived from the root column name (e.g., 'location label' is derived from 'location'). This heuristic should be replaced by guidance from the DOSDP YAML file.
+- Currently, the suffix ' label' on a column indicates that it is non-editable and derived from the root column name (e.g., 'location label' is derived from 'location'). This heuristic should be replaced by guidance from the Dead Simple Ontology Design Patterns [(DOSDP)](https://github.com/dosumis/dead_simple_owl_design_patterns) YAML file.
 - Some of the buttons and panels in the UI are to help debug this application, and not necessarily part of the final UI. For example, the display of the raw and parsed YAML is unnecessary.
 
 
@@ -40,6 +47,10 @@ A remote XSV file can be loaded via URL.
 The `table-editor` app is designed so that the URL pointing to the app can be amended with an optional `url` parameter that points to a XSV file, subject to the same restrictions as Load URL above. For example, suppose this app is hosted on [https://github.com/INCATools/table-editor](https://github.com/INCATools/table-editor) and a desired Table file is hosted on [http://www.example.com/MyTableFile.gv](http://www.example.com/MyTableFile.gv). Then the following URL will launch the table-editor app and cause it to load and render the specified file:
 
 > [https://github.com/INCATools/table-editor?url=http://www.example.com/MyTableFile.gv](https://github.com/INCATools/table-editor?url=http://www.example.com/MyTableFile.gv)
+
+### Planned improvements
+
+It is our intention to wire this directly into GitHub such that raw CSV/TSV can be checked out and edited, followed by a configurable action (whether a direct commit to master or a pull request).
 
 ## Requirements to build
 
