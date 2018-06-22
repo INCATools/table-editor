@@ -4,6 +4,8 @@
 
 The INCA table editor enables biomedical curators to create new ontology term requests compositionally from a configurable set of existing ontologies and terminologies and within a familiar spreadsheet-like interface. Because directly editing ontology owl files requires considerable training (not to mention patience and QC), spreadsheet-based methods for term requests are not new; however, what INCA Table Editor provides a combination of three key innovations: configurable autocomplete, design-pattern driven logic, and (planned) GitHub integration. This democratizes and accelerates the term request process while also avoiding errors of logic right at the source. Each new term request is complete and logically valid, and is issued a generic IRI until such a time as it can be given an actual namespace and ID in an appropriate ontology.
 
+![example](https://github.com/INCATools/table-editor/blob/master/docs/INCA_TE_Example.png)
+
 The formal pattern-based approach we use is the [Dead Simple Ontology Design Patterns (DOSDP)](https://github.com/dosumis/dead_simple_owl_design_patterns) published here [(PMC5460348)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5460348/). The patterns are written in YAML. An example is [here](https://github.com/INCATools/table-editor/blob/master/docs/DOSDP_YAML_Example.png).
 
 Using a different INCA configuration, the DOSDP can also be leveraged for instance-level annotations, such as between diseases and phenotypes, or genes and phenotypes, or a patient and phenotypes. This kind of annotation use case is sometimes called "A-box"; where as the terminology use case above is sometimes called "T-box".
