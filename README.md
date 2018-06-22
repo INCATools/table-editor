@@ -57,7 +57,18 @@ The `table-editor` app is designed so that the URL pointing to the app can be am
 
 ### Planned improvements
 
-It is our intention to wire this directly into GitHub such that raw CSV/TSV can be checked out and edited, followed by a configurable action (whether a direct commit to master or a pull request).
+#### Integrate with GitHub
+- Now that the prototype user interface and application behavior have been established, we need to simplify the current workflow which requires a user to manually manage the reading and writing of their curated TSV/CSV ontology files. We will do this by implementing a GitHub integration that enables the CSV/TSV to be imported directly from a GitHub branch and then exported back to that branch as a new revision. We will not be creating a GitHub 'pull request', as we have discovered that some of our users do not use the 'pull request' mechanism during their GitHub usage. However, all of our users that use GitHub would be able to use the simpler 'read from branch' and 'write to branch' capability.
+
+#### Improve documentation
+- Better documentation about the purpose and usage of IncaForm and tetool.
+
+#### Save changes automatically
+- Use browser local storage to reduce the risk that a user would lose their 'work session' with an accidental premature browser refresh.
+
+#### Improve support for annotation mode
+- Incorporate recent/developing changes to DOSDP to support annotation-mode curation. Currently, annotation-mode curation via IncaForm is specified with an IncaForm-specific configuration file format. It is desirable to instead use DOSDP for both T-box ontology curation, as well as for A-box curation and annotation.
+- Use IncaForm (in annotation mode) to support annotation work for Fanconi anemia variants and models in the literature.
 
 ## Requirements to build
 
@@ -94,6 +105,12 @@ open http://localhost:8085/webpack-dev-server/table-editor # On MacOSX
 
 - [Environmental Conditions](https://github.com/cmungall/environmental-conditions)
 - [UPHENO](https://github.com/obophenotype/upheno)
+
+## Primary use cases and evaluation
+	- Planteome's Plant Experimental Conditions Ontology: https://github.com/Planteome/plant-experimental-conditions-ontology
+	- Planteome's Plant Trait Ontology: https://github.com/Planteome/plant-trait-ontology
+ 	- Planteome's Ontology of Plant Stress: https://github.com/Planteome/ontology-of-plant-stress
+	- Environment Ontology, Exposures: https://github.com/EnvironmentOntology/environmental-exposure-ontology
 
 ## Dependencies, Licenses, Credits
 
