@@ -17,7 +17,11 @@ A live demo of the site can be seen at https://incatools.github.io/table-editor/
 
 ## Deployment
 
-This lightweight web application is intended to be deployed as a static single-page website, where the site can then be used to view and edit spreadsheet-formatted data while supporting autocomplete and selection from semantically associated ontologies and dictionaries. Both TSV and CSV are supported, and are collectively referred to as XSV in the software and documentation.
+This lightweight web application is intended to be deployed as a static single-page website, where the site can then be used to view and edit spreadsheet-formatted data while supporting autocomplete and selection from semantically associated ontologies and dictionaries. 
+
+## Supported file types
+
+Both TSV and CSV are supported, and are collectively referred to as "XSV" in the software and documentation.
 
 The initial specification for this table-editor is drawn from https://github.com/INCATools/intelligent-concept-assistant/issues/2
 
