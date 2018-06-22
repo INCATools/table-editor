@@ -123,3 +123,5 @@ open http://localhost:8085/webpack-dev-server/table-editor # On MacOSX
 - https://github.com/mholt/PapaParse
 - https://github.com/angular-ui/ui-grid
 
+## Funding
+- This project is supported by [NIH:U01-HG009453-01](http://grantome.com/grant/NIH/U01-HG009453-01): An Intelligent Concept Agent for Assisting with the Application of Metadata
