@@ -7,7 +7,7 @@ Using a different configuration, the INCA table editor can also be used for inst
 
 ## Live demo site
 
-A live demo of the site can be seen at https://incatools.github.io/table-editor/; try out the beer example yourself (for other design patterns you will need to deploy it per instructions below). We welcome feedback.
+A live demo of the site can be seen at https://incatools.github.io/table-editor/; try out the beer example yourself (for other design patterns you will need to deploy it per instructions below). We welcome feedback at https://github.com/INCATools/table-editor/issues.
 
 ![Alt Text](https://media.giphy.com/media/LZkP2eXU51hYS5z4zn/giphy.gif)
 
