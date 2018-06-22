@@ -1,4 +1,11 @@
-# table-editor
+# INCA table-editor
+
+## Purpose
+The INCA table editor enables biomedical curators to create new term requests compositionally from a configurable set of existing ontologies and terminologies. This side-steps the requirement that curators manually edit the owl file according to a protocol and that they go to other sources to look up terms. Not only are both of these manual steps are tedious and error prone, they also require considerable training. By contrast, the INCA Table Editor allows any curator to select terms using autocomplete according to a configurable design pattern presented in a familiar spreadsheet-like interface. This formal pattern-based approach democratizes the term request process while also avoiding errors of logic. Each new term request is issued a generic IRI until such a time as it can be given an actual namespace and ID in an appropriate ontology.
+
+Using a different configuration, the INCA table editor can also be used for instance-level annotations, such as between diseases and phenotypes, or genes and phenotypes, or a patient and phenotypes. This kind of annotation use case is sometimes called "A-box"; where as the terminology use case above is sometimes called "T-box".
+
+## Deployment
 
 This lightweight web application is intended to be deployed as a static single-page website, where the site can then be used to view and edit spreadsheet-formatted data while supporting autocomplete and selection from semantically associated ontologies and dictionaries. Both TSV and CSV are supported, and are collectively referred to as XSV in the software and documentation.
 
