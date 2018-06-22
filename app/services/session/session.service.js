@@ -51,7 +51,7 @@ export default class SessionService {
         let data = result.data;
         that.configNames = data.configNames;
         that.logoImage = data.logoImage || 'INCA.png';
-        // that.baseURL = data.baseURL || that.baseURL;
+        that.baseURL = data.baseURL || that.baseURL;
         that.configNames.forEach(function(c) {
           that.configByName[c] = 'configurations/' + c + '/config.yaml';
         });
