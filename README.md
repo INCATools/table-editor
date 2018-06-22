@@ -1,9 +1,12 @@
-# INCA table-editor
+# INCA table-editor: Ontology development for mere mortals
 
 ## Purpose
-The INCA table editor enables biomedical curators to create new term requests compositionally from a configurable set of existing ontologies and terminologies. This side-steps the requirement that curators manually edit the owl file according to a protocol and that they go to other sources to look up terms. Not only are both of these manual steps are tedious and error prone, they also require considerable training. By contrast, the INCA Table Editor allows any curator to select terms using autocomplete according to a configurable design pattern presented in a familiar spreadsheet-like interface. This formal pattern-based approach democratizes the term request process while also avoiding errors of logic. Each new term request is issued a generic IRI until such a time as it can be given an actual namespace and ID in an appropriate ontology.
 
-Using a different configuration, the INCA table editor can also be used for instance-level annotations, such as between diseases and phenotypes, or genes and phenotypes, or a patient and phenotypes. This kind of annotation use case is sometimes called "A-box"; where as the terminology use case above is sometimes called "T-box".
+The INCA table editor enables biomedical curators to create new term requests compositionally from a configurable set of existing ontologies and terminologies and within a familiar spreadsheet-like interface. Because directly editing ontology owl files requires considerable training (not to mention patience and QC), spreadsheet-based methods for term requests are not new; however, what INCA Table Editor provides a combination of three key innovations: configurable autocomplete, design-pattern driven logic, and (planned) GitHub integration. This democratizes and accelerates the term request process while also avoiding errors of logic right at the source. Each new term request is complete and logically valid, and is issued a generic IRI until such a time as it can be given an actual namespace and ID in an appropriate ontology.
+
+The formal pattern-based approach we use is the [Dead Simple Ontology Design Patterns (DOSDP)](https://github.com/dosumis/dead_simple_owl_design_patterns) published here [(PMC5460348)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5460348/). 
+
+Using a different configuration, the DOSDP can also be leveraged for instance-level annotations, such as between diseases and phenotypes, or genes and phenotypes, or a patient and phenotypes. This kind of annotation use case is sometimes called "A-box"; where as the terminology use case above is sometimes called "T-box".
 
 ## Live demo site
 
@@ -20,9 +23,9 @@ The initial specification for this table-editor is drawn from https://github.com
 
 ## Current Limitations
 
-- Autocomplete is hardcoded to use the Monarch autocomplete server, rather than being dynamically parameterized via a URL parameter.
+- Autocomplete is hardcoded to use the Monarch Initiative autocomplete server, rather than being dynamically parameterized via a URL parameter.
 - Selecting a cell should pop up the autocomplete menu immediately, rather than requiring a character be typed.
-- Currently, the suffix ' label' on a column indicates that it is non-editable and derived from the root column name (e.g., 'location label' is derived from 'location'). This heuristic should be replaced by guidance from the Dead Simple Ontology Design Patterns [(DOSDP)](https://github.com/dosumis/dead_simple_owl_design_patterns) YAML file.
+- Currently, the suffix ' label' on a column indicates that it is non-editable and derived from the root column name (e.g., 'location label' is derived from 'location'). This heuristic will be replaced by design guidance provided in the DOSDP YAML file.
 - Some of the buttons and panels in the UI are to help debug this application, and not necessarily part of the final UI. For example, the display of the raw and parsed YAML is unnecessary.
 
 
