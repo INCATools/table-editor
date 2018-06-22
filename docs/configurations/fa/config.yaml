@@ -1,0 +1,84 @@
+patternless: true
+
+#NCBI:Taxon
+
+# reference,Title,organism,organism ID,model label,model ID,disease label,disease ID,Text,Phenotype label,Phenotype ID,NOT,Phenotype annotated in MGI?,Age of onset,Age of onset ID,Notes,initials,MGI link
+# PMID,Paste the title of the paper here,Note model organism used,NCIT taxon ID,Type of transgenic model?,Look in MGI/stock #?,From MonDO,From MonDO,Paste in the text that is used to describe the phenotype.,HPO,HPO,,,,,,,
+
+inline:
+  'NOT':
+    - id: ''
+      label: ''
+    - id: 'NOT'
+      label: 'NOT'
+  'Evidence ID':
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
+  'Evidence Name':
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
+
+
+IRIGeneration:
+  prefix: HP
+  type: uuid
+
+globalAutocomplete:   # Mostly for HPO testing without a separate YAML
+  'Disease ID':
+    label: 'Disease Name'
+    root_class: 'DOID:4'
+    lookup_type: 'golr'
+  'Age of Onset ID':
+    label: 'Age of Onset Name'
+    root_class: 'HP:0003674'
+    lookup_type: 'golr'
+  'Phenotype ID':
+    label: 'Phenotype Name'
+    # root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    curiePrefix: 'HP'
+    lookup_type: 'ols'
+  'Evidence ID':
+    label: 'Evidence Name'
+    lookup_type: 'inline'
+  'NOT':
+    label: 'NOT'
+    lookup_type: 'inline'
+  'Organism ID':
+    label: 'Organism Name'
+    root_class: 'NCBITaxon:131567'
+    curiePrefix: 'NCBITaxon'
+    lookup_type: 'ols'
+
+defaultFields:
+  - 'Reference'
+  - 'Title'
+  - 'Organism ID'
+  - 'Organism Name'
+  - 'Model ID'
+  - 'Model Name'
+  - 'Disease ID'
+  - 'Disease Name'
+  - 'Text'
+  - 'Phenotype ID'
+  - 'Phenotype Name'
+  - 'NOT'
+  - 'MGI Phenotype'
+  - 'Age of Onset ID'
+  - 'Age of Onset Name'
+  - 'Notes'
+  - 'Initials'
+  - 'MGI Link'
+

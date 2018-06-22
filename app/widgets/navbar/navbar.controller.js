@@ -18,6 +18,7 @@ export default class NavbarController {
   }
 
   setConfiguration(name) {
+    // console.log('###setConfiguration', name);
     this.$location.search('yaml', null);
     this.$location.search('xsv', null);
     this.session.loadConfigurationByName(name);

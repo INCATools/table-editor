@@ -1,0 +1,70 @@
+defaultPatterns:
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/activity.yaml
+    title: activity.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/dietary_exposure_to_chemical.yaml
+    title: dietary_exposure_to_chemical.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/dietary_exposure_to_chemical_with_role.yaml
+    title: dietary_exposure_to_chemical_with_role.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_event.yaml
+    title: exposure_event.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_event_complex.yaml
+    title: exposure_event_complex.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_change_in_levels.yaml
+    title: exposure_to_change_in_levels.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_chemical.yaml
+    title: exposure_to_chemical.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_chemical_with_role.yaml
+    title: exposure_to_chemical_with_role.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_environmental_condition.yaml
+    title: exposure_to_environmental_condition.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_environmental_process.yaml
+    title: exposure_to_environmental_process.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_levels_in_medium.yaml
+    title: exposure_to_levels_in_medium.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_material.yaml
+    title: exposure_to_material.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_to_radiation.yaml
+    title: exposure_to_radiation.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/exposure_via_route.yaml
+    title: exposure_via_route.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/prenatal.yaml
+    title: prenatal.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/surgical_procedure.yaml
+    title: surgical_procedure.yaml
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/patterns/transport_path.yaml
+    title: transport_path.yaml
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/activity.csv
+    title: activity.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/dietary_exposure_to_chemical.csv
+    title: dietary_exposure_to_chemical.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/dietary_exposure_to_chemical_with_role.csv
+    title: dietary_exposure_to_chemical_with_role.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_change_in_levels.csv
+    title: exposure_to_change_in_levels.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_chemical.csv
+    title: exposure_to_chemical.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_chemical_with_role.csv
+    title: exposure_to_chemical_with_role.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_environmental_condition.csv
+    title: exposure_to_environmental_condition.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_environmental_feature.csv
+    title: exposure_to_environmental_feature.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_environmental_process.csv
+    title: exposure_to_environmental_process.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_level_in_medium.csv
+    title: exposure_to_level_in_medium.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_levels_in_medium.csv
+    title: exposure_to_levels_in_medium.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_material.csv
+    title: exposure_to_material.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_to_radiation.csv
+    title: exposure_to_radiation.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/exposure_via_route.csv
+    title: exposure_via_route.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/prenatal.csv
+    title: prenatal.csv
+  - url: https://raw.githubusercontent.com/EnvironmentOntology/environmental-exposure-ontology/master/src/ontology/modules/surgical_procedure.csv
+    title: surgical_procedure.csv
+

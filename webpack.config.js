@@ -35,9 +35,9 @@ var config = {
     path: outputPath,
     filename: outputFile,
     publicPath: production ? /* eslint no-nested-ternary: 0 */
-                  'https://incatools.github.io/table-editor/' :
+                  '/table-editor/' :
                   (lproduction ?
-                    'http://127.0.0.1:8085/table-editor/' :
+                    '/table-editor/' :
                     '/')
   },
 
@@ -143,7 +143,7 @@ config.plugins.push(
   new CopyWebpackPlugin([
       { from: 'widgets/navbar/INCA.png' },
       { from: '../README.md' },
-      { from: '../configurations', to: 'configurations' }
+      { from: '../output/configurations', to: 'configurations' }
   ]));
 
 config.plugins.push(
