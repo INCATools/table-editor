@@ -5,12 +5,14 @@ import yaml from 'js-yaml';
 /* global angular */
 
 export default class SessionService {
-  constructor($http, $timeout, $location, $sce, $rootScope) {
+  constructor($http, $timeout, $location, $sce, $rootScope, $localStorage) {
+    console.log('SessionService', $localStorage);
     var that = this;
     this.name = 'DefaultSessionName';
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
+    this.$localStorage = $localStorage;
     this.$sce = $sce;
     this.$rootScope = $rootScope;
     this.defaultConfigName = 'go';
@@ -77,7 +79,7 @@ export default class SessionService {
     this.parsedPattern = null;
     this.autocompleteRegistry = null;
     this.columnDefs = null;
-    this.rowData = null;
+    this.rowData = [];
 
     this.titleConfig = null;
     this.sourceConfig = null;
@@ -602,6 +604,17 @@ export default class SessionService {
     return curie.replace(/_/, ':');
   }
 
+  dataChanged() {
+    console.log('dataChanged', this.rowData);
+    if (this.rowData) {
+      this.$localStorage.rowData = this.rowData;
+      console.log('...dataChanged stored', this.$localStorage.rowData);
+    }
+    else {
+      console.log('...dataChanged this.rowData NULL');
+    }
+  }
+
   olsLookup(colName, oldValue, val, acEntry) {
     var that = this;
     if (!val || val.length === 0) {
@@ -722,4 +735,4 @@ export default class SessionService {
     // return matches;
   }
 }
-SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope'];
+SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope', '$localStorage'];

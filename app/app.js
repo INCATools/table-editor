@@ -4,6 +4,8 @@ import angularUIRouter from '@uirouter/angularjs';
 import ngsanitize from 'angular-sanitize';
 import nguibootstrap from 'angular-ui-bootstrap';
 import ngResource from 'angular-resource';
+import ngStorage from 'ngstorage';
+
 import ngFileUpload from 'ng-file-upload';
 import jsonformatter from 'jsonformatter';
 import jsonformatterCSS from 'jsonformatter/dist/json-formatter.min.css';
@@ -32,7 +34,7 @@ if (ENVIRONMENT === 'test') {
 var dependentModules = [angularUIRouter, nguibootstrap, ngsanitize, ngResource, ngFileUpload, jsonformatter,
                         'ui.grid', 'ui.grid.edit', 'ui.grid.rowEdit', 'ui.grid.cellNav',
                         'ui.grid.autoResize', 'ui.grid.resizeColumns',
-                        'picardy.fontawesome'];
+                        'picardy.fontawesome', 'ngStorage'];
 
 const app = angular.module('app', dependentModules);
 

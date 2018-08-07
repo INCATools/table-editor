@@ -1,6 +1,6 @@
 {
   "name": "table-editor",
-  "version": "1.0.1",
+  "version": "0.0.9",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "webpack",
     "es6"
   ],
-  "author": "Daniel Keith <keitda@ohsu.edu> (http://doctorbud.github.io)",
+  "author": "Daniel Keith <keithda@oregonstate.edu> (https://tislab.org)",
   "license": "ISC",
   "dependencies": {
     "@uirouter/angularjs": "^1.0.15",
@@ -37,6 +37,7 @@
     "js-yaml": "^3.11.0",
     "jsonformatter": "^0.7.0",
     "ng-file-upload": "^12.2.13",
+    "ngstorage": "^0.3.11",
     "papaparse": "^4.4.0",
     "tetool": "0.0.3",
     "uuid": "^3.2.1"

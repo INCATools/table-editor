@@ -371,6 +371,7 @@ export default class EditorController {
   }
 
   addRow() {
+    console.log('addRow', this.session.rowData);
     var that = this;
 
     this.setErrorXSV(null);
@@ -382,6 +383,13 @@ export default class EditorController {
       topRow = null;
     }
     var newRow = {};
+    this.session.columnDefs.forEach(col => {
+      // console.log('adding column', col);
+      if (col.field.length > 0) {
+        newRow[col.field] = '';
+      }
+    });
+
     var iriGeneration = this.session.parsedConfig.IRIGeneration;
     var iriGenerationType = (iriGeneration && iriGeneration.type) ?
                                 iriGeneration.type :
@@ -401,6 +409,8 @@ export default class EditorController {
     }
 
     this.session.rowData.unshift(newRow);
+    console.log('row added', this.session.rowData);
+
     // this.gridApi.core.handleWindowResize();
 
 /*
@@ -467,19 +477,32 @@ export default class EditorController {
       patternURL = that.session.defaultPatternURL;
     }
 
-    // console.log('parsedConfig', searchParams, patternURL, that.session.defaultXSVURL);
+    console.log('parsedConfig', searchParams, patternURL, that.session.defaultXSVURL);
 
     function patternLoaded() {
-      // console.log('patternLoaded', searchParams.yaml, searchParams.xsv, patternURL, that.session.defaultXSVURL);
-      var xsvURL;
-      if (searchParams.xsv) {
-        xsvURL = searchParams.xsv;
+      const savedRowData = that.session.$localStorage.rowData;
+      console.log('patternLoaded', searchParams.yaml, searchParams.xsv, patternURL, that.session.defaultXSVURL);
+
+      if (searchParams.xsv && searchParams.xsv.length > 0) {
+        var xsvURL;
+        if (searchParams.xsv) {
+          xsvURL = searchParams.xsv;
+        }
+        else if (that.session.defaultXSVURL) {
+          xsvURL = that.session.defaultXSVURL;
+        }
+        if (xsvURL) {
+          that.loadURLXSV(xsvURL);
+        }
+        else {
+          that.loadCorrespondingXSV(patternURL);
+        }
       }
-      else if (that.session.defaultXSVURL) {
-        xsvURL = that.session.defaultXSVURL;
-      }
-      if (xsvURL) {
-        that.loadURLXSV(xsvURL);
+      else if (savedRowData !== null && savedRowData.length > 0) {
+        console.log('....savedRowData', savedRowData[0], that.session.rowData);
+
+        // that.clearTable();
+        that.session.rowData.splice(0, that.session.rowData.length, ...savedRowData);
       }
       else {
         that.loadCorrespondingXSV(patternURL);
@@ -553,7 +576,7 @@ export default class EditorController {
     }
 
     this.session.parsePattern(function() {
-      // console.log('parsePattern', that.session.parsedPattern);
+      console.log('parsePattern', that.session.parsedPattern);
       var fields = [];
       _.each(that.session.parsedPattern.vars, function(v, k) {
         fields.push(that.stripQuotes(k));
@@ -562,8 +585,8 @@ export default class EditorController {
 
       that.session.columnDefs = that.generateColumnDefsFromFields(fields, true);
       that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      that.gridOptions.data = that.session.rowData;
       that.setErrorPattern(null);
-      that.loadNewXSV();
       if (continuation) {
         continuation();
       }
@@ -794,24 +817,27 @@ export default class EditorController {
         console.log('No pattern used. Generate columns from XSV', xsvColumns, that.session.parsedXSV);
       }
 
+
+      console.log('parseXSV', columnsMatch, that.session.parsedXSV);
+
       if (columnsMatch) {
         that.session.columnDefs = xsvColumns;
-        that.session.rowData = that.generateRowDataFromXSV(that.session.parsedXSV.data);
-
+        const newRows = that.generateRowDataFromXSV(that.session.parsedXSV.data);
+        that.session.rowData.splice(
+          0,
+          that.session.rowData.length,
+          ...newRows);
+        that.session.dataChanged();
         // that.session.rowData.length = 20;
         that.session.rowData.reverse();
         that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-        that.gridOptions.data = that.session.rowData;
         that.$timeout(function() {
           that.gridApi.core.handleWindowResize();
         }, 0);
       }
       else {
         that.$timeout(function() {
-          that.loadNewXSV();
-          // that.session.rowData = [];
-          // that.gridOptions.data = that.session.rowData;
-          // that.session.columnDefs = angular.copy(that.gridOptions.columnDefs);
+          that.clearTable();
           that.setErrorXSV('Error: XSV Columns do not match Pattern Columns');
         }, 0);
       }
@@ -836,26 +862,29 @@ export default class EditorController {
       this.session.columnDefs = xsvColumns;
       this.gridOptions.columnDefs = angular.copy(this.session.columnDefs);
     }
-    // var newRow = {};
-    // _.each(that.session.columnDefs.slice(1), function(colDef) {
-    //   newRow[colDef.field] = '';
-    // });
-    this.session.rowData = [];
-    this.gridOptions.data = this.session.rowData;
-    // console.log('loadNewXSV', that.session.columnDefs, that.session.rowData);
+
+    console.log('loadNewXSV', that.session.columnDefs, that.session.rowData);
   }
 
 
+  clearTable() {
+    var oldSearch = this.$location.search();
+    delete oldSearch.xsv;
+    this.$location.search(oldSearch);
+    this.session.rowData.length = 0;
+    this.session.dataChanged();
+  }
+
   loadSourceXSV(source, title, url) {
-    // console.log('loadSourceXSV', source, title, url);
+    console.log('loadSourceXSV', source, title, url);
     this.session.sourceXSV = source;
     this.session.titleXSV = title;
     this.session.XSVURL = url;
     this.session.errorMessageXSV = null;
     if (url) {
       var search = this.$location.search();
-      search.xsv = url;
-      this.$location.search(search);
+      // search.xsv = url;
+      // this.$location.search(search);
     }
     else {
       this.$location.search({});
@@ -999,10 +1028,11 @@ export default class EditorController {
       });
 
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
-        // console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
+        console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
         // rowEntity[colDef.name] = newValue;
         that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
         that.setSorting(true);
+        that.session.dataChanged();
       });
 
       gridApi.edit.on.cancelCellEdit(that.$scope, function(rowEntity, colDef) {
@@ -1063,13 +1093,13 @@ export default class EditorController {
         });
       }
 
-      that.$timeout(function() {
-        if (that.session.columnDefs) {
-          that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-          that.gridOptions.data = that.session.rowData;
-        }
-        that.gridApi.core.handleWindowResize();
-      }, 0);
+      // that.$timeout(function() {
+      //   if (that.session.columnDefs) {
+      //     that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      //     that.gridOptions.data = that.session.rowData;
+      //   }
+      //   that.gridApi.core.handleWindowResize();
+      // }, 0);
     };
   }
 }
