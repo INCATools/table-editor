@@ -1,13 +1,13 @@
 {
   "configNames": [
+    "plant-trait-ontology",
     "beer",
+    "plant-experimental-conditions-ontology",
+    "environmental-exposure-ontology",
+    "ontology-of-plant-stress",
     "fa",
     "go",
-    "hpo",
-    "plant-experimental-conditions-ontology",
-    "plant-trait-ontology",
-    "environmental-exposure-ontology",
-    "ontology-of-plant-stress"
+    "hpo"
   ],
   "logoImage": "INCA.png",
   "baseURL": "/table-editor/",

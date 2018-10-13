@@ -17,10 +17,13 @@ export default class NavbarController {
     this.session.exportXSV('tab');
   }
 
+  exportGitHub() {
+    this.session.exportGitHub();
+  }
+
   setConfiguration(name) {
     // console.log('###setConfiguration', name);
-    this.$location.search('yaml', null);
-    this.$location.search('xsv', null);
+    this.$location.search({});
     this.session.loadConfigurationByName(name);
   }
 }

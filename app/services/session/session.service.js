@@ -1,10 +1,14 @@
 import _ from 'lodash';
 import Papa from 'papaparse';
 import yaml from 'js-yaml';
+import GitHub from 'github-api';
+import FileSaver from 'file-saver';
 
 /* global angular */
+/* global ENVIRONMENT */
 
 export default class SessionService {
+
   constructor($http, $timeout, $location, $sce, $rootScope, $localStorage) {
     console.log('SessionService', $localStorage);
     var that = this;
@@ -15,15 +19,15 @@ export default class SessionService {
     this.$localStorage = $localStorage;
     this.$sce = $sce;
     this.$rootScope = $rootScope;
-    this.defaultConfigName = 'go';
+    this.defaultConfigName = '';
 
     this.loadSiteConfig(function() {
-      that.initializeState();
-
       var searchParams = that.$location.search();
       if (searchParams && searchParams.config) {
-        var config = searchParams.config;
-        that.loadURLConfig(config);
+        that.loadURLConfig(searchParams.config);
+      }
+      else if (that.$localStorage.configURL) {
+        that.loadURLConfig(that.$localStorage.configURL);
       }
       else if (that.defaultConfigName) {
         that.loadConfigurationByName(that.defaultConfigName);
@@ -53,7 +57,11 @@ export default class SessionService {
         let data = result.data;
         that.configNames = data.configNames;
         that.logoImage = data.logoImage || 'INCA.png';
-        that.baseURL = data.baseURL || that.baseURL;
+
+        if (ENVIRONMENT !== 'development') {
+          that.baseURL = data.baseURL || that.baseURL;
+        }
+
         that.configNames.forEach(function(c) {
           that.configByName[c] = 'configurations/' + c + '/config.yaml';
         });
@@ -75,16 +83,28 @@ export default class SessionService {
     );
   }
 
-  initializeState() {
+  setErrorConfig(error) {
+    this.errorMessageConfig = error;
+    this.titleConfig = '';
+    this.sourceConfig = '';
+    this.parsedConfig = null;
+  }
+
+  loadConfigurationByName(name) {
+    var config = this.configByName[name];
+    if (config) {
+      this.loadURLConfig(config);
+    }
+  }
+
+  loadSourceConfig(source, title, configURL, continuation) {
+    console.log('loadSourceConfig', title, this.$localStorage.configURL, configURL);
+
     this.parsedPattern = null;
     this.autocompleteRegistry = null;
     this.columnDefs = null;
     this.rowData = [];
-
-    this.titleConfig = null;
-    this.sourceConfig = null;
     this.parsedConfig = null;
-    this.errorMessageConfig = null;
 
     this.defaultPatternURL = null;
     this.defaultXSVURL = null;
@@ -102,73 +122,86 @@ export default class SessionService {
     this.parsedXSV = null;
     this.XSVURL = null;
     this.errorMessageXSV = null;
-  }
 
-  setErrorConfig(error) {
-    this.errorMessageConfig = error;
-    this.titleConfig = '';
-    this.sourceConfig = '';
-    this.parsedConfig = null;
-  }
-
-  loadConfigurationByName(name) {
-    var config = this.configByName[name];
-    if (config) {
-      this.loadURLConfig(config);
-    }
-  }
-
-  loadSourceConfig(source, title, url, continuation) {
-    this.initializeState();
-    // console.log('loadSourceConfig', title, url, JSON.stringify(this.rowData));
     this.sourceConfig = source;
     this.titleConfig = title;
-    this.configURL = url;
+    this.configURL = configURL;
     this.errorMessageConfig = null;
-    var search = this.$location.search();
-    if (url) {
-      search.config = url;
+    this.rowData = [];
+
+    var searchParams = this.$location.search();
+    if (configURL) {
+      searchParams.config = configURL;
+      console.log('###loadSourceConfig update search.config', searchParams.config);
+      this.$location.search(searchParams);
     }
-    this.$location.search(search);
+
     var that = this;
-    this.parseConfig(function() {
-      if (continuation) {
-        continuation();
-      }
-      else {
-        that.$rootScope.$broadcast('parsedConfig');
-      }
-    });
+    if (this.$localStorage.configURL !== this.configURL) {
+      console.log('#########loadSourceConfig WIPELOCAL', this.$localStorage.configURL, this.configURL);
+      this.$localStorage.configURL = this.configURL;
+      this.$localStorage.rowData = [];
+      this.$localStorage.patternURL = '';
+    }
+
+    if (continuation) {
+      continuation();
+    }
+    else {
+      console.log('NO CONTINUATION');
+      debugger;
+    }
   }
 
   loadURLConfig(configURL) {
     var that = this;
+    var searchParams = this.$location.search();
+    searchParams.config = configURL;
+    console.log('###loadURLConfig update search.config', searchParams.config);
+    this.$location.search(searchParams);
+
+    // this.$localStorage.configURL = configURL;
+    // this.rowData.length = 0;
+    // this.$location.search('yaml', null);
+    // this.$location.search('xsv', null);
     this.configURL = configURL;
     this.$http.get(configURL, {withCredentials: false}).then(
       function(result) {
         var configSource = result.data;
+        console.log('loadSourceConfig', 'ONE');
         that.loadSourceConfig(configSource, configURL, configURL, function() {
-          if (that.parsedConfig.defaultPatterns || that.parsedConfig.defaultXSVs) {
-            console.log('defaults available. Skipping menu.yaml load. that', that);
-            that.loadSourceConfig(configSource, configURL, configURL);
-          }
-          else {
-            var menuURL = configURL.replace(/config\.yaml$/, 'menu.yaml');
-            that.$http.get(menuURL, {withCredentials: false}).then(
-              function(menuResult) {
-                var menuSource = menuResult.data;
-                configSource += '\n';
-                configSource += menuSource;
-                that.loadSourceConfig(configSource, configURL, configURL);
-              },
-              function(error) {
-                var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
-                console.log(errmsg);
-                that.setErrorConfig(errmsg);
-                that.loadSourceConfig(configSource, configURL, configURL);
-              }
-            );
-          }
+          console.log('that.loadSourceConfig completed', 'ONE');
+          that.parseConfig(function() {
+            if (that.parsedConfig.defaultPatterns || that.parsedConfig.defaultXSVs) {
+              console.log('defaults available. Skipping menu.yaml load. that', that);
+              console.log('that.$rootScope.$broadcast parsedConfig1');
+              that.$rootScope.$broadcast('parsedConfig');
+            }
+            else {
+              var menuURL = configURL.replace(/config\.yaml$/, 'menu.yaml');
+              that.$http.get(menuURL, {withCredentials: false}).then(
+                function(menuResult) {
+                  var menuSource = menuResult.data;
+                  configSource += '\n';
+                  configSource += menuSource;
+                  console.log('loadSourceConfig', 'TWO');
+                  that.loadSourceConfig(configSource, configURL, configURL, function() {
+                    that.parseConfig(function() {
+                      console.log('that.$rootScope.$broadcast parsedConfig1');
+                      that.$rootScope.$broadcast('parsedConfig');
+                    });
+                  });
+                },
+                function(error) {
+                  var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
+                  console.log(errmsg);
+                  that.setErrorConfig(errmsg);
+                  console.log('loadSourceConfig', 'THREE');
+                  that.loadSourceConfig(configSource, configURL, configURL);
+                }
+              );
+            }
+          });
         });
       },
       function(error) {
@@ -286,7 +319,7 @@ export default class SessionService {
               }
             });
 
-            var labelColumn = key + ' label';
+            var labelColumn = key + '_label';
             that.autocompleteRegistry[key] = {
               idColumn: key,
               labelColumn: labelColumn,
@@ -392,6 +425,22 @@ export default class SessionService {
     var text = Papa.unparse(gridData, config);
     text = text + '\n';
 
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+
+    var importedFilename = this.titleXSV;
+    var importedFilenameLast = importedFilename.lastIndexOf('/');
+    if (importedFilenameLast >= 0) {
+      importedFilename = importedFilename.slice(importedFilenameLast + 1);
+    }
+    var importedFilenameExt = importedFilename.lastIndexOf('.');
+    if (importedFilenameExt >= 0) {
+      importedFilename = importedFilename.slice(0, importedFilenameExt);
+    }
+    var exportedFilename = importedFilename + '.' + xsvType;
+
+    FileSaver.saveAs(blob, exportedFilename);
+
+/*
     var data = new Blob([text], {type: 'text/plain'});
     // If we are replacing a previously generated file we need to
     // manually revoke the object URL to avoid memory leaks.
@@ -421,9 +470,28 @@ export default class SessionService {
     document.body.appendChild(link);  // required in FF, optional for Chrome/Safari
     link.click();
     document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
+*/
+
   }
 
 
+  exportGitHub() {
+    console.log('exportGitHub');
+    this.listRepos();
+  }
+
+  listRepos() {
+    const that = this;
+    const targetUserName = 'monarch-initiative';
+    const gh = new GitHub();
+    const targetUser = gh.getUser(targetUserName);
+    targetUser.listRepos()
+      .then(({ data: reposJson }) => {
+        console.log(`${targetUserName} has ${reposJson.length} repos!`);
+        console.log(reposJson);
+        // that.reposList = reposJson.map(repo => repo.name);
+      });
+  }
 
   golrLookup(colName, oldValue, val, acEntry) {
     var golrURLBase = 'https://solr.monarchinitiative.org/solr/ontology/select';
@@ -605,10 +673,11 @@ export default class SessionService {
   }
 
   dataChanged() {
-    console.log('dataChanged', this.rowData);
+    console.log('dataChanged', this.$localStorage.configURL);
     if (this.rowData) {
       this.$localStorage.rowData = this.rowData;
-      console.log('...dataChanged stored', this.$localStorage.rowData);
+      this.$localStorage.patternURL = this.patternURL;
+      // console.log('...dataChanged stored', this.$localStorage.patternURL, this.$localStorage.rowData);
     }
     else {
       console.log('...dataChanged this.rowData NULL');
