@@ -10,19 +10,21 @@ import FileSaver from 'file-saver';
 export default class SessionService {
 
   constructor($http, $timeout, $location, $sce, $rootScope, $localStorage) {
-    console.log('SessionService', $localStorage);
+    console.log('SessionService', $localStorage, $location.search());
     var that = this;
     this.name = 'DefaultSessionName';
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
     this.$localStorage = $localStorage;
+    window.$localStorage = $localStorage;
     this.$sce = $sce;
     this.$rootScope = $rootScope;
     this.defaultConfigName = '';
 
     this.loadSiteConfig(function() {
       var searchParams = that.$location.search();
+      console.log('this.loadSiteConfig ... searchParams', searchParams);
       if (searchParams && searchParams.config) {
         that.loadURLConfig(searchParams.config);
       }
@@ -37,7 +39,9 @@ export default class SessionService {
 
   loadSiteConfig(continuation) {
     var that = this;
-    var siteConfigURL = window.location.origin + '/' + window.location.pathname + 'configurations/index.json';
+    var base = document.getElementsByTagName('base')[0].href;
+    // var siteConfigURL = window.location.origin + '/' + window.location.pathname + 'configurations/index.json';
+    var siteConfigURL = base + 'configurations/index.json';
     this.baseURL = null;
     this.logoImage = null;
 
@@ -47,7 +51,7 @@ export default class SessionService {
     this.configNames = [];
     this.configByName = {};
 
-    // console.log('siteConfigURL', siteConfigURL);
+    console.log('siteConfigURL', siteConfigURL, this.baseURL);
     this.$http.get(
       siteConfigURL,
       {
@@ -97,6 +101,32 @@ export default class SessionService {
     }
   }
 
+  updateLocation(eraseXSV) {
+    var searchParams = this.$location.search();
+    if (this.configURL) {
+      searchParams.config = this.configURL;
+
+      if (this.patternURL) {
+        searchParams.yaml = this.patternURL;
+      }
+      else {
+        // delete searchParams.yaml;
+      }
+      if (this.XSVURL) {
+        searchParams.xsv = this.XSVURL;
+      }
+      else if (eraseXSV) {
+        delete searchParams.xsv;
+      }
+    }
+    else {
+      searchParams = {};
+    }
+
+    console.log('updateLocation', this.configURL, this.patternURL, this.XSVURL, searchParams);
+    this.$location.search(searchParams);
+  }
+
   loadSourceConfig(source, title, configURL, continuation) {
     console.log('loadSourceConfig', title, this.$localStorage.configURL, configURL);
 
@@ -129,12 +159,13 @@ export default class SessionService {
     this.errorMessageConfig = null;
     this.rowData = [];
 
-    var searchParams = this.$location.search();
-    if (configURL) {
-      searchParams.config = configURL;
-      console.log('###loadSourceConfig update search.config', searchParams.config);
-      this.$location.search(searchParams);
-    }
+    this.updateLocation();
+    // var searchParams = this.$location.search();
+    // if (configURL) {
+    //   searchParams.config = this.configURL;
+    //   console.log('###loadSourceConfig update search.config', searchParams.config);
+    //   this.$location.search(searchParams);
+    // }
 
     var that = this;
     if (this.$localStorage.configURL !== this.configURL) {
@@ -155,16 +186,17 @@ export default class SessionService {
 
   loadURLConfig(configURL) {
     var that = this;
-    var searchParams = this.$location.search();
-    searchParams.config = configURL;
-    console.log('###loadURLConfig update search.config', searchParams.config);
-    this.$location.search(searchParams);
+    // The following should already happen in loadSourceConfig above.
+    // var searchParams = this.$location.search();
+    // searchParams.config = configURL;
+    // console.log('###loadURLConfig update search.config', searchParams.config);
+    // this.$location.search(searchParams);
+    // this.configURL = configURL;
 
     // this.$localStorage.configURL = configURL;
     // this.rowData.length = 0;
     // this.$location.search('yaml', null);
     // this.$location.search('xsv', null);
-    this.configURL = configURL;
     this.$http.get(configURL, {withCredentials: false}).then(
       function(result) {
         var configSource = result.data;
@@ -249,8 +281,13 @@ export default class SessionService {
     return s.replace(/^'/, '').replace(/'$/, '');
   }
 
-  parsePattern(continuation, continuationErrors) {
+  parsePattern(source, title, url, continuation, continuationErrors) {
     var that = this;
+
+    this.sourcePattern = source;
+    this.titlePattern = title;
+    this.patternURL = url;
+    this.errorMessagePattern = null;
 
     var errors = [];
 
@@ -356,6 +393,8 @@ export default class SessionService {
       }
     }
     else if (continuation) {
+      this.$localStorage.patternURL = this.patternURL;
+
       continuation();
     }
   }
@@ -392,6 +431,122 @@ export default class SessionService {
     Papa.parse(this.sourceXSV, config);
   }
 
+  isBooleanColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = acEntry &&
+                 acEntry.lookup_type === 'inline' &&
+                 acEntry.idColumn === 'NOT' &&
+                 acEntry.labelColumn === 'NOT';
+    // console.log('isBooleanColumn', f, acEntry);
+    return result;
+  }
+
+  isAutocompleteColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = !!acEntry;
+    // console.log('isAutocompleteColumn', f, result);
+    return result;
+  }
+
+  isEditableColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = !acEntry;
+    // console.log('isEditableColumn', f, result);
+    return result;
+  }
+
+  generateColumnDefsFromFields(fields, addIRI) {
+    var that = this;
+    function sanitizeColumnName(f) {
+      return f.replace('(', '_').replace(')', '_');
+    }
+
+    var fieldsWithIRI = angular.copy(fields);
+
+    if (addIRI) {
+      fieldsWithIRI.unshift('defined_class_label');
+      fieldsWithIRI.unshift('defined_class');
+    }
+
+    var unnamedColumnIndex = 0;
+    var columnDefs = _.map(fieldsWithIRI, function(f) {
+      var sanitizedName = sanitizeColumnName(f);
+      var visible = true;
+      if (f === '') {
+        sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
+        ++unnamedColumnIndex;
+        visible = false;
+      }
+      var result = {
+        name: sanitizedName,
+        field: sanitizedName,
+        originalName: f,
+        displayName: f,
+        minWidth: 100,
+        width: 100,
+        // maxWidth: 200,
+        enableCellEdit: false,
+        enableCellEditOnFocus: false,
+        visible: visible
+      };
+
+      if (f.endsWith('_label')) {
+        result.width = 150;
+      }
+
+      if (that.isBooleanColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateBooleanTemplate';
+        result.enableCellEdit = true;
+        result.width = 55;
+      }
+      else if (that.isAutocompleteColumn(f)) {
+        result.enableCellEditOnFocus = false;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+        result.enableCellEdit = true;
+      }
+      else if (that.isEditableColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateEditableTemplate';
+        result.enableCellEdit = true;
+      }
+      else {
+        result.cellTemplate = 'cellStateReadonlyTemplate';
+        result.enableCellEdit = false;
+      }
+
+      return result;
+    });
+
+    var lastCol = columnDefs[columnDefs.length - 1];
+    if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
+      columnDefs.length = columnDefs.length - 1;
+    }
+
+    let commandColumn = {
+      name: 'Command',
+      displayName: '',
+      width: 30,
+      field: '',
+      resizable: false,
+      cellTemplate: 'uigridActionCell',
+      enableCellEdit: false,
+      enableCellSelection: false,
+      enableCellEditOnFocus: false,
+      enableSorting: false,
+      allowCellFocus: false,
+      enableHiding: false,
+      enableColumnMenu: false,
+      headerCellTemplate: 'uigridActionHeader'
+    };
+
+    columnDefs.unshift(commandColumn);
+
+    return columnDefs;
+  }
 
   exportXSV(xsvType) {
     var delimiter = ((xsvType === 'tsv') || (xsvType === 'tab')) ?
@@ -673,10 +828,12 @@ export default class SessionService {
   }
 
   dataChanged() {
-    console.log('dataChanged', this.$localStorage.configURL);
     if (this.rowData) {
       this.$localStorage.rowData = this.rowData;
-      this.$localStorage.patternURL = this.patternURL;
+      // this.$localStorage.patternURL = this.patternURL;
+      console.log('dataChanged', this.$localStorage.configURL, this.$localStorage.patternURL, this.patternURL);
+      this.XSVURL = null;
+      this.updateLocation(true);
       // console.log('...dataChanged stored', this.$localStorage.patternURL, this.$localStorage.rowData);
     }
     else {

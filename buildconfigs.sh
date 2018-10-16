@@ -6,7 +6,7 @@ alias tetool=../tetool/index.js # ./node_modules/.bin/tetool
 
 ../tetool/index.js --site . --output output --title 'INCAForm Universal'
 
-../tetool/index.js --site . --output output --source ../plant-trait-ontology/
+../tetool/index.js --site . --output output --source ../plant-trait-ontology/@fix-patterns
 
 ../tetool/index.js --site . --output output --prebuilt beer:example-configurations/beer/
 

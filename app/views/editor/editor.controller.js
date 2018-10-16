@@ -23,7 +23,7 @@ function getLength(rowData) {
 export default class EditorController {
   // constructor arglist must match invocation in app.js
   constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, $window, uiGridConstants, uiGridEditConstants, session) {
-    console.log('EditorController constructor', getLength(session.$localStorage.rowData));
+    console.log('EditorController constructor', getLength(session.$localStorage.rowData), $location.search());
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
@@ -67,6 +67,7 @@ export default class EditorController {
     const session = this.session;
     console.log('configurationLoaded', reloadSession, session.$localStorage, getLength(session.$localStorage.rowData), session.rowData);
     console.log(session);
+    session.updateLocation();
 
     this.examplesPattern = null;
     this.examplesXSV = null;
@@ -280,6 +281,8 @@ export default class EditorController {
 
   updateIRILabelForRow(row) {
     var that = this;
+    console.log('##updateIRILabelForRow', row, that.session.parsedPattern, that.session.parsedPattern.name);
+
     if (that.session.parsedPattern && that.session.parsedPattern.name) {
       var text = that.session.parsedPattern.name.text;
       var vars = that.session.parsedPattern.name.vars;
@@ -317,7 +320,7 @@ export default class EditorController {
       var cellName = cell.col.colDef.name;
       var cellValue = cell.row.entity[cellName];
 
-      if (this.isAutocompleteColumn(cellName)) {
+      if (this.session.isAutocompleteColumn(cellName)) {
         var acEntry = this.session.autocompleteRegistry[cellName];
         if (acEntry) {
           if (acEntry.idColumn) {
@@ -469,6 +472,7 @@ export default class EditorController {
 
     var that = this;
     that.$timeout(function() {
+      console.log('that.session.columnDefs', that.session.columnDefs);
       that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
       that.gridOptions.data = that.session.rowData;
     });
@@ -611,51 +615,56 @@ export default class EditorController {
   loadSourcePattern(source, title, url, continuation) {
     console.log('loadSourcePattern', url, title, source.slice(0, 20));
     var that = this;
-    this.session.sourcePattern = source;
-    this.session.titlePattern = title;
-    this.session.patternURL = url;
-    this.session.errorMessagePattern = null;
-    if (url) {
-      var searchParams = this.$location.search();
-      searchParams.yaml = url;
-      console.log('###loadSourcePattern update search.yaml', searchParams.yaml);
-      this.$location.search(searchParams);
-    }
-    else {
-      console.log('###loadSourcePattern CLEAR search');
-      this.$location.search({});
-    }
+    // this.session.sourcePattern = source;
+    // this.session.titlePattern = title;
+    // this.session.patternURL = url;
+    // this.session.errorMessagePattern = null;
+    // if (url) {
+    //   var searchParams = this.$location.search();
+    //   searchParams.yaml = url;
+    //   console.log('###loadSourcePattern update search.yaml', searchParams.yaml);
+    //   this.$location.search(searchParams);
+    // }
+    // else {
+    //   console.log('###loadSourcePattern CLEAR search');
+    //   this.$location.search({});
+    // }
 
-    this.session.parsePattern(function() {
-      console.log('parsePattern', that.session.parsedPattern, getLength(that.session.$localStorage.rowData));
-      var fields = [];
-      _.each(that.session.parsedPattern.vars, function(v, k) {
-        fields.push(that.stripQuotes(k));
-        fields.push(that.stripQuotes(k) + '_label');
+
+    this.session.parsePattern(
+      source,
+      title,
+      url,
+      function() {
+        console.log('parsePattern', that.session.parsedPattern, getLength(that.session.$localStorage.rowData));
+        var fields = [];
+        _.each(that.session.parsedPattern.vars, function(v, k) {
+          fields.push(that.stripQuotes(k));
+          fields.push(that.stripQuotes(k) + '_label');
+        });
+
+        // that.loadNewXSV('THREE');
+        that.session.rowData.length = 0;
+        that.session.columnDefs = that.session.generateColumnDefsFromFields(fields, true);
+        that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+        that.gridOptions.data = that.session.rowData;
+        that.setErrorPattern(null);
+        if (continuation) {
+          continuation();
+        }
+        that.$timeout(function() {
+          that.gridApi.core.handleWindowResize();
+        }, 0);
+      },
+      function(errors) {
+        that.setErrorPattern(errors);
       });
-
-      // that.loadNewXSV('THREE');
-      that.session.rowData.length = 0;
-      that.session.columnDefs = that.generateColumnDefsFromFields(fields, true);
-      that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-      that.gridOptions.data = that.session.rowData;
-      that.setErrorPattern(null);
-      if (continuation) {
-        continuation();
-      }
-      that.$timeout(function() {
-        that.gridApi.core.handleWindowResize();
-      }, 0);
-    },
-    function(errors) {
-      that.setErrorPattern(errors);
-    });
   }
 
   loadURLPattern(patternURL, continuation) {
     // console.log('loadURLPattern', patternURL);
     var that = this;
-    this.session.patternURL = patternURL;
+    // this.session.patternURL = patternURL;
     this.$http.get(patternURL, {withCredentials: false}).then(
       function(result) {
         that.loadSourcePattern(result.data, patternURL, patternURL, continuation);
@@ -668,12 +677,17 @@ export default class EditorController {
   }
 
   loadSourcePatternItem(source, title, url) {
+    var that = this;
     // console.log('loadSourcePatternItem', source, title, url);
     if (source) {
-      this.loadSourcePattern(source, title, url);
+      this.loadSourcePattern(source, title, url, function() {
+        that.session.updateLocation();
+      });
     }
     else {
-      this.loadURLPattern(url);
+      this.loadURLPattern(url, function() {
+        that.session.updateLocation();
+      });
     }
   }
 
@@ -709,98 +723,98 @@ export default class EditorController {
     // console.log('keydown', event);
   }
 
-  generateColumnDefsFromFields(fields, addIRI) {
-    var that = this;
-    function sanitizeColumnName(f) {
-      return f.replace('(', '_').replace(')', '_');
-    }
+  // generateColumnDefsFromFields(fields, addIRI) {
+  //   var that = this;
+  //   function sanitizeColumnName(f) {
+  //     return f.replace('(', '_').replace(')', '_');
+  //   }
 
-    var fieldsWithIRI = angular.copy(fields);
+  //   var fieldsWithIRI = angular.copy(fields);
 
-    if (addIRI) {
-      fieldsWithIRI.unshift('defined_class_label');
-      fieldsWithIRI.unshift('defined_class');
-    }
+  //   if (addIRI) {
+  //     fieldsWithIRI.unshift('defined_class_label');
+  //     fieldsWithIRI.unshift('defined_class');
+  //   }
 
-    var unnamedColumnIndex = 0;
-    var columnDefs = _.map(fieldsWithIRI, function(f) {
-      var sanitizedName = sanitizeColumnName(f);
-      var visible = true;
-      if (f === '') {
-        sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
-        ++unnamedColumnIndex;
-        visible = false;
-      }
-      var result = {
-        name: sanitizedName,
-        field: sanitizedName,
-        originalName: f,
-        displayName: f,
-        minWidth: 100,
-        width: 100,
-        // maxWidth: 200,
-        enableCellEdit: false,
-        enableCellEditOnFocus: false,
-        visible: visible
-      };
+  //   var unnamedColumnIndex = 0;
+  //   var columnDefs = _.map(fieldsWithIRI, function(f) {
+  //     var sanitizedName = sanitizeColumnName(f);
+  //     var visible = true;
+  //     if (f === '') {
+  //       sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
+  //       ++unnamedColumnIndex;
+  //       visible = false;
+  //     }
+  //     var result = {
+  //       name: sanitizedName,
+  //       field: sanitizedName,
+  //       originalName: f,
+  //       displayName: f,
+  //       minWidth: 100,
+  //       width: 100,
+  //       // maxWidth: 200,
+  //       enableCellEdit: false,
+  //       enableCellEditOnFocus: false,
+  //       visible: visible
+  //     };
 
-      if (f.endsWith('_label')) {
-        result.width = 150;
-      }
+  //     if (f.endsWith('_label')) {
+  //       result.width = 150;
+  //     }
 
-      if (that.isBooleanColumn(f)) {
-        result.enableCellEditOnFocus = true;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateBooleanTemplate';
-        result.enableCellEdit = true;
-        result.width = 55;
-      }
-      else if (that.isAutocompleteColumn(f)) {
-        result.enableCellEditOnFocus = false;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
-        result.enableCellEdit = true;
-      }
-      else if (that.isEditableColumn(f)) {
-        result.enableCellEditOnFocus = true;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateEditableTemplate';
-        result.enableCellEdit = true;
-      }
-      else {
-        result.cellTemplate = 'cellStateReadonlyTemplate';
-        result.enableCellEdit = false;
-      }
+  //     if (that.isBooleanColumn(f)) {
+  //       result.enableCellEditOnFocus = true;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateBooleanTemplate';
+  //       result.enableCellEdit = true;
+  //       result.width = 55;
+  //     }
+  //     else if (that.isAutocompleteColumn(f)) {
+  //       result.enableCellEditOnFocus = false;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+  //       result.enableCellEdit = true;
+  //     }
+  //     else if (that.isEditableColumn(f)) {
+  //       result.enableCellEditOnFocus = true;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateEditableTemplate';
+  //       result.enableCellEdit = true;
+  //     }
+  //     else {
+  //       result.cellTemplate = 'cellStateReadonlyTemplate';
+  //       result.enableCellEdit = false;
+  //     }
 
-      return result;
-    });
+  //     return result;
+  //   });
 
-    var lastCol = columnDefs[columnDefs.length - 1];
-    if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
-      columnDefs.length = columnDefs.length - 1;
-    }
+  //   var lastCol = columnDefs[columnDefs.length - 1];
+  //   if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
+  //     columnDefs.length = columnDefs.length - 1;
+  //   }
 
-    let commandColumn = {
-      name: 'Command',
-      displayName: '',
-      width: 30,
-      field: '',
-      resizable: false,
-      cellTemplate: 'uigridActionCell',
-      enableCellEdit: false,
-      enableCellSelection: false,
-      enableCellEditOnFocus: false,
-      enableSorting: false,
-      allowCellFocus: false,
-      enableHiding: false,
-      enableColumnMenu: false,
-      headerCellTemplate: 'uigridActionHeader'
-    };
+  //   let commandColumn = {
+  //     name: 'Command',
+  //     displayName: '',
+  //     width: 30,
+  //     field: '',
+  //     resizable: false,
+  //     cellTemplate: 'uigridActionCell',
+  //     enableCellEdit: false,
+  //     enableCellSelection: false,
+  //     enableCellEditOnFocus: false,
+  //     enableSorting: false,
+  //     allowCellFocus: false,
+  //     enableHiding: false,
+  //     enableColumnMenu: false,
+  //     headerCellTemplate: 'uigridActionHeader'
+  //   };
 
-    columnDefs.unshift(commandColumn);
+  //   columnDefs.unshift(commandColumn);
 
-    return columnDefs;
-  }
+  //   return columnDefs;
+  // }
 
   generateRowDataFromXSV(data) {
     let xsvColumns = this.session.columnDefs;
@@ -848,7 +862,7 @@ export default class EditorController {
   parseXSV() {
     var that = this;
     this.session.parseXSV(function() {
-      var xsvColumns = that.generateColumnDefsFromFields(that.session.parsedXSV.meta.fields);
+      var xsvColumns = that.session.generateColumnDefsFromFields(that.session.parsedXSV.meta.fields);
 
       var columnsMatch = true;
       if (that.session.parsedPattern) {
@@ -905,7 +919,7 @@ export default class EditorController {
     this.session.XSVURL = null;
     this.session.errorMessageXSV = null;
     if (this.session.parsedConfig.patternless) {
-      var xsvColumns = this.generateColumnDefsFromFields(this.session.parsedConfig.defaultFields);
+      var xsvColumns = this.session.generateColumnDefsFromFields(this.session.parsedConfig.defaultFields);
       console.log('xsvColumns', xsvColumns, this.gridOptions);
       this.session.columnDefs = xsvColumns;
       this.session.rowData.length = 0;
@@ -920,12 +934,14 @@ export default class EditorController {
 
 
   clearTable() {
-    var searchParams = this.$location.search();
-    searchParams.xsv = null;
-    console.log('###clearTable clear search.xsv', searchParams.xsv);
-    this.$location.search(searchParams);
+    this.session.XSVURL = null;
+    // var searchParams = this.$location.search();
+    // searchParams.xsv = null;
+    // console.log('###clearTable clear search.xsv', searchParams.xsv);
+    // this.$location.search(searchParams);
     this.session.rowData.length = 0;
     this.session.dataChanged();
+    this.session.updateLocation();
   }
 
   loadSourceXSV(source, title, url) {
@@ -988,29 +1004,29 @@ export default class EditorController {
 
   // Grid stuff
 
-  isBooleanColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = acEntry &&
-                 acEntry.lookup_type === 'inline' &&
-                 acEntry.idColumn === 'NOT' &&
-                 acEntry.labelColumn === 'NOT';
-    // console.log('isBooleanColumn', f, acEntry);
-    return result;
-  }
+  // isBooleanColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = acEntry &&
+  //                acEntry.lookup_type === 'inline' &&
+  //                acEntry.idColumn === 'NOT' &&
+  //                acEntry.labelColumn === 'NOT';
+  //   // console.log('isBooleanColumn', f, acEntry);
+  //   return result;
+  // }
 
-  isAutocompleteColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = !!acEntry;
-    // console.log('isAutocompleteColumn', f, result);
-    return result;
-  }
+  // isAutocompleteColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = !!acEntry;
+  //   // console.log('isAutocompleteColumn', f, result);
+  //   return result;
+  // }
 
-  isEditableColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = !acEntry;
-    // console.log('isEditableColumn', f, result);
-    return result;
-  }
+  // isEditableColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = !acEntry;
+  //   // console.log('isEditableColumn', f, result);
+  //   return result;
+  // }
 
   setSorting(enabled) {
     // this.gridOptions.enableSorting = enabled;
