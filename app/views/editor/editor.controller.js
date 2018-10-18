@@ -71,9 +71,10 @@ export default class EditorController {
 
     this.examplesPattern = null;
     this.examplesXSV = null;
+    this.defaultPatternURL = null;
 
     if (session.parsedConfig.patternless) {
-      // console.log('patternless===true');
+      console.log('patternless===true');
     }
     else {
       if (session.parsedConfig.defaultPatterns) {
@@ -281,7 +282,6 @@ export default class EditorController {
 
   updateIRILabelForRow(row) {
     var that = this;
-    console.log('##updateIRILabelForRow', row, that.session.parsedPattern, that.session.parsedPattern.name);
 
     if (that.session.parsedPattern && that.session.parsedPattern.name) {
       var text = that.session.parsedPattern.name.text;
@@ -466,8 +466,8 @@ export default class EditorController {
 
   // Config stuff
 
-  patternLoaded(searchParams, patternURL, savedPatternURL, savedRowData) {
-    console.log('patternLoaded', getLength(savedRowData), searchParams.yaml, searchParams.xsv, patternURL, this.session.defaultXSVURL);
+  patternLoaded(patternless, searchParams, patternURL, savedPatternURL, savedRowData) {
+    console.log('patternLoaded', patternless, getLength(savedRowData), searchParams.yaml, searchParams.xsv, patternURL, this.session.defaultXSVURL);
     console.log('savedPatternURL', getLength(savedRowData), savedPatternURL, patternURL, searchParams.xsv);
 
     var that = this;
@@ -504,7 +504,7 @@ export default class EditorController {
       savedRowData && (savedRowData.length > 0)) {
       console.log('....patternless savedRowData', savedRowData[0], this.session.rowData);
 
-      // this.clearTable();
+      this.loadNewXSV('FOUR');
       this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
     }
     else {
@@ -524,6 +524,7 @@ export default class EditorController {
 
     if (reloadSession) {
       that.patternLoaded(
+        that.session.parsedConfig.patternless,
         searchParams,
         that.session.patternURL,
         savedPatternURL,
@@ -548,7 +549,11 @@ export default class EditorController {
     }
     else {
       var patternURL;
-      if (searchParams.yaml) {
+      
+      if (that.session.parsedConfig.patternless) {
+        console.log('applyParsedConfig patternless');
+      }
+      else if (searchParams.yaml) {
         patternURL = searchParams.yaml;
       }
       else if (savedConfigURL && savedConfigURL === that.session.configURL &&
@@ -567,12 +572,16 @@ export default class EditorController {
         console.log('...patternURL', patternURL, getLength(savedRowData));
         that.loadURLPattern(patternURL, function() {
           console.log('......patternURL', patternURL, getLength(savedRowData));
-          that.patternLoaded(searchParams, patternURL, savedPatternURL, savedRowData);
+          that.patternLoaded(
+            that.session.parsedConfig.patternless,
+            searchParams, patternURL, savedPatternURL, savedRowData);
         });
       }
       else {
         console.log('...!patternURL');
-        that.patternLoaded(searchParams, patternURL, savedPatternURL, savedRowData);
+        that.patternLoaded(
+          that.session.parsedConfig.patternless,
+          searchParams, patternURL, savedPatternURL, savedRowData);
       }
     }
   }
@@ -847,11 +856,18 @@ export default class EditorController {
       else {
         var sortedPatternColumns = _.sortBy(patternColumns, 'name');
         var sortedXSVColumns = _.sortBy(xsvColumns, 'name');
-        result = _.isEqual(sortedPatternColumns, sortedXSVColumns);
+        var sortedPatternColumnNames = _.map(sortedPatternColumns, function(e) {
+          return e.name;
+        });
+        var sortedXSVColumnNames = _.map(sortedXSVColumns, function(e) {
+          return e.name;
+        });
+        result = _.isEqual(sortedPatternColumnNames, sortedXSVColumnNames);
+        // result = _.isEqual(sortedPatternColumns, sortedXSVColumns);
         // console.log('sortedPatternColumns', sortedPatternColumns);
         // console.log('sortedXSVColumns', sortedXSVColumns);
         if (!result) {
-          console.log('#compareColumnDefs !equal', patternColumns, xsvColumns);
+          console.log('#compareColumnDefs !equal', sortedPatternColumnNames, sortedXSVColumnNames, patternColumns, xsvColumns);
         }
       }
     }

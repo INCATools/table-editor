@@ -2,10 +2,10 @@ var webpack = require('webpack');
 var _ = require('lodash');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-const WebpackBrowserPlugin = require('webpack-browser-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var path = require('path');
 
-var nodeEnvironment = process.env.BUILD;
+var nodeEnvironment = process.env.BUILD || 'production';
 var dist = path.join(__dirname, 'docs');
 var app = path.join(__dirname, 'app');
 var bs = path.join(__dirname, 'node_modules/bootstrap');
@@ -15,7 +15,7 @@ var fa = path.resolve(__dirname, 'node_modules/font-awesome');
 
 var production = process.env.BUILD === 'production';
 var lproduction = process.env.BUILD === 'lproduction';
-var debugMode = !production;
+var debugMode = !production && !lproduction;
 
 console.log('production', production);
 console.log('debugMode', debugMode);
@@ -27,6 +27,7 @@ var indexFile = 'index.ejs';
 var baseURL = (production || lproduction) ? '/table-editor/' : '/';
 
 var config = {
+  mode: (production || lproduction) ? 'production' : 'development',
   context: app,
 
   entry: entryFile,
@@ -87,14 +88,18 @@ var config = {
       {
         // Reference: https://github.com/babel/babel-loader
         test: /\.js$/,
-        loader: 'babel-loader',
-        query: {
-            // https://github.com/babel/babel-loader#options
-            cacheDirectory: true,
-            presets: ['env']
-        },
         exclude: /node_modules/,
-        include: [app]
+        include: [app],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            comments: true,
+            cacheDirectory: false,
+            presets: ['@babel/preset-env'],
+            plugins: [
+            ]
+          },
+        },
       },
 
       {
@@ -124,6 +129,7 @@ var config = {
 
   devServer: {
     hot: false,
+    open: true,
     inline: true,
     contentBase: dist,
     watchContentBase: true,
@@ -132,13 +138,6 @@ var config = {
   },
 };
 
-if (!production && !lproduction) {
-  config.plugins.push(
-    new WebpackBrowserPlugin({
-      browser: 'Safari'   // 'Firefox'
-    })
-  );
-}
 config.plugins.push(
   new CopyWebpackPlugin([
       { from: 'widgets/navbar/INCA.png' },
@@ -162,21 +161,17 @@ switch (nodeEnvironment) {
         new webpack.LoaderOptionsPlugin({
           minimize: true,
           debug: false
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-          sourceMap: false,
-          beautify: false,
-          mangle: {
-            screw_ie8: true,
-            keep_fnames: true
-          },
-          compress: {
-            warnings: true,
-            screw_ie8: true
-          },
-          comments: false
         })
       );
+
+      config.optimization = {
+        minimizer: [
+          new UglifyJSPlugin({
+            include: [app],
+            sourceMap: true
+          })
+        ]
+      };
     }
 
     // config.plugins.push(new webpack.optimize.CommonsChunkPlugin({name: 'vendor', minChunks: Infinity}));

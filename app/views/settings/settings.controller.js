@@ -52,7 +52,10 @@ export default class SettingsController {
     const savedPatternURL = that.session.$localStorage.patternURL;
 
     var patternURL;
-    if (searchParams.yaml) {
+    if (that.session.parsedConfig.patternless) {
+      console.log('...patternless');  
+    }
+    else if (searchParams.yaml) {
       patternURL = searchParams.yaml;
     }
     else if (savedConfigURL && savedConfigURL === that.session.configURL &&
@@ -64,18 +67,22 @@ export default class SettingsController {
       patternURL = that.defaultPatternURL;
     }
 
-    this.$http.get(patternURL, {withCredentials: false}).then(
-      function(result) {
-        that.loadSourcePattern(result.data, patternURL, patternURL,
-          function() {
-            that.session.updateLocation();
-          });
-      },
-      function(error) {
-        console.log('Error loading URL ' + that.session.patternURL + '\n\n' + JSON.stringify(error));
-      }
-    );
-
+    if (patternURL) {
+      this.$http.get(patternURL, {withCredentials: false}).then(
+        function(result) {
+          that.loadSourcePattern(result.data, patternURL, patternURL,
+            function() {
+              that.session.updateLocation();
+            });
+        },
+        function(error) {
+          console.log('Error loading URL ' + that.session.patternURL + '\n\n' + JSON.stringify(error));
+        }
+      );
+    }
+    else {
+      that.session.updateLocation();
+    }
   }
 
   constructor(session, $rootScope, $http, $location) {

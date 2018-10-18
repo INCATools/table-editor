@@ -1,10 +1,11 @@
 {
   "configNames": [
-    "plant-trait-ontology",
     "beer",
+    "plant-trait-ontology",
     "plant-experimental-conditions-ontology",
-    "environmental-exposure-ontology",
     "ontology-of-plant-stress",
+    "environmental-exposure-ontology",
+    "bio-attribute-ontology",
     "fa",
     "go",
     "hpo"

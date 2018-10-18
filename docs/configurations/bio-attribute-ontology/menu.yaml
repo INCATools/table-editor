@@ -1,0 +1,16 @@
+defaultPatterns:
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/patterns/attribute_location.yaml
+    title: attribute_location.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/patterns/entity_attribute.yaml
+    title: entity_attribute.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/patterns/entity_attribute_location.yaml
+    title: entity_attribute_location.yaml
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/modules/attribute_location.csv
+    title: attribute_location.csv
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/modules/entity_attribute.csv
+    title: entity_attribute.csv
+  - url: https://raw.githubusercontent.com/DoctorBud/bio-attribute-ontology/rename-iri-to-defined-class/src/ontology/modules/entity_attribute_location.csv
+    title: entity_attribute_location.csv
+
