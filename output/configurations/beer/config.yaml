@@ -1,0 +1,65 @@
+#
+# INCA table-editor configuration file
+# This example config file demonstrates the toy problem of the Beer Ontology,
+# as described at csv,conf,v3 in Portland, Oregon, May 2-3 2017.
+#
+# The DOSDP pattern files reference the following ontologies:
+#   BEER - A synthetic inline ontology for this demo
+#   NCBI - Specifically, we use the Taxa under NCBITaxon:4932
+#   UBERON - To ob
+#
+
+prefixes:     # User specifies this once per team/project
+  NCBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  UBERON:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  BEER:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: inline
+
+IRIGeneration:
+  prefix: BEER
+  type: uuid
+
+inline:
+  beer:
+    - id: 'BEER:0000001'
+      label: 'Pilsner'
+    - id: 'BEER:0000002'
+      label: 'Lager'
+    - id: 'BEER:0000003'
+      label: 'Ale'
+    - id: 'BEER:0000004'
+      label: 'Pale Ale'
+    - id: 'BEER:0000005'
+      label: 'India Pale Ale'
+    - id: 'BEER:0000006'
+      label: 'Porter'
+    - id: 'BEER:0000007'
+      label: 'Stout'
+    - id: 'BEER:0000008'
+      label: 'Wheat'
+
+defaultPatterns:
+  - url: 'configurations/beer/beer.yaml'
+    title: 'Beer'
+    type: 'yaml'
+  - url: 'configurations/beer/beer_yeast.yaml'
+    title: 'Beer Yeast'
+    type: 'yaml'
+  - url: 'configurations/beer/beer_yeast_anatomy.yaml'
+    title: 'Beer Yeast Anatomy'
+    type: 'yaml'
+
+defaultXSVs:
+  - url: 'configurations/beer/beer.csv'
+    title: 'Beer CSV'
+    type: 'csv'
+  - url: 'configurations/beer/beer_yeast.csv'
+    title: 'Beer Yeast CSV'
+    type: 'csv'
+
+

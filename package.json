@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "publish": "./publish.sh",
     "clean": "rm -rf docs/",
     "symlink": "(cd docs && ln -s . table-editor)",
     "dupindex": "cp docs/index.html docs/404.html",

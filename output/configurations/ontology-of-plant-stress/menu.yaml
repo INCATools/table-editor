@@ -1,0 +1,12 @@
+defaultPatterns:
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/austinmeier/ontology-of-plant-stress/master/patterns/aps_with_po_mappings.tsv
+    title: aps_with_po_mappings.tsv
+  - url: https://raw.githubusercontent.com/austinmeier/ontology-of-plant-stress/master/patterns/apsnet.tsv
+    title: apsnet.tsv
+  - url: https://raw.githubusercontent.com/austinmeier/ontology-of-plant-stress/master/patterns/apsnet_new.tsv
+    title: apsnet_new.tsv
+  - url: https://raw.githubusercontent.com/austinmeier/ontology-of-plant-stress/master/patterns/apsnet_unique.tsv
+    title: apsnet_unique.tsv
+

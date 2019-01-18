@@ -1,0 +1,17 @@
+pattern_name: beer/patterns/beer_yeast
+classes:
+  beer: BEER:0000000
+  yeast: NCBITaxon:4932
+
+relations:
+  part of: BFO_0000050
+
+vars:
+  beer: "'beer'"
+  yeast: "'yeast'"
+
+name:
+  text: "%s beer with %s yeast"
+  vars:
+    - beer
+    - yeast

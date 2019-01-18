@@ -1,0 +1,3 @@
+defined_class,defined_class_label,beer,beer_label,yeast,yeast_label
+9f515545-8075-40ed-ac51-45c822e79592,Lager beer with Saccharomyces cerevisiae EC9-8 yeast,BEER:0000002,Lager,NCBITaxon:1095001,Saccharomyces cerevisiae EC9-8
+7a753adf-62f3-4850-bd69-dcaf895a5169,India Pale Ale beer with Saccharomyces cerevisiae UC5 yeast,BEER:0000005,India Pale Ale,NCBITaxon:947040,Saccharomyces cerevisiae UC5
