@@ -51,6 +51,13 @@
               Export TAB
             </a>
           </li>
+          <li>
+            <a
+              type="button"
+              ng-click="navBarCtrl.exportGitHub()">
+              Export to GitHub Branch
+            </a>
+          </li>
         </ul>
       </li>
       <li class="dropdown" uib-dropdown>
@@ -71,7 +78,7 @@
         </ul>
       </li>
       <li><a ui-sref="settings" ng-click='navCollapsed = true'>
-        About
+        Settings
       </a></li>
     </ul>
   </div>

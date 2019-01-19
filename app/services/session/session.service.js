@@ -1,27 +1,35 @@
 import _ from 'lodash';
 import Papa from 'papaparse';
 import yaml from 'js-yaml';
+import GitHub from 'github-api';
+import FileSaver from 'file-saver';
 
 /* global angular */
+/* global ENVIRONMENT */
 
 export default class SessionService {
-  constructor($http, $timeout, $location, $sce, $rootScope) {
+
+  constructor($http, $timeout, $location, $sce, $rootScope, $localStorage) {
+    // console.log('SessionService', $localStorage, $location.search());
     var that = this;
     this.name = 'DefaultSessionName';
     this.$http = $http;
     this.$timeout = $timeout;
     this.$location = $location;
+    this.$localStorage = $localStorage;
+    window.$localStorage = $localStorage;
     this.$sce = $sce;
     this.$rootScope = $rootScope;
-    this.defaultConfigName = 'go';
+    this.defaultConfigName = '';
 
     this.loadSiteConfig(function() {
-      that.initializeState();
-
       var searchParams = that.$location.search();
+      // console.log('this.loadSiteConfig ... searchParams', searchParams);
       if (searchParams && searchParams.config) {
-        var config = searchParams.config;
-        that.loadURLConfig(config);
+        that.loadURLConfig(searchParams.config);
+      }
+      else if (that.$localStorage.configURL) {
+        that.loadURLConfig(that.$localStorage.configURL);
       }
       else if (that.defaultConfigName) {
         that.loadConfigurationByName(that.defaultConfigName);
@@ -31,7 +39,9 @@ export default class SessionService {
 
   loadSiteConfig(continuation) {
     var that = this;
-    var siteConfigURL = window.location.origin + '/' + window.location.pathname + 'configurations/index.json';
+    var base = document.getElementsByTagName('base')[0].href;
+    // var siteConfigURL = window.location.origin + '/' + window.location.pathname + 'configurations/index.json';
+    var siteConfigURL = base + 'configurations/index.json';
     this.baseURL = null;
     this.logoImage = null;
 
@@ -41,7 +51,7 @@ export default class SessionService {
     this.configNames = [];
     this.configByName = {};
 
-    // console.log('siteConfigURL', siteConfigURL);
+    // console.log('siteConfigURL', siteConfigURL, this.baseURL);
     this.$http.get(
       siteConfigURL,
       {
@@ -51,7 +61,11 @@ export default class SessionService {
         let data = result.data;
         that.configNames = data.configNames;
         that.logoImage = data.logoImage || 'INCA.png';
-        that.baseURL = data.baseURL || that.baseURL;
+
+        if (ENVIRONMENT !== 'development') {
+          that.baseURL = data.baseURL || that.baseURL;
+        }
+
         that.configNames.forEach(function(c) {
           that.configByName[c] = 'configurations/' + c + '/config.yaml';
         });
@@ -73,16 +87,54 @@ export default class SessionService {
     );
   }
 
-  initializeState() {
+  setErrorConfig(error) {
+    this.errorMessageConfig = error;
+    this.titleConfig = '';
+    this.sourceConfig = '';
+    this.parsedConfig = null;
+  }
+
+  loadConfigurationByName(name) {
+    var config = this.configByName[name];
+    if (config) {
+      this.loadURLConfig(config);
+    }
+  }
+
+  updateLocation(eraseXSV) {
+    var searchParams = this.$location.search();
+    if (this.configURL) {
+      searchParams.config = this.configURL;
+
+      if (this.patternURL) {
+        searchParams.yaml = this.patternURL;
+      }
+      else {
+        // delete searchParams.yaml;
+      }
+      if (this.XSVURL) {
+        searchParams.xsv = this.XSVURL;
+      }
+      else if (eraseXSV) {
+        delete searchParams.xsv;
+      }
+    }
+    else {
+      searchParams = {};
+    }
+
+    // console.log('updateLocation', this.configURL, this.patternURL, this.XSVURL, searchParams);
+    this.$location.search(searchParams);
+  }
+
+  loadSourceConfig(source, title, configURL, continuation) {
+    // console.log('loadSourceConfig', title, this.$localStorage.configURL, configURL);
+
     this.parsedPattern = null;
     this.autocompleteRegistry = null;
     this.columnDefs = null;
-    this.rowData = null;
-
-    this.titleConfig = null;
-    this.sourceConfig = null;
+    this.rowData = [];
     this.parsedConfig = null;
-    this.errorMessageConfig = null;
 
     this.defaultPatternURL = null;
     this.defaultXSVURL = null;
@@ -100,73 +152,89 @@ export default class SessionService {
     this.parsedXSV = null;
     this.XSVURL = null;
     this.errorMessageXSV = null;
-  }
 
-  setErrorConfig(error) {
-    this.errorMessageConfig = error;
-    this.titleConfig = '';
-    this.sourceConfig = '';
-    this.parsedConfig = null;
-  }
-
-  loadConfigurationByName(name) {
-    var config = this.configByName[name];
-    if (config) {
-      this.loadURLConfig(config);
-    }
-  }
-
-  loadSourceConfig(source, title, url, continuation) {
-    this.initializeState();
-    // console.log('loadSourceConfig', title, url, JSON.stringify(this.rowData));
     this.sourceConfig = source;
     this.titleConfig = title;
-    this.configURL = url;
+    this.configURL = configURL;
     this.errorMessageConfig = null;
-    var search = this.$location.search();
-    if (url) {
-      search.config = url;
-    }
-    this.$location.search(search);
+    this.rowData = [];
+
+    this.updateLocation();
+    // var searchParams = this.$location.search();
+    // if (configURL) {
+    //   searchParams.config = this.configURL;
+    //   console.log('###loadSourceConfig update search.config', searchParams.config);
+    //   this.$location.search(searchParams);
+    // }
+
     var that = this;
-    this.parseConfig(function() {
-      if (continuation) {
-        continuation();
-      }
-      else {
-        that.$rootScope.$broadcast('parsedConfig');
-      }
-    });
+    if (this.$localStorage.configURL !== this.configURL) {
+      console.log('#########loadSourceConfig WIPELOCAL', this.$localStorage.configURL, this.configURL);
+      this.$localStorage.configURL = this.configURL;
+      this.$localStorage.titleXSV = '';
+      this.$localStorage.rowData = [];
+      this.$localStorage.patternURL = '';
+    }
+
+    if (continuation) {
+      continuation();
+    }
+    else {
+      console.log('NO CONTINUATION');
+      debugger;
+    }
   }
 
   loadURLConfig(configURL) {
     var that = this;
-    this.configURL = configURL;
+    // The following should already happen in loadSourceConfig above.
+    // var searchParams = this.$location.search();
+    // searchParams.config = configURL;
+    // console.log('###loadURLConfig update search.config', searchParams.config);
+    // this.$location.search(searchParams);
+    // this.configURL = configURL;
+
+    // this.$localStorage.configURL = configURL;
+    // this.rowData.length = 0;
+    // this.$location.search('yaml', null);
+    // this.$location.search('xsv', null);
     this.$http.get(configURL, {withCredentials: false}).then(
       function(result) {
         var configSource = result.data;
+        // console.log('loadSourceConfig', 'ONE');
         that.loadSourceConfig(configSource, configURL, configURL, function() {
-          if (that.parsedConfig.defaultPatterns || that.parsedConfig.defaultXSVs) {
-            console.log('defaults available. Skipping menu.yaml load. that', that);
-            that.loadSourceConfig(configSource, configURL, configURL);
-          }
-          else {
-            var menuURL = configURL.replace(/config\.yaml$/, 'menu.yaml');
-            that.$http.get(menuURL, {withCredentials: false}).then(
-              function(menuResult) {
-                var menuSource = menuResult.data;
-                configSource += '\n';
-                configSource += menuSource;
-                that.loadSourceConfig(configSource, configURL, configURL);
-              },
-              function(error) {
-                var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
-                console.log(errmsg);
-                that.setErrorConfig(errmsg);
-                that.loadSourceConfig(configSource, configURL, configURL);
-              }
-            );
-          }
+          // console.log('that.loadSourceConfig completed', 'ONE');
+          that.parseConfig(function() {
+            if (that.parsedConfig.defaultPatterns || that.parsedConfig.defaultXSVs) {
+              // console.log('defaults available. Skipping menu.yaml load. that', that);
+              // console.log('that.$rootScope.$broadcast parsedConfig1');
+              that.$rootScope.$broadcast('parsedConfig');
+            }
+            else {
+              var menuURL = configURL.replace(/config\.yaml$/, 'menu.yaml');
+              that.$http.get(menuURL, {withCredentials: false}).then(
+                function(menuResult) {
+                  var menuSource = menuResult.data;
+                  configSource += '\n';
+                  configSource += menuSource;
+                  // console.log('loadSourceConfig', 'TWO');
+                  that.loadSourceConfig(configSource, configURL, configURL, function() {
+                    that.parseConfig(function() {
+                      // console.log('that.$rootScope.$broadcast parsedConfig1');
+                      that.$rootScope.$broadcast('parsedConfig');
+                    });
+                  });
+                },
+                function(error) {
+                  var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
+                  console.log(errmsg);
+                  that.setErrorConfig(errmsg);
+                  // console.log('loadSourceConfig', 'THREE');
+                  that.loadSourceConfig(configSource, configURL, configURL);
+                }
+              );
+            }
+          });
         });
       },
       function(error) {
@@ -214,8 +282,13 @@ export default class SessionService {
     return s.replace(/^'/, '').replace(/'$/, '');
   }
 
-  parsePattern(continuation, continuationErrors) {
+  parsePattern(source, title, url, continuation, continuationErrors) {
     var that = this;
+
+    this.sourcePattern = source;
+    this.titlePattern = title;
+    this.patternURL = url;
+    this.errorMessagePattern = null;
 
     var errors = [];
 
@@ -284,7 +357,7 @@ export default class SessionService {
               }
             });
 
-            var labelColumn = key + ' label';
+            var labelColumn = key + '_label';
             that.autocompleteRegistry[key] = {
               idColumn: key,
               labelColumn: labelColumn,
@@ -321,6 +394,8 @@ export default class SessionService {
       }
     }
     else if (continuation) {
+      this.$localStorage.patternURL = this.patternURL;
+
       continuation();
     }
   }
@@ -357,6 +432,122 @@ export default class SessionService {
     Papa.parse(this.sourceXSV, config);
   }
 
+  isBooleanColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = acEntry &&
+                 acEntry.lookup_type === 'inline' &&
+                 acEntry.idColumn === 'NOT' &&
+                 acEntry.labelColumn === 'NOT';
+    // console.log('isBooleanColumn', f, acEntry);
+    return result;
+  }
+
+  isAutocompleteColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = !!acEntry;
+    // console.log('isAutocompleteColumn', f, result);
+    return result;
+  }
+
+  isEditableColumn(f) {
+    var acEntry = this.autocompleteRegistry[f];
+    var result = !acEntry;
+    // console.log('isEditableColumn', f, result);
+    return result;
+  }
+
+  generateColumnDefsFromFields(fields, addIRI) {
+    var that = this;
+    function sanitizeColumnName(f) {
+      return f.replace('(', '_').replace(')', '_');
+    }
+
+    var fieldsWithIRI = angular.copy(fields);
+
+    if (addIRI) {
+      fieldsWithIRI.unshift('defined_class_label');
+      fieldsWithIRI.unshift('defined_class');
+    }
+
+    var unnamedColumnIndex = 0;
+    var columnDefs = _.map(fieldsWithIRI, function(f) {
+      var sanitizedName = sanitizeColumnName(f);
+      var visible = true;
+      if (f === '') {
+        sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
+        ++unnamedColumnIndex;
+        visible = false;
+      }
+      var result = {
+        name: sanitizedName,
+        field: sanitizedName,
+        originalName: f,
+        displayName: f,
+        minWidth: 100,
+        width: 100,
+        // maxWidth: 200,
+        enableCellEdit: false,
+        enableCellEditOnFocus: false,
+        visible: visible
+      };
+
+      if (f.endsWith('_label')) {
+        result.width = 150;
+      }
+
+      if (that.isBooleanColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateBooleanTemplate';
+        result.enableCellEdit = true;
+        result.width = 55;
+      }
+      else if (that.isAutocompleteColumn(f)) {
+        result.enableCellEditOnFocus = false;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+        result.enableCellEdit = true;
+      }
+      else if (that.isEditableColumn(f)) {
+        result.enableCellEditOnFocus = true;
+        result.cellTemplate = 'cellStateTemplate';
+        result.editableCellTemplate = 'cellStateEditableTemplate';
+        result.enableCellEdit = true;
+      }
+      else {
+        result.cellTemplate = 'cellStateReadonlyTemplate';
+        result.enableCellEdit = false;
+      }
+
+      return result;
+    });
+
+    var lastCol = columnDefs[columnDefs.length - 1];
+    if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
+      columnDefs.length = columnDefs.length - 1;
+    }
+
+    let commandColumn = {
+      name: 'Command',
+      displayName: '',
+      width: 30,
+      field: '',
+      resizable: false,
+      cellTemplate: 'uigridActionCell',
+      enableCellEdit: false,
+      enableCellSelection: false,
+      enableCellEditOnFocus: false,
+      enableSorting: false,
+      allowCellFocus: false,
+      enableHiding: false,
+      enableColumnMenu: false,
+      headerCellTemplate: 'uigridActionHeader'
+    };
+
+    columnDefs.unshift(commandColumn);
+
+    return columnDefs;
+  }
 
   exportXSV(xsvType) {
     var delimiter = ((xsvType === 'tsv') || (xsvType === 'tab')) ?
@@ -390,6 +581,23 @@ export default class SessionService {
     var text = Papa.unparse(gridData, config);
     text = text + '\n';
 
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+
+    // console.log('export', this.titleXSV, this);
+    var importedFilename = this.titleXSV;
+    var importedFilenameLast = importedFilename.lastIndexOf('/');
+    if (importedFilenameLast >= 0) {
+      importedFilename = importedFilename.slice(importedFilenameLast + 1);
+    }
+    var importedFilenameExt = importedFilename.lastIndexOf('.');
+    if (importedFilenameExt >= 0) {
+      importedFilename = importedFilename.slice(0, importedFilenameExt);
+    }
+    var exportedFilename = importedFilename + '.' + xsvType;
+
+    FileSaver.saveAs(blob, exportedFilename);
+
+/*
     var data = new Blob([text], {type: 'text/plain'});
     // If we are replacing a previously generated file we need to
     // manually revoke the object URL to avoid memory leaks.
@@ -419,9 +627,28 @@ export default class SessionService {
     document.body.appendChild(link);  // required in FF, optional for Chrome/Safari
     link.click();
     document.body.removeChild(link);  // required in FF, optional for Chrome/Safari
+*/
+
   }
 
 
+  exportGitHub() {
+    console.log('exportGitHub');
+    this.listRepos();
+  }
+
+  listRepos() {
+    const that = this;
+    const targetUserName = 'monarch-initiative';
+    const gh = new GitHub();
+    const targetUser = gh.getUser(targetUserName);
+    targetUser.listRepos()
+      .then(({ data: reposJson }) => {
+        console.log(`${targetUserName} has ${reposJson.length} repos!`);
+        console.log(reposJson);
+        // that.reposList = reposJson.map(repo => repo.name);
+      });
+  }
 
   golrLookup(colName, oldValue, val, acEntry) {
     var golrURLBase = 'https://solr.monarchinitiative.org/solr/ontology/select';
@@ -602,6 +829,21 @@ export default class SessionService {
     return curie.replace(/_/, ':');
   }
 
+  dataChanged() {
+    if (this.rowData) {
+      this.$localStorage.titleXSV = this.titleXSV;
+      this.$localStorage.rowData = this.rowData;
+      // this.$localStorage.patternURL = this.patternURL;
+      // console.log('dataChanged', this.$localStorage.titleXSV, this.$localStorage.configURL, this.$localStorage.patternURL, this.patternURL);
+      this.XSVURL = null;
+      this.updateLocation(true);
+      // console.log('...dataChanged stored', this.$localStorage.patternURL, this.$localStorage.rowData);
+    }
+    else {
+      console.log('...dataChanged this.rowData NULL');
+    }
+  }
+
   olsLookup(colName, oldValue, val, acEntry) {
     var that = this;
     if (!val || val.length === 0) {
@@ -722,4 +964,4 @@ export default class SessionService {
     // return matches;
   }
 }
-SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope'];
+SessionService.$inject = ['$http', '$timeout', '$location', '$sce', '$rootScope', '$localStorage'];

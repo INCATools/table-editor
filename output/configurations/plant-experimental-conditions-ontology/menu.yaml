@@ -1,0 +1,18 @@
+defaultPatterns:
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/curie_map.yaml
+    title: curie_map.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/peco.yaml
+    title: peco.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/peco_role.yaml
+    title: peco_role.yaml
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/exposure-chebi.tsv
+    title: exposure-chebi.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/exposure-chebi_role.tsv
+    title: exposure-chebi_role.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/exposure-envo.tsv
+    title: exposure-envo.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-experimental-conditions-ontology/master/src/ontology/patterns/exposure-ncbitaxon.tsv
+    title: exposure-ncbitaxon.tsv
+

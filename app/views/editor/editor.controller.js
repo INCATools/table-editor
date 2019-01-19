@@ -1,7 +1,7 @@
 /* global angular */
 
 import _ from 'lodash';
-const uuidv4 = require('uuid/v4');  // https://github.com/kelektiv/node-uuid
+const uuidv4 = require('uuid/v4'); // https://github.com/kelektiv/node-uuid
 
 if (!String.prototype.endsWith) {
   /* eslint no-extend-native: 0 */
@@ -16,9 +16,14 @@ if (!String.prototype.endsWith) {
   };
 }
 
+function getLength(rowData) {
+  return rowData ? rowData.length : -1;
+}
+
 export default class EditorController {
   // constructor arglist must match invocation in app.js
   constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, $window, uiGridConstants, uiGridEditConstants, session) {
+    // console.log('EditorController constructor', getLength(session.$localStorage.rowData), $location.search());
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
@@ -28,67 +33,24 @@ export default class EditorController {
     this.$location = $location;
     this.$anchorScroll = $anchorScroll;
     this.$window = $window;
+    this.session = session;
     this.uiGridConstants = uiGridConstants;
     this.uiGridEditConstants = uiGridEditConstants;
     this.examplesPattern = null;
     this.examplesXSV = null;
     this.$scope.typeaheadAnchor = document.getElementById('typeahead-anchor');
     this.exportedXSV = null;
-    this.session = session;
     this.$scope.isOpenX = {};
     this.$scope.noResults = {};
 
-    function completeInitialization(reloadSession) {
-      session.showPatternSource = false;
-      session.showPatternParsed = false;
-      session.showXSVSource = false;
-      session.showXSVParsed = false;
-      that.examplesPattern = null;
-      that.examplesXSV = null;
-
-      if (session.parsedConfig.patternless) {
-        // console.log('patternless===true');
-      }
-      else {
-        if (session.parsedConfig.defaultPatterns) {
-          that.examplesPattern = session.parsedConfig.defaultPatterns;
-        }
-      }
-
-      if (reloadSession) {
-          session.defaultPatternURL = session.parsedConfig.patternURL;
-      }
-      else {
-        session.sourceXSV = '';
-        session.titleXSV = '';
-
-        that.setErrorPattern(null);
-        session.patternURL = null;
-        session.errorMessageXSV = null;
-        that.setErrorXSV(null);
-
-        if (!session.parsedConfig.patternless) {
-          if (that.examplesPattern && that.examplesPattern.length > 0) {
-            session.defaultPatternURL = that.examplesPattern[0].url;
-          }
-        }
-
-        session.XSVURL = null;
-        if (session.parsedConfig.defaultXSVs) {
-          that.examplesXSV = session.parsedConfig.defaultXSVs;
-        }
-        session.defaultXSVURL = null;
-        that.parsedConfig();
-      }
-    }
+    that.$rootScope.$on('parsedConfig', function() {
+      // console.log('that.$rootScope.$on parsedConfig');
+      that.configurationLoaded(false);
+    });
 
     if (session.initialized) {
-      completeInitialization(true);
-    }
-    else {
-      that.$rootScope.$on('parsedConfig', function() {
-        completeInitialization(false);
-      });
+      console.log('session.initialized');
+      that.configurationLoaded(true);
     }
 
     this.$scope.$watch('editorCtrl.session.filePattern', function () {
@@ -100,6 +62,53 @@ export default class EditorController {
 
     this.setupGrid();
   }
+
+  configurationLoaded(reloadSession) {
+    const session = this.session;
+    // console.log('configurationLoaded', reloadSession, session.$localStorage, getLength(session.$localStorage.rowData), session.rowData);
+    // console.log(session);
+    session.updateLocation();
+
+    this.examplesPattern = null;
+    this.examplesXSV = null;
+    this.defaultPatternURL = null;
+
+    if (session.parsedConfig.patternless) {
+      // console.log('patternless===true');
+    }
+    else {
+      if (session.parsedConfig.defaultPatterns) {
+        this.examplesPattern = session.parsedConfig.defaultPatterns;
+        this.defaultPatternURL = this.examplesPattern[0].url;
+        // console.log('...setting default', this.defaultPatternURL);
+      }
+    }
+
+    // session.XSVURL = null;
+    if (session.parsedConfig.defaultXSVs) {
+      this.examplesXSV = session.parsedConfig.defaultXSVs;
+    }
+
+    if (reloadSession) {
+      console.log('reloadSession', session.$localStorage.configURL, getLength(session.$localStorage.rowData), session.defaultPatternURL, session.parsedConfig);
+      session.defaultPatternURL = session.parsedConfig.patternURL;
+      if (session.parsedConfig.defaultXSVs) {
+        this.examplesXSV = session.parsedConfig.defaultXSVs;
+      }
+      this.applyParsedConfig(true);
+    }
+    else {
+      // session.sourceXSV = '';
+      // session.titleXSV = '';
+
+      this.setErrorPattern(null);
+      // session.patternURL = null;
+      // session.errorMessageXSV = null;
+      this.setErrorXSV(null);
+      this.applyParsedConfig(false);
+    }
+  }
+
 
   debugFormat(o) {
     return JSON.stringify(Object.keys(o));
@@ -223,18 +232,6 @@ export default class EditorController {
   }
 
   getTerm(rowEntity, colName, val) {
-    // return new Promise(function(resolve, reject) {
-    //   const matches = [
-    //     {id: '111', label: 'ONE'},
-    //     {id: '222', label: 'TWO'},
-    //     {id: '333', label: 'THREE'},
-    //   ];
-    //   setTimeout(function() {
-    //     resolve(matches);
-    //   }, 20);
-    // });
-
-
     var acEntry = this.session.autocompleteRegistry[colName];
     var oldValue = rowEntity[colName];
 
@@ -264,7 +261,7 @@ export default class EditorController {
     var syntheticLabel = '';
     var usedVars = 0;
     for (var i = 0; i < vars.length; ++i) {
-      var labelColumnName = vars[i] + ' label';
+      var labelColumnName = vars[i] + '_label';
       var substitution = row.entity[labelColumnName];
 
       if (substitution) {
@@ -285,13 +282,14 @@ export default class EditorController {
 
   updateIRILabelForRow(row) {
     var that = this;
+
     if (that.session.parsedPattern && that.session.parsedPattern.name) {
       var text = that.session.parsedPattern.name.text;
       var vars = that.session.parsedPattern.name.vars;
 
       var {label, complete} = this.applySubstitution(row, text, vars);
       if (complete) {
-        row.entity['iri label'] = label;
+        row.entity.defined_class_label = label;
       }
     }
   }
@@ -322,7 +320,7 @@ export default class EditorController {
       var cellName = cell.col.colDef.name;
       var cellValue = cell.row.entity[cellName];
 
-      if (this.isAutocompleteColumn(cellName)) {
+      if (this.session.isAutocompleteColumn(cellName)) {
         var acEntry = this.session.autocompleteRegistry[cellName];
         if (acEntry) {
           if (acEntry.idColumn) {
@@ -338,7 +336,7 @@ export default class EditorController {
         else {
           cell.row.entity[cellName] = cellValue.id;
           if (cellValue.label) {
-            var labelField = (cellName + ' label');
+            var labelField = (cellName + '_label');
             cell.row.entity[labelField] = cellValue.label;
           }
         }
@@ -366,11 +364,13 @@ export default class EditorController {
       var foundIndex = this.session.rowData.indexOf(entity);
       if (foundIndex >= 0) {
         this.session.rowData.splice(foundIndex, 1);
+        this.session.dataChanged();
       }
     }
   }
 
   addRow() {
+    // console.log('addRow', this.session.rowData);
     var that = this;
 
     this.setErrorXSV(null);
@@ -382,15 +382,23 @@ export default class EditorController {
       topRow = null;
     }
     var newRow = {};
+    this.session.columnDefs.forEach(col => {
+      // console.log('adding column', col, col.field);
+      if (col.field.length > 0) {
+        newRow[col.field] = '';
+      }
+    });
+
     var iriGeneration = this.session.parsedConfig.IRIGeneration;
     var iriGenerationType = (iriGeneration && iriGeneration.type) ?
                                 iriGeneration.type :
                                 'uuid';
+    // console.log('iriGeneration', iriGeneration, iriGenerationType, newRow);
     if (iriGenerationType === 'uuid') {
       var iriGenerationPrefix = (iriGeneration && iriGeneration.prefix) ?
                                   iriGeneration.prefix :
                                   'INCA';
-      newRow.iri = uuidv4(iriGenerationPrefix);
+      newRow.defined_class = uuidv4(iriGenerationPrefix);
     }
     else {
       console.log('Unknown iriGeneration', iriGeneration);
@@ -401,6 +409,8 @@ export default class EditorController {
     }
 
     this.session.rowData.unshift(newRow);
+    // console.log('row added', newRow, this.session.rowData);
+
     // this.gridApi.core.handleWindowResize();
 
 /*
@@ -456,50 +466,127 @@ export default class EditorController {
 
   // Config stuff
 
-  parsedConfig() {
+  patternLoaded(patternless, searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData) {
+    // console.log('patternLoaded', patternless, getLength(savedRowData), searchParams.yaml, searchParams.xsv, patternURL, this.session.defaultXSVURL);
+    // console.log('savedPatternURL', getLength(savedRowData), savedPatternURL, patternURL, searchParams.xsv);
+
     var that = this;
-    var searchParams = that.$location.search();
-    var patternURL;
-    if (searchParams.yaml) {
-      patternURL = searchParams.yaml;
-    }
-    else if (that.session.defaultPatternURL) {
-      patternURL = that.session.defaultPatternURL;
-    }
+    that.$timeout(function() {
+      // console.log('that.session.columnDefs', that.session.columnDefs);
+      that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      that.gridOptions.data = that.session.rowData;
+    });
 
-    // console.log('parsedConfig', searchParams, patternURL, that.session.defaultXSVURL);
-
-    function patternLoaded() {
-      // console.log('patternLoaded', searchParams.yaml, searchParams.xsv, patternURL, that.session.defaultXSVURL);
+    if (searchParams.xsv && searchParams.xsv.length > 0) {
       var xsvURL;
       if (searchParams.xsv) {
         xsvURL = searchParams.xsv;
       }
-      else if (that.session.defaultXSVURL) {
-        xsvURL = that.session.defaultXSVURL;
+      else if (this.session.defaultXSVURL) {
+        xsvURL = this.session.defaultXSVURL;
       }
       if (xsvURL) {
-        that.loadURLXSV(xsvURL);
+        this.loadURLXSV(xsvURL);
       }
       else {
-        that.loadCorrespondingXSV(patternURL);
+        this.loadNewXSV('ONE');
       }
     }
+    else if (
+      (savedPatternURL === patternURL) &&
+      savedRowData && (savedRowData.length > 0)) {
+      // console.log('....savedRowData', savedRowData[0], this.session.rowData);
 
-    if (patternURL) {
-      that.loadURLPattern(patternURL, patternLoaded);
+      // this.clearTable();
+      this.session.titleXSV = savedTitleXSV;
+      this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
+    }
+    else if (this.session.parsedConfig.patternless &&
+      savedRowData && (savedRowData.length > 0)) {
+      // console.log('....patternless savedRowData', savedRowData[0], this.session.rowData);
+
+      this.loadNewXSV('FOUR');
+      this.session.titleXSV = savedTitleXSV;
+      this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
     }
     else {
-      patternLoaded();
+      this.loadNewXSV('TWO');
     }
   }
 
-  loadSourceConfigItem(source, title, url) {
-    if (source) {
-      this.loadSourceConfig(source, title, url);
+  applyParsedConfig(reloadSession) {
+    var that = this;
+    const savedTitleXSV = that.session.$localStorage.titleXSV;
+    const savedRowData = that.session.$localStorage.rowData;
+    const savedConfigURL = that.session.$localStorage.configURL;
+    const savedPatternURL = that.session.$localStorage.patternURL;
+    // console.log('applyParsedConfig savedRowData', reloadSession, getLength(savedRowData),
+    //   that.session.patternURL, savedPatternURL);
+
+    var searchParams = that.$location.search();
+
+    if (reloadSession) {
+      that.patternLoaded(
+        that.session.parsedConfig.patternless,
+        searchParams,
+        that.session.patternURL,
+        savedPatternURL,
+        savedTitleXSV,
+        savedRowData);
+
+      // that.$timeout(function() {
+      //   that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      //   that.gridOptions.data = that.session.rowData;
+      // });
+
+      // if (savedRowData && (savedRowData.length > 0)) {
+      //   console.log('....patterned savedRowData', savedRowData[0], this.session.rowData);
+      //   this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
+      // }
+      // else if (this.session.parsedConfig.patternless &&
+      //          (savedRowData && (savedRowData.length > 0))) {
+      //   console.log('....patternless savedRowData', savedRowData[0], this.session.rowData);
+
+      //   // this.clearTable();
+      //   this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
+      // }
     }
     else {
-      this.loadURLConfig(url);
+      var patternURL;
+
+      if (that.session.parsedConfig.patternless) {
+        // console.log('applyParsedConfig patternless');
+      }
+      else if (searchParams.yaml) {
+        patternURL = searchParams.yaml;
+      }
+      else if (savedConfigURL && savedConfigURL === that.session.configURL &&
+               savedPatternURL && savedPatternURL.length > 0) {
+        // console.log('patternURL', savedConfigURL, that.session.configURL, savedPatternURL);
+        patternURL = savedPatternURL;
+      }
+      else if (that.defaultPatternURL) {
+        patternURL = that.defaultPatternURL;
+      }
+
+      // console.log('parsedConfig', searchParams, patternURL, that.session.defaultXSVURL);
+
+
+      if (patternURL) {
+        // console.log('...patternURL', patternURL, getLength(savedRowData));
+        that.loadURLPattern(patternURL, function() {
+          // console.log('......patternURL', patternURL, getLength(savedRowData));
+          that.patternLoaded(
+            that.session.parsedConfig.patternless,
+            searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData);
+        });
+      }
+      else {
+        // console.log('...!patternURL');
+        that.patternLoaded(
+          that.session.parsedConfig.patternless,
+          searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData);
+      }
     }
   }
 
@@ -512,6 +599,8 @@ export default class EditorController {
         reader.addEventListener("loadend", function() {
           blobText = reader.result;
           that.loadSourceConfig(blobText, file.name);
+          console.log('PossibleError: loadFileConfig does not call loadSourceConfig with a continuation');
+          console.log('...probably should use session.loadSourceConfig() instead');
         });
         reader.readAsText(file);
       }
@@ -539,47 +628,56 @@ export default class EditorController {
   loadSourcePattern(source, title, url, continuation) {
     // console.log('loadSourcePattern', url, title, source.slice(0, 20));
     var that = this;
-    this.session.sourcePattern = source;
-    this.session.titlePattern = title;
-    this.session.patternURL = url;
-    this.session.errorMessagePattern = null;
-    if (url) {
-      var search = this.$location.search();
-      search.yaml = url;
-      this.$location.search(search);
-    }
-    else {
-      this.$location.search({});
-    }
+    // this.session.sourcePattern = source;
+    // this.session.titlePattern = title;
+    // this.session.patternURL = url;
+    // this.session.errorMessagePattern = null;
+    // if (url) {
+    //   var searchParams = this.$location.search();
+    //   searchParams.yaml = url;
+    //   console.log('###loadSourcePattern update search.yaml', searchParams.yaml);
+    //   this.$location.search(searchParams);
+    // }
+    // else {
+    //   console.log('###loadSourcePattern CLEAR search');
+    //   this.$location.search({});
+    // }
 
-    this.session.parsePattern(function() {
-      // console.log('parsePattern', that.session.parsedPattern);
-      var fields = [];
-      _.each(that.session.parsedPattern.vars, function(v, k) {
-        fields.push(that.stripQuotes(k));
-        fields.push(that.stripQuotes(k) + ' label');
+
+    this.session.parsePattern(
+      source,
+      title,
+      url,
+      function() {
+        // console.log('parsePattern', that.session.parsedPattern, getLength(that.session.$localStorage.rowData));
+        var fields = [];
+        _.each(that.session.parsedPattern.vars, function(v, k) {
+          fields.push(that.stripQuotes(k));
+          fields.push(that.stripQuotes(k) + '_label');
+        });
+
+        // that.loadNewXSV('THREE');
+        that.session.rowData.length = 0;
+        that.session.columnDefs = that.session.generateColumnDefsFromFields(fields, true);
+        that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+        that.gridOptions.data = that.session.rowData;
+        that.setErrorPattern(null);
+        if (continuation) {
+          continuation();
+        }
+        that.$timeout(function() {
+          that.gridApi.core.handleWindowResize();
+        }, 0);
+      },
+      function(errors) {
+        that.setErrorPattern(errors);
       });
-
-      that.session.columnDefs = that.generateColumnDefsFromFields(fields, true);
-      that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-      that.setErrorPattern(null);
-      that.loadNewXSV();
-      if (continuation) {
-        continuation();
-      }
-      that.$timeout(function() {
-        that.gridApi.core.handleWindowResize();
-      }, 0);
-    },
-    function(errors) {
-      that.setErrorPattern(errors);
-    });
   }
 
   loadURLPattern(patternURL, continuation) {
     // console.log('loadURLPattern', patternURL);
     var that = this;
-    this.session.patternURL = patternURL;
+    // this.session.patternURL = patternURL;
     this.$http.get(patternURL, {withCredentials: false}).then(
       function(result) {
         that.loadSourcePattern(result.data, patternURL, patternURL, continuation);
@@ -592,12 +690,17 @@ export default class EditorController {
   }
 
   loadSourcePatternItem(source, title, url) {
+    var that = this;
     // console.log('loadSourcePatternItem', source, title, url);
     if (source) {
-      this.loadSourcePattern(source, title, url);
+      this.loadSourcePattern(source, title, url, function() {
+        that.session.updateLocation();
+      });
     }
     else {
-      this.loadURLPattern(url);
+      this.loadURLPattern(url, function() {
+        that.session.updateLocation();
+      });
     }
   }
 
@@ -622,6 +725,7 @@ export default class EditorController {
   setErrorXSV(error) {
     this.session.errorMessageXSV = error;
     if (error) {
+      console.log('setErrorXSV', error);
       this.session.titleXSV = '';
       this.session.sourceXSV = '';
       this.session.parsedXSV = null;
@@ -633,98 +737,98 @@ export default class EditorController {
     // console.log('keydown', event);
   }
 
-  generateColumnDefsFromFields(fields, addIRI) {
-    var that = this;
-    function sanitizeColumnName(f) {
-      return f.replace('(', '_').replace(')', '_');
-    }
+  // generateColumnDefsFromFields(fields, addIRI) {
+  //   var that = this;
+  //   function sanitizeColumnName(f) {
+  //     return f.replace('(', '_').replace(')', '_');
+  //   }
 
-    var fieldsWithIRI = angular.copy(fields);
+  //   var fieldsWithIRI = angular.copy(fields);
 
-    if (addIRI) {
-      fieldsWithIRI.unshift('iri label');
-      fieldsWithIRI.unshift('iri');
-    }
+  //   if (addIRI) {
+  //     fieldsWithIRI.unshift('defined_class_label');
+  //     fieldsWithIRI.unshift('defined_class');
+  //   }
 
-    var unnamedColumnIndex = 0;
-    var columnDefs = _.map(fieldsWithIRI, function(f) {
-      var sanitizedName = sanitizeColumnName(f);
-      var visible = true;
-      if (f === '') {
-        sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
-        ++unnamedColumnIndex;
-        visible = false;
-      }
-      var result = {
-        name: sanitizedName,
-        field: sanitizedName,
-        originalName: f,
-        displayName: f,
-        minWidth: 100,
-        width: 100,
-        // maxWidth: 200,
-        enableCellEdit: false,
-        enableCellEditOnFocus: false,
-        visible: visible
-      };
+  //   var unnamedColumnIndex = 0;
+  //   var columnDefs = _.map(fieldsWithIRI, function(f) {
+  //     var sanitizedName = sanitizeColumnName(f);
+  //     var visible = true;
+  //     if (f === '') {
+  //       sanitizedName = 'UNNAMED_COLUMN' + unnamedColumnIndex;
+  //       ++unnamedColumnIndex;
+  //       visible = false;
+  //     }
+  //     var result = {
+  //       name: sanitizedName,
+  //       field: sanitizedName,
+  //       originalName: f,
+  //       displayName: f,
+  //       minWidth: 100,
+  //       width: 100,
+  //       // maxWidth: 200,
+  //       enableCellEdit: false,
+  //       enableCellEditOnFocus: false,
+  //       visible: visible
+  //     };
 
-      if (f.endsWith(' label')) {
-        result.width = 150;
-      }
+  //     if (f.endsWith('_label')) {
+  //       result.width = 150;
+  //     }
 
-      if (that.isBooleanColumn(f)) {
-        result.enableCellEditOnFocus = true;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateBooleanTemplate';
-        result.enableCellEdit = true;
-        result.width = 55;
-      }
-      else if (that.isAutocompleteColumn(f)) {
-        result.enableCellEditOnFocus = false;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateAutocompleteTemplate';
-        result.enableCellEdit = true;
-      }
-      else if (that.isEditableColumn(f)) {
-        result.enableCellEditOnFocus = true;
-        result.cellTemplate = 'cellStateTemplate';
-        result.editableCellTemplate = 'cellStateEditableTemplate';
-        result.enableCellEdit = true;
-      }
-      else {
-        result.cellTemplate = 'cellStateReadonlyTemplate';
-        result.enableCellEdit = false;
-      }
+  //     if (that.isBooleanColumn(f)) {
+  //       result.enableCellEditOnFocus = true;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateBooleanTemplate';
+  //       result.enableCellEdit = true;
+  //       result.width = 55;
+  //     }
+  //     else if (that.isAutocompleteColumn(f)) {
+  //       result.enableCellEditOnFocus = false;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateAutocompleteTemplate';
+  //       result.enableCellEdit = true;
+  //     }
+  //     else if (that.isEditableColumn(f)) {
+  //       result.enableCellEditOnFocus = true;
+  //       result.cellTemplate = 'cellStateTemplate';
+  //       result.editableCellTemplate = 'cellStateEditableTemplate';
+  //       result.enableCellEdit = true;
+  //     }
+  //     else {
+  //       result.cellTemplate = 'cellStateReadonlyTemplate';
+  //       result.enableCellEdit = false;
+  //     }
 
-      return result;
-    });
+  //     return result;
+  //   });
 
-    var lastCol = columnDefs[columnDefs.length - 1];
-    if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
-      columnDefs.length = columnDefs.length - 1;
-    }
+  //   var lastCol = columnDefs[columnDefs.length - 1];
+  //   if (lastCol && (!lastCol.name || lastCol.name.length === 0)) {
+  //     columnDefs.length = columnDefs.length - 1;
+  //   }
 
-    let commandColumn = {
-      name: 'Command',
-      displayName: '',
-      width: 30,
-      field: '',
-      resizable: false,
-      cellTemplate: 'uigridActionCell',
-      enableCellEdit: false,
-      enableCellSelection: false,
-      enableCellEditOnFocus: false,
-      enableSorting: false,
-      allowCellFocus: false,
-      enableHiding: false,
-      enableColumnMenu: false,
-      headerCellTemplate: 'uigridActionHeader'
-    };
+  //   let commandColumn = {
+  //     name: 'Command',
+  //     displayName: '',
+  //     width: 30,
+  //     field: '',
+  //     resizable: false,
+  //     cellTemplate: 'uigridActionCell',
+  //     enableCellEdit: false,
+  //     enableCellSelection: false,
+  //     enableCellEditOnFocus: false,
+  //     enableSorting: false,
+  //     allowCellFocus: false,
+  //     enableHiding: false,
+  //     enableColumnMenu: false,
+  //     headerCellTemplate: 'uigridActionHeader'
+  //   };
 
-    columnDefs.unshift(commandColumn);
+  //   columnDefs.unshift(commandColumn);
 
-    return columnDefs;
-  }
+  //   return columnDefs;
+  // }
 
   generateRowDataFromXSV(data) {
     let xsvColumns = this.session.columnDefs;
@@ -757,11 +861,18 @@ export default class EditorController {
       else {
         var sortedPatternColumns = _.sortBy(patternColumns, 'name');
         var sortedXSVColumns = _.sortBy(xsvColumns, 'name');
-        result = _.isEqual(sortedPatternColumns, sortedXSVColumns);
+        var sortedPatternColumnNames = _.map(sortedPatternColumns, function(e) {
+          return e.name;
+        });
+        var sortedXSVColumnNames = _.map(sortedXSVColumns, function(e) {
+          return e.name;
+        });
+        result = _.isEqual(sortedPatternColumnNames, sortedXSVColumnNames);
+        // result = _.isEqual(sortedPatternColumns, sortedXSVColumns);
         // console.log('sortedPatternColumns', sortedPatternColumns);
         // console.log('sortedXSVColumns', sortedXSVColumns);
         if (!result) {
-          console.log('#compareColumnDefs !equal', patternColumns, xsvColumns);
+          console.log('#compareColumnDefs !equal', sortedPatternColumnNames, sortedXSVColumnNames, patternColumns, xsvColumns);
         }
       }
     }
@@ -772,7 +883,7 @@ export default class EditorController {
   parseXSV() {
     var that = this;
     this.session.parseXSV(function() {
-      var xsvColumns = that.generateColumnDefsFromFields(that.session.parsedXSV.meta.fields);
+      var xsvColumns = that.session.generateColumnDefsFromFields(that.session.parsedXSV.meta.fields);
 
       var columnsMatch = true;
       if (that.session.parsedPattern) {
@@ -794,57 +905,65 @@ export default class EditorController {
         console.log('No pattern used. Generate columns from XSV', xsvColumns, that.session.parsedXSV);
       }
 
+
+      // console.log('parseXSV', columnsMatch, that.session.parsedXSV);
+
       if (columnsMatch) {
         that.session.columnDefs = xsvColumns;
-        that.session.rowData = that.generateRowDataFromXSV(that.session.parsedXSV.data);
-
+        const newRows = that.generateRowDataFromXSV(that.session.parsedXSV.data);
+        that.session.rowData.splice(
+          0,
+          that.session.rowData.length,
+          ...newRows);
+        that.session.dataChanged();
         // that.session.rowData.length = 20;
         that.session.rowData.reverse();
         that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-        that.gridOptions.data = that.session.rowData;
         that.$timeout(function() {
           that.gridApi.core.handleWindowResize();
         }, 0);
       }
       else {
         that.$timeout(function() {
-          that.loadNewXSV();
-          // that.session.rowData = [];
-          // that.gridOptions.data = that.session.rowData;
-          // that.session.columnDefs = angular.copy(that.gridOptions.columnDefs);
+          that.clearTable();
           that.setErrorXSV('Error: XSV Columns do not match Pattern Columns');
         }, 0);
       }
     });
   }
 
-  loadCorrespondingXSV(patternURL) {
-    // console.log('loadCorrespondingXSV', patternURL, this.parsedConfig);
-    this.loadNewXSV();
-  }
-
-  loadNewXSV() {
-    // console.log('loadNewXSV', this.session.autocompleteRegistry, this.session.columnDefs);
+  loadNewXSV(lbl) {
+    // console.log('loadNewXSV', lbl, this.session.parsedConfig.defaultFields, this.session.columnDefs);
     var that = this;
     this.session.sourceXSV = 'New XSV';
     this.session.titleXSV = 'New XSV';
     this.session.XSVURL = null;
     this.session.errorMessageXSV = null;
-
     if (this.session.parsedConfig.patternless) {
-      var xsvColumns = this.generateColumnDefsFromFields(this.session.parsedConfig.defaultFields);
+      var xsvColumns = this.session.generateColumnDefsFromFields(this.session.parsedConfig.defaultFields);
+      // console.log('xsvColumns', xsvColumns, this.gridOptions);
       this.session.columnDefs = xsvColumns;
-      this.gridOptions.columnDefs = angular.copy(this.session.columnDefs);
+      this.session.rowData.length = 0;
+      this.$timeout(function() {
+        that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+        that.gridOptions.data = that.session.rowData;
+      });
     }
-    // var newRow = {};
-    // _.each(that.session.columnDefs.slice(1), function(colDef) {
-    //   newRow[colDef.field] = '';
-    // });
-    this.session.rowData = [];
-    this.gridOptions.data = this.session.rowData;
+
     // console.log('loadNewXSV', that.session.columnDefs, that.session.rowData);
   }
 
+
+  clearTable() {
+    this.session.XSVURL = null;
+    // var searchParams = this.$location.search();
+    // searchParams.xsv = null;
+    // console.log('###clearTable clear search.xsv', searchParams.xsv);
+    // this.$location.search(searchParams);
+    this.session.rowData.length = 0;
+    this.session.dataChanged();
+    this.session.updateLocation();
+  }
 
   loadSourceXSV(source, title, url) {
     // console.log('loadSourceXSV', source, title, url);
@@ -854,8 +973,8 @@ export default class EditorController {
     this.session.errorMessageXSV = null;
     if (url) {
       var search = this.$location.search();
-      search.xsv = url;
-      this.$location.search(search);
+      // search.xsv = url;
+      // this.$location.search(search);
     }
     else {
       this.$location.search({});
@@ -906,29 +1025,29 @@ export default class EditorController {
 
   // Grid stuff
 
-  isBooleanColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = acEntry &&
-                 acEntry.lookup_type === 'inline' &&
-                 acEntry.idColumn === 'NOT' &&
-                 acEntry.labelColumn === 'NOT';
-    // console.log('isBooleanColumn', f, acEntry);
-    return result;
-  }
+  // isBooleanColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = acEntry &&
+  //                acEntry.lookup_type === 'inline' &&
+  //                acEntry.idColumn === 'NOT' &&
+  //                acEntry.labelColumn === 'NOT';
+  //   // console.log('isBooleanColumn', f, acEntry);
+  //   return result;
+  // }
 
-  isAutocompleteColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = !!acEntry;
-    // console.log('isAutocompleteColumn', f, result);
-    return result;
-  }
+  // isAutocompleteColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = !!acEntry;
+  //   // console.log('isAutocompleteColumn', f, result);
+  //   return result;
+  // }
 
-  isEditableColumn(f) {
-    var acEntry = this.session.autocompleteRegistry[f];
-    var result = !acEntry;
-    // console.log('isEditableColumn', f, result);
-    return result;
-  }
+  // isEditableColumn(f) {
+  //   var acEntry = this.session.autocompleteRegistry[f];
+  //   var result = !acEntry;
+  //   // console.log('isEditableColumn', f, result);
+  //   return result;
+  // }
 
   setSorting(enabled) {
     // this.gridOptions.enableSorting = enabled;
@@ -1001,8 +1120,9 @@ export default class EditorController {
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
         // console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
         // rowEntity[colDef.name] = newValue;
-        that.lastCellEdited = '[' + rowEntity.iri + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
+        that.lastCellEdited = '[' + rowEntity.defined_class + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
         that.setSorting(true);
+        that.session.dataChanged();
       });
 
       gridApi.edit.on.cancelCellEdit(that.$scope, function(rowEntity, colDef) {
@@ -1026,7 +1146,7 @@ export default class EditorController {
           }
           else if (event.keyCode === 13) {
             // console.log('CR');
-            var row = that.gridOptions.data[0]; // that.$scope.gridApi.grid.getVisibleRows()[0].entity;
+            // var row = that.gridOptions.data[0]; // that.$scope.gridApi.grid.getVisibleRows()[0].entity;
             // that.gridApi.core.scrollToIfNecessary(
             //   row,
             //   that.gridOptions.columnDefs[0]);
@@ -1063,13 +1183,13 @@ export default class EditorController {
         });
       }
 
-      that.$timeout(function() {
-        if (that.session.columnDefs) {
-          that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
-          that.gridOptions.data = that.session.rowData;
-        }
-        that.gridApi.core.handleWindowResize();
-      }, 0);
+      // that.$timeout(function() {
+      //   if (that.session.columnDefs) {
+      //     that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
+      //     that.gridOptions.data = that.session.rowData;
+      //   }
+      //   that.gridApi.core.handleWindowResize();
+      // }, 0);
     };
   }
 }

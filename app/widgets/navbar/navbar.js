@@ -1,5 +1,7 @@
 import navbarComponent from './navbar.component';
 
+/* global ENVIRONMENT */
+
 export default app => {
   app.component('navbar', navbarComponent);
 

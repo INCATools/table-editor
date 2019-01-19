@@ -1,0 +1,8 @@
+Notes
+
+- Consider adding AssignedBy, Date, Literature_Ref
+- Add per-row description data as well as synonym info
+- Use `def` attribute to build a definition and put in the 'infobox
+- Fix autoscroll on new row.
+- Prepopulate examples with GitHub Example
+- Don't autopop label until all vars are defined.

@@ -1,0 +1,43 @@
+#
+# https://github.com/Planteome/plant-environment-ontology/tree/master/patterns
+#
+
+prefixes:     # User specifies this once per team/project
+  CHEBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  PATO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  PO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  EO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  TO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  GO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  NCBITaxon:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  RO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ENVO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+
+IRIGeneration:
+  prefix: PO
+  type: uuid
+
+globalAutocomplete:   # Mostly for HPO testing without a separate YAML
+  'Thing':
+    label: 'Thing'
+    root_class: ''
+    lookup_type: 'ols'
+
