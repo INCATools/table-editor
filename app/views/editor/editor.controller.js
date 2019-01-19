@@ -23,7 +23,7 @@ function getLength(rowData) {
 export default class EditorController {
   // constructor arglist must match invocation in app.js
   constructor($scope, $rootScope, $http, $timeout, $location, $anchorScroll, $window, uiGridConstants, uiGridEditConstants, session) {
-    console.log('EditorController constructor', getLength(session.$localStorage.rowData), $location.search());
+    // console.log('EditorController constructor', getLength(session.$localStorage.rowData), $location.search());
     var that = this;
     this.name = 'Bogus property for unit testing';
     this.$scope = $scope;
@@ -44,7 +44,7 @@ export default class EditorController {
     this.$scope.noResults = {};
 
     that.$rootScope.$on('parsedConfig', function() {
-      console.log('that.$rootScope.$on parsedConfig');
+      // console.log('that.$rootScope.$on parsedConfig');
       that.configurationLoaded(false);
     });
 
@@ -65,8 +65,8 @@ export default class EditorController {
 
   configurationLoaded(reloadSession) {
     const session = this.session;
-    console.log('configurationLoaded', reloadSession, session.$localStorage, getLength(session.$localStorage.rowData), session.rowData);
-    console.log(session);
+    // console.log('configurationLoaded', reloadSession, session.$localStorage, getLength(session.$localStorage.rowData), session.rowData);
+    // console.log(session);
     session.updateLocation();
 
     this.examplesPattern = null;
@@ -74,13 +74,13 @@ export default class EditorController {
     this.defaultPatternURL = null;
 
     if (session.parsedConfig.patternless) {
-      console.log('patternless===true');
+      // console.log('patternless===true');
     }
     else {
       if (session.parsedConfig.defaultPatterns) {
         this.examplesPattern = session.parsedConfig.defaultPatterns;
         this.defaultPatternURL = this.examplesPattern[0].url;
-        console.log('...setting default', this.defaultPatternURL);
+        // console.log('...setting default', this.defaultPatternURL);
       }
     }
 
@@ -370,7 +370,7 @@ export default class EditorController {
   }
 
   addRow() {
-    console.log('addRow', this.session.rowData);
+    // console.log('addRow', this.session.rowData);
     var that = this;
 
     this.setErrorXSV(null);
@@ -383,7 +383,7 @@ export default class EditorController {
     }
     var newRow = {};
     this.session.columnDefs.forEach(col => {
-      console.log('adding column', col, col.field);
+      // console.log('adding column', col, col.field);
       if (col.field.length > 0) {
         newRow[col.field] = '';
       }
@@ -393,7 +393,7 @@ export default class EditorController {
     var iriGenerationType = (iriGeneration && iriGeneration.type) ?
                                 iriGeneration.type :
                                 'uuid';
-    console.log('iriGeneration', iriGeneration, iriGenerationType, newRow);
+    // console.log('iriGeneration', iriGeneration, iriGenerationType, newRow);
     if (iriGenerationType === 'uuid') {
       var iriGenerationPrefix = (iriGeneration && iriGeneration.prefix) ?
                                   iriGeneration.prefix :
@@ -409,7 +409,7 @@ export default class EditorController {
     }
 
     this.session.rowData.unshift(newRow);
-    console.log('row added', newRow, this.session.rowData);
+    // console.log('row added', newRow, this.session.rowData);
 
     // this.gridApi.core.handleWindowResize();
 
@@ -466,13 +466,13 @@ export default class EditorController {
 
   // Config stuff
 
-  patternLoaded(patternless, searchParams, patternURL, savedPatternURL, savedRowData) {
-    console.log('patternLoaded', patternless, getLength(savedRowData), searchParams.yaml, searchParams.xsv, patternURL, this.session.defaultXSVURL);
-    console.log('savedPatternURL', getLength(savedRowData), savedPatternURL, patternURL, searchParams.xsv);
+  patternLoaded(patternless, searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData) {
+    // console.log('patternLoaded', patternless, getLength(savedRowData), searchParams.yaml, searchParams.xsv, patternURL, this.session.defaultXSVURL);
+    // console.log('savedPatternURL', getLength(savedRowData), savedPatternURL, patternURL, searchParams.xsv);
 
     var that = this;
     that.$timeout(function() {
-      console.log('that.session.columnDefs', that.session.columnDefs);
+      // console.log('that.session.columnDefs', that.session.columnDefs);
       that.gridOptions.columnDefs = angular.copy(that.session.columnDefs);
       that.gridOptions.data = that.session.rowData;
     });
@@ -495,16 +495,18 @@ export default class EditorController {
     else if (
       (savedPatternURL === patternURL) &&
       savedRowData && (savedRowData.length > 0)) {
-      console.log('....savedRowData', savedRowData[0], this.session.rowData);
+      // console.log('....savedRowData', savedRowData[0], this.session.rowData);
 
       // this.clearTable();
+      this.session.titleXSV = savedTitleXSV;
       this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
     }
     else if (this.session.parsedConfig.patternless &&
       savedRowData && (savedRowData.length > 0)) {
-      console.log('....patternless savedRowData', savedRowData[0], this.session.rowData);
+      // console.log('....patternless savedRowData', savedRowData[0], this.session.rowData);
 
       this.loadNewXSV('FOUR');
+      this.session.titleXSV = savedTitleXSV;
       this.session.rowData.splice(0, this.session.rowData.length, ...savedRowData);
     }
     else {
@@ -514,11 +516,12 @@ export default class EditorController {
 
   applyParsedConfig(reloadSession) {
     var that = this;
+    const savedTitleXSV = that.session.$localStorage.titleXSV;
     const savedRowData = that.session.$localStorage.rowData;
     const savedConfigURL = that.session.$localStorage.configURL;
     const savedPatternURL = that.session.$localStorage.patternURL;
-    console.log('applyParsedConfig savedRowData', reloadSession, getLength(savedRowData),
-      that.session.patternURL, savedPatternURL);
+    // console.log('applyParsedConfig savedRowData', reloadSession, getLength(savedRowData),
+    //   that.session.patternURL, savedPatternURL);
 
     var searchParams = that.$location.search();
 
@@ -528,6 +531,7 @@ export default class EditorController {
         searchParams,
         that.session.patternURL,
         savedPatternURL,
+        savedTitleXSV,
         savedRowData);
 
       // that.$timeout(function() {
@@ -549,9 +553,9 @@ export default class EditorController {
     }
     else {
       var patternURL;
-      
+
       if (that.session.parsedConfig.patternless) {
-        console.log('applyParsedConfig patternless');
+        // console.log('applyParsedConfig patternless');
       }
       else if (searchParams.yaml) {
         patternURL = searchParams.yaml;
@@ -569,19 +573,19 @@ export default class EditorController {
 
 
       if (patternURL) {
-        console.log('...patternURL', patternURL, getLength(savedRowData));
+        // console.log('...patternURL', patternURL, getLength(savedRowData));
         that.loadURLPattern(patternURL, function() {
-          console.log('......patternURL', patternURL, getLength(savedRowData));
+          // console.log('......patternURL', patternURL, getLength(savedRowData));
           that.patternLoaded(
             that.session.parsedConfig.patternless,
-            searchParams, patternURL, savedPatternURL, savedRowData);
+            searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData);
         });
       }
       else {
-        console.log('...!patternURL');
+        // console.log('...!patternURL');
         that.patternLoaded(
           that.session.parsedConfig.patternless,
-          searchParams, patternURL, savedPatternURL, savedRowData);
+          searchParams, patternURL, savedPatternURL, savedTitleXSV, savedRowData);
       }
     }
   }
@@ -622,7 +626,7 @@ export default class EditorController {
   }
 
   loadSourcePattern(source, title, url, continuation) {
-    console.log('loadSourcePattern', url, title, source.slice(0, 20));
+    // console.log('loadSourcePattern', url, title, source.slice(0, 20));
     var that = this;
     // this.session.sourcePattern = source;
     // this.session.titlePattern = title;
@@ -645,7 +649,7 @@ export default class EditorController {
       title,
       url,
       function() {
-        console.log('parsePattern', that.session.parsedPattern, getLength(that.session.$localStorage.rowData));
+        // console.log('parsePattern', that.session.parsedPattern, getLength(that.session.$localStorage.rowData));
         var fields = [];
         _.each(that.session.parsedPattern.vars, function(v, k) {
           fields.push(that.stripQuotes(k));
@@ -721,6 +725,7 @@ export default class EditorController {
   setErrorXSV(error) {
     this.session.errorMessageXSV = error;
     if (error) {
+      console.log('setErrorXSV', error);
       this.session.titleXSV = '';
       this.session.sourceXSV = '';
       this.session.parsedXSV = null;
@@ -928,7 +933,7 @@ export default class EditorController {
   }
 
   loadNewXSV(lbl) {
-    console.log('loadNewXSV', lbl, this.session.parsedConfig.defaultFields, this.session.columnDefs);
+    // console.log('loadNewXSV', lbl, this.session.parsedConfig.defaultFields, this.session.columnDefs);
     var that = this;
     this.session.sourceXSV = 'New XSV';
     this.session.titleXSV = 'New XSV';
@@ -936,7 +941,7 @@ export default class EditorController {
     this.session.errorMessageXSV = null;
     if (this.session.parsedConfig.patternless) {
       var xsvColumns = this.session.generateColumnDefsFromFields(this.session.parsedConfig.defaultFields);
-      console.log('xsvColumns', xsvColumns, this.gridOptions);
+      // console.log('xsvColumns', xsvColumns, this.gridOptions);
       this.session.columnDefs = xsvColumns;
       this.session.rowData.length = 0;
       this.$timeout(function() {
@@ -961,7 +966,7 @@ export default class EditorController {
   }
 
   loadSourceXSV(source, title, url) {
-    console.log('loadSourceXSV', source, title, url);
+    // console.log('loadSourceXSV', source, title, url);
     this.session.sourceXSV = source;
     this.session.titleXSV = title;
     this.session.XSVURL = url;
@@ -1113,7 +1118,7 @@ export default class EditorController {
       });
 
       gridApi.edit.on.afterCellEdit(that.$scope, function(rowEntity, colDef, newValue, oldValue) {
-        console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
+        // console.log('afterCellEdit: ', rowEntity, colDef, newValue, oldValue);
         // rowEntity[colDef.name] = newValue;
         that.lastCellEdited = '[' + rowEntity.defined_class + '][' + colDef.name + ']: ' + oldValue + '-->' + newValue;
         that.setSorting(true);

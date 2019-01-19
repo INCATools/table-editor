@@ -2,6 +2,7 @@
 # Based upon:
 #	https://blog.bloomca.me/2017/12/15/how-to-push-folder-to-github-pages.html
 #
+#
 
 REMOTE=`git remote get-url --push origin`
 echo "REMOTE: ${REMOTE}"

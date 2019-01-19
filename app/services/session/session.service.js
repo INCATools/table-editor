@@ -10,7 +10,7 @@ import FileSaver from 'file-saver';
 export default class SessionService {
 
   constructor($http, $timeout, $location, $sce, $rootScope, $localStorage) {
-    console.log('SessionService', $localStorage, $location.search());
+    // console.log('SessionService', $localStorage, $location.search());
     var that = this;
     this.name = 'DefaultSessionName';
     this.$http = $http;
@@ -24,7 +24,7 @@ export default class SessionService {
 
     this.loadSiteConfig(function() {
       var searchParams = that.$location.search();
-      console.log('this.loadSiteConfig ... searchParams', searchParams);
+      // console.log('this.loadSiteConfig ... searchParams', searchParams);
       if (searchParams && searchParams.config) {
         that.loadURLConfig(searchParams.config);
       }
@@ -51,7 +51,7 @@ export default class SessionService {
     this.configNames = [];
     this.configByName = {};
 
-    console.log('siteConfigURL', siteConfigURL, this.baseURL);
+    // console.log('siteConfigURL', siteConfigURL, this.baseURL);
     this.$http.get(
       siteConfigURL,
       {
@@ -123,12 +123,12 @@ export default class SessionService {
       searchParams = {};
     }
 
-    console.log('updateLocation', this.configURL, this.patternURL, this.XSVURL, searchParams);
+    // console.log('updateLocation', this.configURL, this.patternURL, this.XSVURL, searchParams);
     this.$location.search(searchParams);
   }
 
   loadSourceConfig(source, title, configURL, continuation) {
-    console.log('loadSourceConfig', title, this.$localStorage.configURL, configURL);
+    // console.log('loadSourceConfig', title, this.$localStorage.configURL, configURL);
 
     this.parsedPattern = null;
     this.autocompleteRegistry = null;
@@ -171,6 +171,7 @@ export default class SessionService {
     if (this.$localStorage.configURL !== this.configURL) {
       console.log('#########loadSourceConfig WIPELOCAL', this.$localStorage.configURL, this.configURL);
       this.$localStorage.configURL = this.configURL;
+      this.$localStorage.titleXSV = '';
       this.$localStorage.rowData = [];
       this.$localStorage.patternURL = '';
     }
@@ -200,13 +201,13 @@ export default class SessionService {
     this.$http.get(configURL, {withCredentials: false}).then(
       function(result) {
         var configSource = result.data;
-        console.log('loadSourceConfig', 'ONE');
+        // console.log('loadSourceConfig', 'ONE');
         that.loadSourceConfig(configSource, configURL, configURL, function() {
-          console.log('that.loadSourceConfig completed', 'ONE');
+          // console.log('that.loadSourceConfig completed', 'ONE');
           that.parseConfig(function() {
             if (that.parsedConfig.defaultPatterns || that.parsedConfig.defaultXSVs) {
-              console.log('defaults available. Skipping menu.yaml load. that', that);
-              console.log('that.$rootScope.$broadcast parsedConfig1');
+              // console.log('defaults available. Skipping menu.yaml load. that', that);
+              // console.log('that.$rootScope.$broadcast parsedConfig1');
               that.$rootScope.$broadcast('parsedConfig');
             }
             else {
@@ -216,10 +217,10 @@ export default class SessionService {
                   var menuSource = menuResult.data;
                   configSource += '\n';
                   configSource += menuSource;
-                  console.log('loadSourceConfig', 'TWO');
+                  // console.log('loadSourceConfig', 'TWO');
                   that.loadSourceConfig(configSource, configURL, configURL, function() {
                     that.parseConfig(function() {
-                      console.log('that.$rootScope.$broadcast parsedConfig1');
+                      // console.log('that.$rootScope.$broadcast parsedConfig1');
                       that.$rootScope.$broadcast('parsedConfig');
                     });
                   });
@@ -228,7 +229,7 @@ export default class SessionService {
                   var errmsg = 'Warning: No menu.yaml available at: ' + menuURL + '\n\n' + JSON.stringify(error);
                   console.log(errmsg);
                   that.setErrorConfig(errmsg);
-                  console.log('loadSourceConfig', 'THREE');
+                  // console.log('loadSourceConfig', 'THREE');
                   that.loadSourceConfig(configSource, configURL, configURL);
                 }
               );
@@ -582,6 +583,7 @@ export default class SessionService {
 
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
 
+    // console.log('export', this.titleXSV, this);
     var importedFilename = this.titleXSV;
     var importedFilenameLast = importedFilename.lastIndexOf('/');
     if (importedFilenameLast >= 0) {
@@ -829,9 +831,10 @@ export default class SessionService {
 
   dataChanged() {
     if (this.rowData) {
+      this.$localStorage.titleXSV = this.titleXSV;
       this.$localStorage.rowData = this.rowData;
       // this.$localStorage.patternURL = this.patternURL;
-      console.log('dataChanged', this.$localStorage.configURL, this.$localStorage.patternURL, this.patternURL);
+      // console.log('dataChanged', this.$localStorage.titleXSV, this.$localStorage.configURL, this.$localStorage.patternURL, this.patternURL);
       this.XSVURL = null;
       this.updateLocation(true);
       // console.log('...dataChanged stored', this.$localStorage.patternURL, this.$localStorage.rowData);

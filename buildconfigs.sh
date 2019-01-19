@@ -1,4 +1,4 @@
-rm -rf docs/
+rm -rf dist/
 rm -rf output/
 
 # alias tetool=../tetool/index.js
@@ -8,8 +8,8 @@ alias tetool=../tetool/index.js # ./node_modules/.bin/tetool
 
 ../tetool/index.js --site . --output output --prebuilt beer:example-configurations/beer/
 
-../tetool/index.js --site . --output output --source ../plant-trait-ontology/@fix-patterns
-../tetool/index.js --site . --output output --source ../plant-experimental-conditions-ontology/@fix-patterns
+../tetool/index.js --site . --output output --source ../plant-trait-ontology
+../tetool/index.js --site . --output output --source ../plant-experimental-conditions-ontology
 ../tetool/index.js --site . --output output --source ../ontology-of-plant-stress/
 
 ../tetool/index.js --site . --output output --source ../environmental-exposure-ontology/

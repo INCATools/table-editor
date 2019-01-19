@@ -6,7 +6,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var path = require('path');
 
 var nodeEnvironment = process.env.BUILD || 'production';
-var dist = path.join(__dirname, 'docs');
+var dist = path.join(__dirname, 'dist');
 var app = path.join(__dirname, 'app');
 var bs = path.join(__dirname, 'node_modules/bootstrap');
 var bss = path.join(__dirname, 'node_modules/bootstrap-sass');
@@ -71,13 +71,25 @@ var config = {
 
       {
         test: /\.scss$/,
-        // loader: 'style!css!sass?includePaths[]=' + bootstrap
-        loaders: [
+        use: [
           'style-loader',
-          'css-loader?importLoaders=1',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 2, // 0 => no loaders (default); 1 => postcss-loader; 2 => postcss-loader, sass-loader
+            },
+          },
           'postcss-loader',
-          'sass-loader'
-        ]
+          'sass-loader',
+        ],
+
+        // // loader: 'style!css!sass?includePaths[]=' + bootstrap
+        // loaders: [
+        //   'style-loader',
+        //   'css-loader?importLoaders=2',
+        //   'postcss-loader',
+        //   'sass-loader'
+        // ]
       },
 
       {
