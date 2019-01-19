@@ -1,0 +1,79 @@
+inline:
+  'Evidence ID':
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
+  'Evidence Name':
+    - id: 'IEA'
+      label: 'IEA'
+    - id: 'TAS'
+      label: 'TAS'
+    - id: 'PCS'
+      label: 'PCS'
+    - id: 'ICE'
+      label: 'ICE'
+
+patternless: true
+
+IRIGeneration:
+  prefix: HP
+  type: uuid
+
+globalAutocomplete:   # Mostly for HPO testing without a separate YAML
+  'Disease ID':
+    label: 'Disease Name'
+    root_class: 'DOID:4'
+    lookup_type: 'golr'
+  'Age of Onset ID':
+    label: 'Age of Onset Name'
+    root_class: 'HP:0003674'
+    lookup_type: 'golr'
+  'Phenotype ID':
+    label: 'Phenotype Name'
+    # root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    root_class: 'HP:0000118'  # 'UPHENO:0001001'
+    curiePrefix: 'HP'
+    lookup_type: 'ols'
+  'Evidence ID':
+    label: 'Evidence Name'
+    lookup_type: 'inline'
+
+defaultFields:
+  - 'Disease ID'
+  - 'Disease Name'
+  - 'Gene ID'
+  - 'Gene Name'
+  - 'Genotype'
+  - 'Gene Symbol(s)'
+  - 'Phenotype ID'
+  - 'Phenotype Name'
+  - 'Age of Onset ID'
+  - 'Age of Onset Name'
+  - 'Evidence ID'
+  - 'Evidence Name'
+  - 'Frequency'
+  - 'Sex ID'
+  - 'Sex Name'
+  - 'Negation ID'
+  - 'Negation Name'
+  - 'Description'
+  - 'Pub'
+  - 'Assigned by'
+  - 'Date Created'
+
+defaultXSVs:
+  - url: 'configurations/hpo/DEBUG.tab'
+    title: 'DEBUG'
+    type: 'tsv'
+  - url: 'configurations/hpo/OMIM-101400.tab'
+    title: 'SAETHRE-CHOTZEN SYNDROME'
+    type: 'tsv'
+  - url: 'configurations/hpo/OMIM-102400.tab'
+    title: 'ACROOSTEOLYSIS'
+    type: 'tsv'
+

@@ -1,0 +1,38 @@
+defaultPatterns:
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/composition.yaml
+    title: composition.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/curie_map.yaml
+    title: curie_map.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/eq.yaml
+    title: eq.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/morphology.yaml
+    title: morphology.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/phenotype.yaml
+    title: phenotype.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/qualifier.yaml
+    title: qualifier.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/ratio.yaml
+    title: ratio.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/responsivity.yaml
+    title: responsivity.yaml
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/responsivityNoEO.yaml
+    title: responsivityNoEO.yaml
+
+defaultXSVs:
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/composition/composition.tsv
+    title: composition.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/eq/eq.tsv
+    title: eq.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/morphology/morphology.tsv
+    title: morphology.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/phenotype/phenotype.tsv
+    title: phenotype.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/qualifier/qualifier.tsv
+    title: qualifier.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/ratio/ratio.tsv
+    title: ratio.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/responsivity/responsivity.tsv
+    title: responsivity.tsv
+  - url: https://raw.githubusercontent.com/DoctorBud/plant-trait-ontology/master/patterns/responsivityNoEO/responsivityNoEO.tsv
+    title: responsivityNoEO.tsv
+

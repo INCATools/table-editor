@@ -1,0 +1,51 @@
+prefixes:	    # User specifies this once per team/project
+  CHEBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  PATO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ExO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ENVO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  HPO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  HP:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  DOID:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  ECO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: solr
+  NCBI:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  UBERON:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: ols
+  ECTO:
+    iriPrefix: http://purl.obolibrary.org/obo/
+    autocomplete: inline
+
+IRIGeneration:
+  prefix: ECTO
+  type: uuid
+
+defaultPatterns:
+  - url: 'configurations/go/activator_activity.yaml'
+    title: 'Activator Activity'
+    type: 'yaml'
+  - url: 'configurations/go/membrane_region.yaml'
+    title: 'Membrane Region'
+    type: 'yaml'
+
+defaultXSVs:
+  - url: 'configurations/go/activator_activity.tsv'
+    title: 'Activator Activity'
+    type: 'tsv'

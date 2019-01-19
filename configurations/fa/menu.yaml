@@ -1,0 +1,6 @@
+# defaultPatterns:
+#   - url: /src/ontology/patterns/fa-annotation.yaml
+#     title: fa-annotation.yaml
+
+defaultXSVs:
+

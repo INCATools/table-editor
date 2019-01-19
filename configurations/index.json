@@ -1,0 +1,16 @@
+{
+  "configNames": [
+    "beer",
+    "plant-trait-ontology",
+    "plant-experimental-conditions-ontology",
+    "ontology-of-plant-stress",
+    "environmental-exposure-ontology",
+    "bio-attribute-ontology",
+    "fa",
+    "go",
+    "hpo"
+  ],
+  "logoImage": "INCA.png",
+  "baseURL": "/table-editor/",
+  "title": "INCAForm Universal"
+}

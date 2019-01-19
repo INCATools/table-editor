@@ -1,0 +1,20 @@
+pattern_name: beer/patterns/beer_yeast_anatomy
+classes:
+  beer: BEER:0000001
+  yeast: NCBITaxon:4932
+  anatomy: UBERON:0001062
+
+relations:
+  part of: BFO:0000050
+
+vars:
+  beer: "'beer'"
+  yeast: "'yeast'"
+  anatomy: "'anatomy'"
+
+name:
+  text: "%s beer with %s yeast from %s"
+  vars:
+    - beer
+    - yeast
+    - anatomy
