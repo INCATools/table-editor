@@ -1,5 +1,7 @@
 # INCA table-editor: Ontology development for mere mortals
 
+NOTE: This project is no longer supported. Consider using http://genepio.org/DataHarmonizer/main.html instead
+
 ## Purpose
 
 The INCA table editor enables biomedical curators to create new ontology term requests compositionally from a configurable set of existing ontologies and terminologies and within a familiar spreadsheet-like interface. Because directly editing ontology owl files requires considerable training (not to mention patience and QC), spreadsheet-based methods for term requests are not new; however, what INCA Table Editor provides a combination of three key innovations: configurable autocomplete, design-pattern driven logic, and (planned) GitHub integration. This democratizes and accelerates the term request process while also avoiding errors of logic right at the source. Each new term request is complete and logically valid, and is issued a generic IRI until such a time as it can be given an actual namespace and ID in an appropriate ontology.
